@@ -45,26 +45,26 @@ static uint64_t touch_and_checksum(void *memory, pxir_integer_type type, size_t 
 
     switch (type) {
         case PXIR_U8: {
-            uint8_t *values = memory;
-            for (size_t i = 0; i < count; ++i) values[i] = (uint8_t)i;
+            volatile uint8_t *values = memory;
+            for (size_t i = 0; i < count; ++i) values[i] = (uint8_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
             break;
         }
         case PXIR_U16: {
-            uint16_t *values = memory;
-            for (size_t i = 0; i < count; ++i) values[i] = (uint16_t)i;
+            volatile uint16_t *values = memory;
+            for (size_t i = 0; i < count; ++i) values[i] = (uint16_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
             break;
         }
         case PXIR_U32: {
-            uint32_t *values = memory;
-            for (size_t i = 0; i < count; ++i) values[i] = (uint32_t)i;
+            volatile uint32_t *values = memory;
+            for (size_t i = 0; i < count; ++i) values[i] = (uint32_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
             break;
         }
         case PXIR_U64: {
-            uint64_t *values = memory;
-            for (size_t i = 0; i < count; ++i) values[i] = (uint64_t)i;
+            volatile uint64_t *values = memory;
+            for (size_t i = 0; i < count; ++i) values[i] = (uint64_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
             break;
         }
@@ -74,9 +74,15 @@ static uint64_t touch_and_checksum(void *memory, pxir_integer_type type, size_t 
 }
 
 static int parse_count(const char *text, size_t *out) {
+    if (text == NULL || *text == '\0') return 0;
+
+    for (const char *cursor = text; *cursor != '\0'; ++cursor) {
+        if (*cursor < '0' || *cursor > '9') return 0;
+    }
+
     char *end = NULL;
     errno = 0;
-    unsigned long long parsed = strtoull(text, &end, 10);
+    const unsigned long long parsed = strtoull(text, &end, 10);
 
     if (errno != 0 || end == text || *end != '\0' || parsed == 0) return 0;
     if (parsed > (unsigned long long)SIZE_MAX) return 0;
@@ -100,7 +106,7 @@ int main(int argc, char **argv) {
     }
 
     if (!parse_count(argv[2], &count)) {
-        fprintf(stderr, "error: count must be a positive integer representable by size_t\n");
+        fprintf(stderr, "error: count must contain only digits and be greater than zero\n");
         return 2;
     }
 
@@ -124,6 +130,7 @@ int main(int argc, char **argv) {
     printf("count=%zu\n", count);
     printf("bytes_per_element=%zu\n", bytes_per_element);
     printf("requested_bytes=%zu\n", requested_bytes);
+    printf("value_pattern=i_mod_251\n");
     printf("checksum=%" PRIu64 "\n", checksum);
 
     free(memory);

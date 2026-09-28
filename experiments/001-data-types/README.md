@@ -2,7 +2,7 @@
 
 ## Question
 
-How much representational memory is required to store the same number of values using 8-bit, 16-bit, 32-bit, and 64-bit unsigned integers?
+How much representational memory is required to store the same sequence of values using 8-bit, 16-bit, 32-bit, and 64-bit unsigned integers?
 
 ## Why this experiment exists
 
@@ -21,7 +21,9 @@ For 1,000,000 elements, ignoring allocator and process overhead:
 | uint32_t | 4 | 4,000,000 |
 | uint64_t | 8 | 8,000,000 |
 
-The experiment must not confuse those requested bytes with total process RSS.
+All four variants write the same logical value sequence, `i % 251`, so every value fits in every tested integer width.
+
+The experiment must not confuse requested representation bytes with total process RSS.
 
 ## Build
 
@@ -34,6 +36,8 @@ cmake --build build --config Release
 
 ## Run
 
+On Unix-like systems:
+
 ```bash
 ./build/experiments/001-data-types/pxir_exp_001 u8 1000000
 ./build/experiments/001-data-types/pxir_exp_001 u16 1000000
@@ -41,7 +45,7 @@ cmake --build build --config Release
 ./build/experiments/001-data-types/pxir_exp_001 u64 1000000
 ```
 
-The executable allocates the requested typed array, writes every element so the pages are actually touched, reads the values back into a checksum, and prints the requested representation size.
+The executable allocates the requested typed array, writes every element through volatile accesses so the pages are actually touched, reads the values back into a checksum, and prints the requested representation size.
 
 ## Measure process memory
 
@@ -61,7 +65,7 @@ Record the environment before comparing RSS results. Process overhead means RSS 
 
 ## Correctness
 
-The program exits non-zero for invalid types, invalid counts, integer-overflow risk, or allocation failure. CTest smoke tests exercise each supported width.
+The program rejects zero, negative, non-numeric counts, unknown types, integer-overflow risk, and allocation failure. CTest verifies all supported widths and negative CLI cases.
 
 ## Expected conclusion
 
