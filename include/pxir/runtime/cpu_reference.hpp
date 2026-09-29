@@ -39,7 +39,7 @@ struct ExecutionResult {
 // `inputs[k]` is bound to the k-th input operation. All inputs are validated
 // against the IR types before any computation. Inputs are borrowed: they are
 // read in place and never moved or modified. Every add allocates a fresh
-// result buffer. An output transfers an executor-owned buffer without copying
+// result buffer (an OwnedArray, written exactly once). An output transfers an executor-owned buffer without copying
 // it when that output is the value's last use; otherwise (an output of an
 // input, or of a value read again later) it copies the value.
 //

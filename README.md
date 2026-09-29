@@ -117,6 +117,19 @@ M3 tested single-write result construction using standard C++20 `reserve` + `emp
 
 Details, raw data and the reproduction reference are in [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md).
 
+## M4: vectorizable single-write owned storage (experimental branch)
+
+M4 replaces the zero-filled `std::vector` result with `OwnedArray<T>`, storage created by `std::make_unique_for_overwrite<T[]>` whose elements are not value-initialized. It keeps M2's plain indexed loop, and every element is written exactly once before it can be read. GCC 13.3 and Clang 18.1 vectorize the loop in isolation and in the integrated executor.
+
+Measured in an interleaved A/B against M2 on one machine, N = 1,048,576:
+- M2 ≈ 0.62 ms and M4 ≈ 0.47 ms, with GCC; M4/M2 ≈ 0.74 with Clang;
+- M4 is about equal to the native preallocated loop;
+- the model falls from 16 to 12 B/element.
+
+With Clang, small N shows a regression of about 9 ns at N = 1.
+
+M4 changes the public `Buffer` API: `as_f32`/`as_i32` are replaced by `f32_view`/`i32_view` (`std::optional<std::span<const T>>`). Details, evidence and the merge conditions are in [`docs/m4-vectorizable-owned-storage.md`](docs/m4-vectorizable-owned-storage.md).
+
 ## Build
 
 Requirements:
@@ -154,6 +167,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md): M1 measurement of where the reference executor spends time.
 - [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md): M2 output move on last use, A/B against M1.
 - [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md): M3 single-write result construction, a rejected experiment (negative result).
+- [`docs/m4-vectorizable-owned-storage.md`](docs/m4-vectorizable-owned-storage.md): M4 single-write owned storage that keeps auto-vectorization.
 
 ## License
 

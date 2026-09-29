@@ -45,7 +45,7 @@ if (!verified.ok()) { /* inspect verified.diagnostics */ }
 std::vector<pxir::Buffer> inputs{pxir::Buffer(std::vector<float>(1024, 1.0f)),
                                  pxir::Buffer(std::vector<float>(1024, 2.0f))};
 pxir::ExecutionResult result = pxir::execute_cpu_reference(*verified.program, inputs);
-// result.outputs[0].as_f32() -> 1024 x 3.0f
+// result.outputs[0].f32_view() -> 1024 x 3.0f  (M0-M3 API: as_f32())
 ```
 
 The debug dump for this program:

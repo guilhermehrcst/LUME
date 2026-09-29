@@ -1,0 +1,25 @@
+# strace -f -e trace=brk,mmap,munmap,madvise ./probe 10  (GLIBC_TUNABLES=glibc.malloc.mmap_threshold=131072)
+# probe: docs/data/m2/strace_probe.cpp, 10 executor calls at N=1048576 (GCC 13.3 -O2, glibc 2.39).
+# A = canonical M2 main 9514215. Excerpt: the loop only.
+--- begin loop
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1e4f3ff000
+munmap(0x7f1e4f3ff000, 4198400)         = 0
+--- end loop

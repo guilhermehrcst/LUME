@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <span>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -45,19 +46,27 @@ std::int32_t wrapping_add(std::int32_t a, std::int32_t b) noexcept {
 
 // The reference kernel. nullopt when the buffers disagree in scalar type or
 // length, which a verified program with validated inputs never produces.
+//
+// Each result is an OwnedArray created without value-initialization; the loop
+// then writes every element exactly once, and only the completed array is
+// wrapped in a Buffer. No element is read before it is written.
 std::optional<Buffer> add_buffers(const Buffer& lhs, const Buffer& rhs) {
-    if (const auto* a = lhs.as_f32()) {
-        const auto* b = rhs.as_f32();
-        if (b == nullptr || a->size() != b->size()) return std::nullopt;
-        std::vector<float> c(a->size());
-        for (std::size_t i = 0; i < c.size(); ++i) c[i] = (*a)[i] + (*b)[i];
+    if (const auto a = lhs.f32_view()) {
+        const auto b = rhs.f32_view();
+        if (!b || a->size() != b->size()) return std::nullopt;
+        const std::span<const float> x = *a;
+        const std::span<const float> y = *b;
+        auto c = OwnedArray<float>::for_overwrite(x.size());
+        for (std::size_t i = 0; i < x.size(); ++i) c[i] = x[i] + y[i];
         return Buffer(std::move(c));
     }
-    if (const auto* a = lhs.as_i32()) {
-        const auto* b = rhs.as_i32();
-        if (b == nullptr || a->size() != b->size()) return std::nullopt;
-        std::vector<std::int32_t> c(a->size());
-        for (std::size_t i = 0; i < c.size(); ++i) c[i] = wrapping_add((*a)[i], (*b)[i]);
+    if (const auto a = lhs.i32_view()) {
+        const auto b = rhs.i32_view();
+        if (!b || a->size() != b->size()) return std::nullopt;
+        const std::span<const std::int32_t> x = *a;
+        const std::span<const std::int32_t> y = *b;
+        auto c = OwnedArray<std::int32_t>::for_overwrite(x.size());
+        for (std::size_t i = 0; i < x.size(); ++i) c[i] = wrapping_add(x[i], y[i]);
         return Buffer(std::move(c));
     }
     return std::nullopt;

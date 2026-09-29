@@ -1,0 +1,150 @@
+# M4 vectorization evidence. Flags: -std=c++20 -O3 -DNDEBUG (CMake Release), no -march (baseline x86-64 SSE2).
+# GCC 13.3.0 and Clang 18.1.3 (libstdc++ 13).
+
+############ PHASE A: isolated kernels (docs/data/m4/phase_a_kernel_probe.cpp; f32 loop line 21, i32 loop line 27)
+## GCC -fopt-info-vec-all
+docs/data/m4/phase_a_kernel_probe.cpp:21:31: optimized: loop vectorized using 16 byte vectors
+docs/data/m4/phase_a_kernel_probe.cpp:21:31: optimized: loop vectorized using 8 byte vectors
+docs/data/m4/phase_a_kernel_probe.cpp:27:31: optimized: loop vectorized using 16 byte vectors
+docs/data/m4/phase_a_kernel_probe.cpp:27:31: optimized: loop vectorized using 8 byte vectors
+## GCC object: add instructions and calls
+      2 addps
+      1 addss
+      4 call
+      2 paddd
+## Clang -Rpass/-Rpass-missed=loop-vectorize
+docs/data/m4/phase_a_kernel_probe.cpp:21:5: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+docs/data/m4/phase_a_kernel_probe.cpp:27:5: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+## Clang object: add instructions and calls
+      2 addps
+      1 addss
+      2 call
+      2 paddd
+## GCC m4_add_f32 disassembly (full function)
+0000000000000000 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)>:
+   0:	endbr64
+   4:	movabs $0x1ffffffffffffffe,%rax
+   e:	push   %r13
+  10:	push   %r12
+  12:	push   %rbp
+  13:	push   %rbx
+  14:	sub    $0x8,%rsp
+  18:	cmp    %rdx,%rax
+  1b:	jb     21 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x21>
+  21:	mov    %rdi,%rbp
+  24:	mov    %rdx,%rbx
+  27:	mov    %rsi,%r13
+  2a:	mov    %rcx,%r12
+  2d:	lea    0x0(,%rdx,4),%rdi
+  35:	call   3a <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x3a>
+  3a:	mov    %rbx,0x8(%rbp)
+  3e:	mov    %rax,0x0(%rbp)
+  42:	test   %rbx,%rbx
+  45:	je     c2 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xc2>
+  47:	lea    -0x1(%rbx),%rdx
+  4b:	cmp    $0x2,%rdx
+  4f:	jbe    d0 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xd0>
+  51:	mov    %rbx,%rcx
+  54:	xor    %edx,%edx
+  56:	shr    $0x2,%rcx
+  5a:	shl    $0x4,%rcx
+  5e:	xchg   %ax,%ax
+  60:	movups 0x0(%r13,%rdx,1),%xmm0
+  66:	movups (%r12,%rdx,1),%xmm2
+  6b:	addps  %xmm2,%xmm0
+  6e:	movups %xmm0,(%rax,%rdx,1)
+  72:	add    $0x10,%rdx
+  76:	cmp    %rcx,%rdx
+  79:	jne    60 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x60>
+  7b:	test   $0x3,%bl
+  7e:	je     c2 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xc2>
+  80:	mov    %rbx,%rdx
+  83:	and    $0xfffffffffffffffc,%rdx
+  87:	sub    %rdx,%rbx
+  8a:	cmp    $0x1,%rbx
+  8e:	je     b0 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xb0>
+  90:	movq   0x0(%r13,%rdx,4),%xmm0
+  97:	movq   (%r12,%rdx,4),%xmm1
+  9d:	addps  %xmm1,%xmm0
+  a0:	movlps %xmm0,(%rax,%rdx,4)
+  a4:	test   $0x1,%bl
+  a7:	je     c2 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xc2>
+  a9:	and    $0xfffffffffffffffe,%rbx
+  ad:	add    %rbx,%rdx
+  b0:	movss  0x0(%r13,%rdx,4),%xmm0
+  b7:	addss  (%r12,%rdx,4),%xmm0
+  bd:	movss  %xmm0,(%rax,%rdx,4)
+  c2:	add    $0x8,%rsp
+  c6:	mov    %rbp,%rax
+  c9:	pop    %rbx
+  ca:	pop    %rbp
+  cb:	pop    %r12
+  cd:	pop    %r13
+  cf:	ret
+  d0:	xor    %edx,%edx
+  d2:	jmp    87 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x87>
+  d4:	data16 cs nopw 0x0(%rax,%rax,1)
+  df:	nop
+
+0000000000000000 <m4_add_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .cold]>:
+   0:	call   5 <m4_add_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .cold]>
+
+
+############ PHASE B: integrated executor (src/runtime/cpu_reference.cpp; f32 loop line 60, i32 loop line 69)
+## GCC -fopt-info-vec-all
+src/runtime/cpu_reference.cpp:60:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:60:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:60:35: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:69:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:69:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:69:35: optimized: loop vectorized using 8 byte vectors
+## GCC object: add instructions
+      2 addps
+      2 addss
+      2 paddd
+## Clang -Rpass/-Rpass-missed/-Rpass-analysis=loop-vectorize
+src/runtime/cpu_reference.cpp:60:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:69:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+## Clang object: add instructions
+      2 addps
+      5 addss
+      2 paddd
+## GCC integrated f32 main vector loop (inlined into execute_cpu_reference)
+    6728:	xor    %eax,%eax
+    672a:	mov    %r10,%rdx
+    672d:	shl    $0x4,%rdx
+    6731:	movups (%rdi,%rax,1),%xmm0
+    6735:	movups (%rsi,%rax,1),%xmm2
+    6739:	addps  %xmm2,%xmm0
+    673c:	movups %xmm0,(%rcx,%rax,1)
+    6740:	add    $0x10,%rax
+    6744:	cmp    %rax,%rdx
+    6747:	jne    6731 <pxir::execute_cpu_reference(pxir::VerifiedProgram const&, std::span<pxir::Buffer const, 18446744073709551615ul>)+0x2321>
+## Clang integrated f32 main vector loop
+    2906:	and    $0xfffffffffffffff8,%rdx
+    290a:	xor    %esi,%esi
+    290c:	nopl   0x0(%rax)
+    2910:	movups (%r14,%rsi,4),%xmm0
+    2915:	movups 0x10(%r14,%rsi,4),%xmm1
+    291b:	movups 0x0(%r13,%rsi,4),%xmm2
+    2921:	addps  %xmm0,%xmm2
+    2924:	movups 0x10(%r13,%rsi,4),%xmm0
+    292a:	addps  %xmm1,%xmm0
+    292d:	movups %xmm2,(%rax,%rsi,4)
+    2931:	movups %xmm0,0x10(%rax,%rsi,4)
+    2936:	add    $0x8,%rsi
+    293a:	cmp    %rsi,%rdx
+    293d:	jne    2910 <pxir::execute_cpu_reference(pxir::VerifiedProgram const&, std::span<pxir::Buffer const, 18446744073709551615ul>)+0xf20>
+    293f:	cmp    %rdx,%rbp
+
+############ Reference: canonical M2 (A, 9514215) add loops (lines 53 f32, 60 i32)
+## GCC
+src/runtime/cpu_reference.cpp:53:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:53:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:53:35: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:60:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:60:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:60:35: optimized: loop vectorized using 8 byte vectors
+## Clang
+src/runtime/cpu_reference.cpp:53:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:60:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]

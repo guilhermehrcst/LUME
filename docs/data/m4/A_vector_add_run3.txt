@@ -1,0 +1,42 @@
+pxir_benchmark=vector_add
+workload=C=A+B
+dtype=f32
+elements=1048576
+seed=42
+input_generator=mt19937_64_24bit_uniform_[-1,1)
+warmup=5
+iterations=51
+statistic=median_of_iterations
+compiler=gcc 13.3.0
+build_config=Release
+ir=%0 = input f32[1048576]
+ir=%1 = input f32[1048576]
+ir=%2 = add %0, %1
+ir=output %2
+ir_operations=4
+ir_values=3
+ir_types=1
+sizeof_ValueId=4
+sizeof_TypeId=4
+sizeof_OperationId=4
+sizeof_Type=8
+sizeof_Value=8
+sizeof_Operation=16
+sizeof_Program=72
+ir_storage_used_bytes=96
+ir_storage_reserved_bytes=104
+construction_ns_median=119
+construction_ns_min=116
+construction_ns_max=242
+verification_ns_median=154
+verification_ns_min=151
+verification_ns_max=198
+native_ns_median=458974
+native_ns_min=429132
+native_ns_max=515143
+pxir_execution_ns_median=617569
+pxir_execution_ns_min=585068
+pxir_execution_ns_max=712080
+native_checksum_fnv1a=0xf09ed3431c02ceea
+pxir_checksum_fnv1a=0xf09ed3431c02ceea
+correctness=exact

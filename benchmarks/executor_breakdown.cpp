@@ -8,7 +8,10 @@
 // Component names from M1 keep their M1 definitions: `output_materialization`
 // and `data_path_replica` are the output COPY path. M2 adds
 // `output_move_materialization` and `data_path_move_replica` for the output
-// MOVE path. Only `pxir_execution_total` follows the executor in this tree.
+// MOVE path. M4 adds `owned_array_allocate_for_overwrite`,
+// `owned_array_indexed_add`, `owned_array_allocate_plus_add` and
+// `data_path_owned_array_replica` for the OwnedArray single-write result
+// path. Only `pxir_execution_total` follows the executor in this tree.
 //
 // usage: pxir_bench_executor_breakdown [sizes=1,256,...] [seed=42] [warmup=5]
 //                                      [iterations=51] [order=forward|reverse]
@@ -35,6 +38,7 @@
 #include <limits>
 #include <optional>
 #include <random>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -47,6 +51,7 @@
 #include "input_validation.hpp"
 #include "pxir/ir/program.hpp"
 #include "pxir/runtime/cpu_reference.hpp"
+#include "pxir/runtime/owned_array.hpp"
 #include "pxir/verify/verifier.hpp"
 #include "pxir_oracle/oracle.hpp"
 
@@ -196,6 +201,12 @@ void executor_style_add(const std::vector<float>& a, const std::vector<float>& b
     for (std::size_t i = 0; i < c.size(); ++i) c[i] = a[i] + b[i];
 }
 
+// The M4 single-write kernel: indexed writes into storage that was not
+// value-initialized. Every element is written before it is read.
+void owned_indexed_add(std::span<const float> a, std::span<const float> b, pxir::OwnedArray<float>& c) {
+    for (std::size_t i = 0; i < a.size(); ++i) c[i] = a[i] + b[i];
+}
+
 bool run_size(const Config& cfg, std::uint32_t n_u32) {
     const std::size_t n = n_u32;
 
@@ -207,8 +218,12 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
     pxir_oracle::native_add(a, b, expected);
 
     const std::vector<pxir::Buffer> inputs{pxir::Buffer(a), pxir::Buffer(b)};
-    const std::vector<float>& in_a = *inputs[0].as_f32();
-    const std::vector<float>& in_b = *inputs[1].as_f32();
+    // Operands for the isolated kernels. Buffer no longer exposes std::vector
+    // (M4), so the historical vector-form controls read the generator vectors
+    // `a` and `b` (same values; a separate allocation from the executor's
+    // input Buffers).
+    const std::vector<float>& in_a = a;
+    const std::vector<float>& in_b = b;
 
     pxir::Program program;
     program.output(program.add(program.input(pxir::f32, n_u32), program.input(pxir::f32, n_u32)));
@@ -225,6 +240,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
     std::vector<std::vector<float>> vecs(std::max(kb, fixed_batch));
     std::vector<std::vector<pxir::Buffer>> outs(kb);
     std::vector<std::optional<pxir::Buffer>> move_sources(kb);
+    std::vector<pxir::OwnedArray<float>> arrays(kb);
     std::vector<pxir::ExecutionResult> results;
     results.reserve(kb);
 
@@ -364,7 +380,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                  [&](std::size_t k) { outs[k].push_back(source); },  // as result.outputs.push_back(*value)
                  [&] {
                      for (std::size_t k = 0; k < kb; ++k) {
-                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].f32_view(), expected)) {
                              return false;
                          }
                      }
@@ -409,7 +425,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                  },
                  [&] {
                      for (std::size_t k = 0; k < kb; ++k) {
-                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].f32_view(), expected)) {
                              return false;
                          }
                      }
@@ -435,7 +451,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                  [&] {
                      for (std::size_t k = 0; k < kb; ++k) {
                          if (move_sources[k].has_value() || outs[k].size() != 1 ||
-                             !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                             !pxir_oracle::exactly_equal(*outs[k][0].f32_view(), expected)) {
                              return false;
                          }
                      }
@@ -465,16 +481,102 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                  },
                  [&] {
                      for (std::size_t k = 0; k < kb; ++k) {
-                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].f32_view(), expected)) {
                              return false;
                          }
                      }
                      return true;
                  });
          }},
-        // Model bytes follow the executor in this tree: since M2 the single
-        // output of C = A + B is moved, so 4 (zero-fill) + 12 (add) = 16.
-        {"pxir_execution_total", kb, 16,
+        {"owned_array_allocate_for_overwrite", kb, 0,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (auto& x : arrays) x = pxir::OwnedArray<float>();
+                 },
+                 // Allocation only: no element is written (or read).
+                 [&](std::size_t k) { arrays[k] = pxir::OwnedArray<float>::for_overwrite(n); },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (arrays[k].size() != n || arrays[k].data() == nullptr) return false;
+                     }
+                     return true;
+                 });
+         }},
+        {"owned_array_indexed_add", kb, 12,
+         [&] {
+             bool allocated = false;
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     // Untimed, once: storage exists; the timed kernel writes every
+                     // element before the check reads any.
+                     if (allocated) return;
+                     for (std::size_t k = 0; k < kb; ++k) arrays[k] = pxir::OwnedArray<float>::for_overwrite(n);
+                     allocated = true;
+                 },
+                 [&](std::size_t k) { owned_indexed_add(in_a, in_b, arrays[k]); },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (!pxir_oracle::exactly_equal(arrays[k].view(), expected)) return false;
+                     }
+                     return true;
+                 });
+         }},
+        {"owned_array_allocate_plus_add", kb, 12,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (auto& x : arrays) x = pxir::OwnedArray<float>();
+                 },
+                 [&](std::size_t k) {
+                     auto c = pxir::OwnedArray<float>::for_overwrite(n);
+                     owned_indexed_add(in_a, in_b, c);
+                     arrays[k] = std::move(c);
+                 },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (!pxir_oracle::exactly_equal(arrays[k].view(), expected)) return false;
+                     }
+                     return true;
+                 });
+         }},
+        {"data_path_owned_array_replica", kb, 12,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (auto& o : outs) std::vector<pxir::Buffer>().swap(o);
+                 },
+                 [&](std::size_t k) {
+                     // The M4 executor's data path without validation or
+                     // interpretation: allocate C for overwrite, write each sum
+                     // once, wrap in an owned slot, move into a fresh outputs
+                     // vector. The output lives past the interval.
+                     auto c = pxir::OwnedArray<float>::for_overwrite(n);
+                     owned_indexed_add(in_a, in_b, c);
+                     std::optional<pxir::Buffer> slot(pxir::Buffer(std::move(c)));
+                     std::vector<pxir::Buffer> outputs;
+                     outputs.push_back(std::move(*slot));
+                     slot.reset();
+                     outs[k] = std::move(outputs);
+                 },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].f32_view(), expected)) {
+                             return false;
+                         }
+                     }
+                     return true;
+                 });
+         }},
+        // Model bytes follow the executor in this tree: since M4 the single
+        // output of C = A + B is written once into storage that is not
+        // value-initialized (12: read A, read B, write C) and moved (0 N-scaled
+        // payload bytes). M2 was 16, M1 was 24.
+        {"pxir_execution_total", kb, 12,
          [&] {
              return measure(
                  cfg, kb, [&] { results.clear(); },
@@ -483,7 +585,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                      if (results.size() != kb) return false;
                      for (const auto& r : results) {
                          if (!r.ok() || r.outputs.size() != 1 ||
-                             !pxir_oracle::exactly_equal(*r.outputs[0].as_f32(), expected)) {
+                             !pxir_oracle::exactly_equal(*r.outputs[0].f32_view(), expected)) {
                              return false;
                          }
                      }
