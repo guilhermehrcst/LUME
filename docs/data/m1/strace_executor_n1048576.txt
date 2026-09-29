@@ -1,0 +1,35 @@
+# strace -f -e trace=brk,mmap,munmap,madvise ./probe 10
+# probe: 10 calls of execute_cpu_reference at N=1048576 (GCC 13.3 -O2, glibc 2.39, default malloc settings);
+# each ExecutionResult is destroyed at the end of its loop iteration. Excerpt: the loop only.
+--- begin loop
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+brk(0x564297bcf000)                     = 0x564297bcf000
+brk(0x564297fcf000)                     = 0x564297fcf000
+brk(0x5642977cf000)                     = 0x5642977cf000
+--- end loop

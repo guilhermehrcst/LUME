@@ -86,6 +86,12 @@ output %2
 
 M0 makes no performance claim. See [`docs/m0-core-ir.md`](docs/m0-core-ir.md) for the design, the verifier invariants, the correctness policy, and the baseline measurements.
 
+## M1: executor cost breakdown
+
+M1 is observational and changes nothing about execution. It measures where the M0 reference executor spends its time on `C = A + B` for N from 1 to 4,194,304, using `pxir_bench_executor_breakdown`.
+
+On the measurement machine (glibc 2.39), most of the large-N cost comes from re-faulting heap pages that the allocator returns to the OS between calls, rather than from the IR abstraction. The measured input validation and executor setup together cost about 0.12 µs per call. Interpretation and dispatch were not measured on their own: they are inferred to be small only because a replica with no interpreter matches the full executor within this experiment's noise. The single-machine methodology, the raw data, and what remains unknown are in [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md).
+
 ## Build
 
 Requirements:
@@ -120,6 +126,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/research.md`](docs/research.md): research question, hypotheses, scope and non-goals.
 - [`docs/benchmark-methodology.md`](docs/benchmark-methodology.md): rules for measurements and performance claims.
 - [`docs/m0-core-ir.md`](docs/m0-core-ir.md): M0 IR design, verifier invariants, correctness policy and baseline.
+- [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md): M1 measurement of where the reference executor spends time.
 
 ## License
 
