@@ -1,0 +1,77 @@
+pxir_benchmark=intermediate_materialization
+workload=D=A+B;E=D+C dtype=f32 seed=42 warmup=5 iterations=51 order=forward
+compiler=gcc 13.3.0
+build_config=Release
+statistic=median_per_op_over_samples page_faults=getrusage_ru_minflt
+n=1 component=timer_overhead batch=1 median_ns=37.0 min_ns=29.0 max_ns=53.0 ns_per_element=37.0000 minflt_per_op=0.00 correctness=exact
+n=1 component=native_fused_preallocated batch=1000 median_ns=2.0 min_ns=1.7 max_ns=10.4 ns_per_element=2.0090 minflt_per_op=0.00 model_bytes=16 model_gbps=7.96 correctness=exact
+n=1 component=native_two_pass_preallocated batch=1000 median_ns=5.8 min_ns=4.9 max_ns=6.8 ns_per_element=5.7980 minflt_per_op=0.00 model_bytes=24 model_gbps=4.14 correctness=exact
+n=1 component=native_fused_dual_output batch=1000 median_ns=3.3 min_ns=3.2 max_ns=26.6 ns_per_element=3.3070 minflt_per_op=0.00 model_bytes=20 model_gbps=6.05 correctness=exact
+n=1 component=owned_fused_allocate_plus_compute batch=1000 median_ns=15.0 min_ns=10.5 max_ns=25.8 ns_per_element=14.9950 minflt_per_op=0.00 model_bytes=16 model_gbps=1.07 correctness=exact
+n=1 component=owned_two_pass_materialized batch=1000 median_ns=31.1 min_ns=21.6 max_ns=94.4 ns_per_element=31.0810 minflt_per_op=0.00 model_bytes=24 model_gbps=0.77 correctness=exact
+n=1 component=input_validation_chain batch=1000 median_ns=169.1 min_ns=158.6 max_ns=234.3 ns_per_element=169.0610 minflt_per_op=0.00 correctness=exact
+n=1 component=pxir_single_add_control batch=1000 median_ns=262.6 min_ns=243.5 max_ns=336.0 ns_per_element=262.5660 minflt_per_op=0.00 model_bytes=12 model_gbps=0.05 correctness=exact
+n=1 component=pxir_chain_final_only batch=1000 median_ns=374.0 min_ns=322.1 max_ns=464.5 ns_per_element=374.0330 minflt_per_op=0.00 model_bytes=24 model_gbps=0.06 correctness=exact
+n=1 component=pxir_chain_intermediate_output batch=1000 median_ns=281.0 min_ns=261.9 max_ns=415.2 ns_per_element=280.9980 minflt_per_op=0.00 model_bytes=32 model_gbps=0.11 correctness=exact
+n=1 component=pxir_chain_output_after_use batch=1000 median_ns=269.5 min_ns=256.9 max_ns=320.7 ns_per_element=269.5040 minflt_per_op=0.00 model_bytes=24 model_gbps=0.09 correctness=exact
+n=1 checksum_d_fnv1a=0xaca8646a589c0bfb checksum_e_fnv1a=0x922d115fd62350c3
+n=256 component=timer_overhead batch=1 median_ns=30.0 min_ns=29.0 max_ns=31.0 ns_per_element=0.1172 minflt_per_op=0.00 correctness=exact
+n=256 component=native_fused_preallocated batch=1000 median_ns=32.4 min_ns=31.1 max_ns=55.0 ns_per_element=0.1267 minflt_per_op=0.00 model_bytes=4096 model_gbps=126.28 correctness=exact
+n=256 component=native_two_pass_preallocated batch=1000 median_ns=67.4 min_ns=64.0 max_ns=91.8 ns_per_element=0.2634 minflt_per_op=0.00 model_bytes=6144 model_gbps=91.11 correctness=exact
+n=256 component=native_fused_dual_output batch=1000 median_ns=130.7 min_ns=120.8 max_ns=173.0 ns_per_element=0.5104 minflt_per_op=0.00 model_bytes=5120 model_gbps=39.18 correctness=exact
+n=256 component=owned_fused_allocate_plus_compute batch=1000 median_ns=249.7 min_ns=220.9 max_ns=334.1 ns_per_element=0.9754 minflt_per_op=0.20 model_bytes=4096 model_gbps=16.40 correctness=exact
+n=256 component=owned_two_pass_materialized batch=1000 median_ns=605.8 min_ns=569.1 max_ns=851.0 ns_per_element=2.3663 minflt_per_op=0.45 model_bytes=6144 model_gbps=10.14 correctness=exact
+n=256 component=input_validation_chain batch=1000 median_ns=143.4 min_ns=139.4 max_ns=178.3 ns_per_element=0.5601 minflt_per_op=0.00 correctness=exact
+n=256 component=pxir_single_add_control batch=1000 median_ns=279.1 min_ns=252.3 max_ns=494.9 ns_per_element=1.0904 minflt_per_op=0.00 model_bytes=3072 model_gbps=11.00 correctness=exact
+n=256 component=pxir_chain_final_only batch=1000 median_ns=345.2 min_ns=330.3 max_ns=607.0 ns_per_element=1.3485 minflt_per_op=0.00 model_bytes=6144 model_gbps=17.80 correctness=exact
+n=256 component=pxir_chain_intermediate_output batch=1000 median_ns=466.1 min_ns=390.2 max_ns=715.2 ns_per_element=1.8206 minflt_per_op=0.00 model_bytes=8192 model_gbps=17.58 correctness=exact
+n=256 component=pxir_chain_output_after_use batch=1000 median_ns=431.2 min_ns=395.9 max_ns=695.2 ns_per_element=1.6845 minflt_per_op=0.00 model_bytes=6144 model_gbps=14.25 correctness=exact
+n=256 checksum_d_fnv1a=0x5c7dd306ca1b64a2 checksum_e_fnv1a=0x103ee848ce508f71
+n=4096 component=timer_overhead batch=1 median_ns=29.0 min_ns=27.0 max_ns=31.0 ns_per_element=0.0071 minflt_per_op=0.00 correctness=exact
+n=4096 component=native_fused_preallocated batch=1 median_ns=832.0 min_ns=822.0 max_ns=854.0 ns_per_element=0.2031 minflt_per_op=0.00 model_bytes=65536 model_gbps=78.77 correctness=exact
+n=4096 component=native_two_pass_preallocated batch=1 median_ns=940.0 min_ns=924.0 max_ns=23284.0 ns_per_element=0.2295 minflt_per_op=0.00 model_bytes=98304 model_gbps=104.58 correctness=exact
+n=4096 component=native_fused_dual_output batch=1 median_ns=1950.0 min_ns=1908.0 max_ns=20958.0 ns_per_element=0.4761 minflt_per_op=0.00 model_bytes=81920 model_gbps=42.01 correctness=exact
+n=4096 component=owned_fused_allocate_plus_compute batch=1 median_ns=862.0 min_ns=847.0 max_ns=976.0 ns_per_element=0.2104 minflt_per_op=0.00 model_bytes=65536 model_gbps=76.03 correctness=exact
+n=4096 component=owned_two_pass_materialized batch=1 median_ns=1187.0 min_ns=977.0 max_ns=1962.0 ns_per_element=0.2898 minflt_per_op=0.00 model_bytes=98304 model_gbps=82.82 correctness=exact
+n=4096 component=input_validation_chain batch=1000 median_ns=139.5 min_ns=134.9 max_ns=184.9 ns_per_element=0.0340 minflt_per_op=0.00 correctness=exact
+n=4096 component=pxir_single_add_control batch=1 median_ns=894.0 min_ns=785.0 max_ns=5583.0 ns_per_element=0.2183 minflt_per_op=0.00 model_bytes=49152 model_gbps=54.98 correctness=exact
+n=4096 component=pxir_chain_final_only batch=1 median_ns=1409.0 min_ns=1328.0 max_ns=2345.0 ns_per_element=0.3440 minflt_per_op=0.00 model_bytes=98304 model_gbps=69.77 correctness=exact
+n=4096 component=pxir_chain_intermediate_output batch=1 median_ns=1745.0 min_ns=1674.0 max_ns=2911.0 ns_per_element=0.4260 minflt_per_op=0.00 model_bytes=131072 model_gbps=75.11 correctness=exact
+n=4096 component=pxir_chain_output_after_use batch=1 median_ns=1323.0 min_ns=1290.0 max_ns=1434.0 ns_per_element=0.3230 minflt_per_op=0.00 model_bytes=98304 model_gbps=74.30 correctness=exact
+n=4096 checksum_d_fnv1a=0x2c13f664d23d7e0f checksum_e_fnv1a=0xc9a41f2e1369e69c
+n=65536 component=timer_overhead batch=1 median_ns=30.0 min_ns=29.0 max_ns=31.0 ns_per_element=0.0005 minflt_per_op=0.00 correctness=exact
+n=65536 component=native_fused_preallocated batch=1 median_ns=14036.0 min_ns=13490.0 max_ns=19688.0 ns_per_element=0.2142 minflt_per_op=0.00 model_bytes=1048576 model_gbps=74.71 correctness=exact
+n=65536 component=native_two_pass_preallocated batch=1 median_ns=23842.0 min_ns=22672.0 max_ns=57715.0 ns_per_element=0.3638 minflt_per_op=0.00 model_bytes=1572864 model_gbps=65.97 correctness=exact
+n=65536 component=native_fused_dual_output batch=1 median_ns=31915.0 min_ns=30484.0 max_ns=76634.0 ns_per_element=0.4870 minflt_per_op=0.00 model_bytes=1310720 model_gbps=41.07 correctness=exact
+n=65536 component=owned_fused_allocate_plus_compute batch=1 median_ns=12973.0 min_ns=12842.0 max_ns=52101.0 ns_per_element=0.1980 minflt_per_op=0.00 model_bytes=1048576 model_gbps=80.83 correctness=exact
+n=65536 component=owned_two_pass_materialized batch=1 median_ns=23460.0 min_ns=21404.0 max_ns=49265.0 ns_per_element=0.3580 minflt_per_op=0.00 model_bytes=1572864 model_gbps=67.04 correctness=exact
+n=65536 component=input_validation_chain batch=1000 median_ns=142.6 min_ns=139.4 max_ns=212.9 ns_per_element=0.0022 minflt_per_op=0.00 correctness=exact
+n=65536 component=pxir_single_add_control batch=1 median_ns=8690.0 min_ns=8333.0 max_ns=15598.0 ns_per_element=0.1326 minflt_per_op=0.00 model_bytes=786432 model_gbps=90.50 correctness=exact
+n=65536 component=pxir_chain_final_only batch=1 median_ns=19949.0 min_ns=19254.0 max_ns=54764.0 ns_per_element=0.3044 minflt_per_op=0.00 model_bytes=1572864 model_gbps=78.84 correctness=exact
+n=65536 component=pxir_chain_intermediate_output batch=1 median_ns=45547.0 min_ns=33428.0 max_ns=95773.0 ns_per_element=0.6950 minflt_per_op=0.00 model_bytes=2097152 model_gbps=46.04 correctness=exact
+n=65536 component=pxir_chain_output_after_use batch=1 median_ns=30582.0 min_ns=22576.0 max_ns=75498.0 ns_per_element=0.4666 minflt_per_op=0.00 model_bytes=1572864 model_gbps=51.43 correctness=exact
+n=65536 checksum_d_fnv1a=0xac711a354b762725 checksum_e_fnv1a=0xfaf7806797a69df5
+n=1048576 component=timer_overhead batch=1 median_ns=29.0 min_ns=28.0 max_ns=30.0 ns_per_element=0.0000 minflt_per_op=0.00 correctness=exact
+n=1048576 component=native_fused_preallocated batch=1 median_ns=643439.0 min_ns=605013.0 max_ns=740983.0 ns_per_element=0.6136 minflt_per_op=0.00 model_bytes=16777216 model_gbps=26.07 correctness=exact
+n=1048576 component=native_two_pass_preallocated batch=1 median_ns=981086.0 min_ns=885492.0 max_ns=1089853.0 ns_per_element=0.9356 minflt_per_op=0.00 model_bytes=25165824 model_gbps=25.65 correctness=exact
+n=1048576 component=native_fused_dual_output batch=1 median_ns=845284.0 min_ns=758670.0 max_ns=1122669.0 ns_per_element=0.8061 minflt_per_op=0.00 model_bytes=20971520 model_gbps=24.81 correctness=exact
+n=1048576 component=owned_fused_allocate_plus_compute batch=1 median_ns=628722.0 min_ns=586852.0 max_ns=686039.0 ns_per_element=0.5996 minflt_per_op=0.00 model_bytes=16777216 model_gbps=26.68 correctness=exact
+n=1048576 component=owned_two_pass_materialized batch=1 median_ns=2793989.0 min_ns=2491414.0 max_ns=3455923.0 ns_per_element=2.6646 minflt_per_op=2016.00 model_bytes=25165824 model_gbps=9.01 correctness=exact
+n=1048576 component=input_validation_chain batch=1000 median_ns=144.3 min_ns=139.4 max_ns=181.7 ns_per_element=0.0001 minflt_per_op=0.00 correctness=exact
+n=1048576 component=pxir_single_add_control batch=1 median_ns=481020.0 min_ns=432918.0 max_ns=567931.0 ns_per_element=0.4587 minflt_per_op=0.00 model_bytes=12582912 model_gbps=26.16 correctness=exact
+n=1048576 component=pxir_chain_final_only batch=1 median_ns=2833562.0 min_ns=2683023.0 max_ns=3235034.0 ns_per_element=2.7023 minflt_per_op=2016.00 model_bytes=25165824 model_gbps=8.88 correctness=exact
+n=1048576 component=pxir_chain_intermediate_output batch=1 median_ns=4274592.0 min_ns=3970695.0 max_ns=4738939.0 ns_per_element=4.0766 minflt_per_op=3040.00 model_bytes=33554432 model_gbps=7.85 correctness=exact
+n=1048576 component=pxir_chain_output_after_use batch=1 median_ns=2784203.0 min_ns=2461959.0 max_ns=3224602.0 ns_per_element=2.6552 minflt_per_op=2016.00 model_bytes=25165824 model_gbps=9.04 correctness=exact
+n=1048576 checksum_d_fnv1a=0xf09ed3431c02ceea checksum_e_fnv1a=0x166ecc1712346145
+n=4194304 component=timer_overhead batch=1 median_ns=29.0 min_ns=27.0 max_ns=30.0 ns_per_element=0.0000 minflt_per_op=0.00 correctness=exact
+n=4194304 component=native_fused_preallocated batch=1 median_ns=2517694.0 min_ns=2266371.0 max_ns=2710070.0 ns_per_element=0.6003 minflt_per_op=0.00 model_bytes=67108864 model_gbps=26.65 correctness=exact
+n=4194304 component=native_two_pass_preallocated batch=1 median_ns=4301957.0 min_ns=3989287.0 max_ns=4657380.0 ns_per_element=1.0257 minflt_per_op=0.00 model_bytes=100663296 model_gbps=23.40 correctness=exact
+n=4194304 component=native_fused_dual_output batch=1 median_ns=3391557.0 min_ns=3239338.0 max_ns=3677099.0 ns_per_element=0.8086 minflt_per_op=0.00 model_bytes=83886080 model_gbps=24.73 correctness=exact
+n=4194304 component=owned_fused_allocate_plus_compute batch=1 median_ns=2345257.0 min_ns=2162193.0 max_ns=2451636.0 ns_per_element=0.5592 minflt_per_op=0.00 model_bytes=67108864 model_gbps=28.61 correctness=exact
+n=4194304 component=owned_two_pass_materialized batch=1 median_ns=12896729.0 min_ns=11559817.0 max_ns=14864038.0 ns_per_element=3.0748 minflt_per_op=8160.00 model_bytes=100663296 model_gbps=7.81 correctness=exact
+n=4194304 component=input_validation_chain batch=1000 median_ns=134.9 min_ns=134.9 max_ns=150.5 ns_per_element=0.0000 minflt_per_op=0.00 correctness=exact
+n=4194304 component=pxir_single_add_control batch=1 median_ns=1844029.0 min_ns=1731097.0 max_ns=1938222.0 ns_per_element=0.4397 minflt_per_op=0.00 model_bytes=50331648 model_gbps=27.29 correctness=exact
+n=4194304 component=pxir_chain_final_only batch=1 median_ns=12577699.0 min_ns=11841642.0 max_ns=14292320.0 ns_per_element=2.9988 minflt_per_op=8160.00 model_bytes=100663296 model_gbps=8.00 correctness=exact
+n=4194304 component=pxir_chain_intermediate_output batch=1 median_ns=22484681.0 min_ns=20470150.0 max_ns=25192839.0 ns_per_element=5.3608 minflt_per_op=12256.00 model_bytes=134217728 model_gbps=5.97 correctness=exact
+n=4194304 component=pxir_chain_output_after_use batch=1 median_ns=13853355.0 min_ns=12719260.0 max_ns=16002328.0 ns_per_element=3.3029 minflt_per_op=8160.00 model_bytes=100663296 model_gbps=7.27 correctness=exact
+n=4194304 checksum_d_fnv1a=0xdf64660feb9c0cd6 checksum_e_fnv1a=0x1f714cb55d61cfdd

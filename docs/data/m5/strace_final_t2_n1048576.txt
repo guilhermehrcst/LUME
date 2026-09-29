@@ -1,0 +1,45 @@
+# strace -f -e trace=brk,mmap,munmap,madvise ./strace_probe_chain final 10  (GLIBC_TUNABLES=glibc.malloc.mmap_threshold=131072)
+# probe: docs/data/m5/strace_probe_chain.cpp; canonical M4 executor (main 4c958a6), GCC 13.3 -O2, glibc 2.39. Excerpt: the loop and the probe's own fault count.
+--- begin loop
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fadff000
+mmap(NULL, 4198400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe4fa9fe000
+munmap(0x7fe4fadff000, 4198400)         = 0
+munmap(0x7fe4fa9fe000, 4198400)         = 0
+--- end loop
+minor_faults_in_loop=20502 per_call=2050.2

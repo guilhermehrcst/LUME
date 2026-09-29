@@ -30,3 +30,21 @@ if(BUILD_TESTING)
         FAIL_REGULAR_EXPRESSION "MISMATCH"
     )
 endif()
+
+# M5 intermediate materialization baseline (D = A + B; E = D + C). Includes
+# the library's internal input_validation.hpp for the chain's real validation.
+add_executable(pxir_bench_intermediate_materialization intermediate_materialization.cpp)
+target_link_libraries(pxir_bench_intermediate_materialization PRIVATE pxir pxir_oracle)
+target_include_directories(pxir_bench_intermediate_materialization PRIVATE ${PROJECT_SOURCE_DIR}/src/runtime)
+target_compile_definitions(pxir_bench_intermediate_materialization PRIVATE "PXIR_BUILD_CONFIG=\"$<CONFIG>\"")
+pxir_set_warnings(pxir_bench_intermediate_materialization)
+
+if(BUILD_TESTING)
+    add_test(NAME pxir_bench_intermediate_materialization_smoke
+        COMMAND pxir_bench_intermediate_materialization sizes=1,4099 warmup=1 iterations=3)
+    set_tests_properties(pxir_bench_intermediate_materialization_smoke PROPERTIES
+        LABELS "pxir;benchmark"
+        PASS_REGULAR_EXPRESSION "n=4099 component=pxir_chain_output_after_use.*correctness=exact"
+        FAIL_REGULAR_EXPRESSION "MISMATCH"
+    )
+endif()
