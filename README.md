@@ -117,7 +117,7 @@ M3 tested single-write result construction using standard C++20 `reserve` + `emp
 
 Details, raw data and the reproduction reference are in [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md).
 
-## M4: vectorizable single-write owned storage (experimental branch)
+## M4: vectorizable single-write owned storage
 
 M4 replaces the zero-filled `std::vector` result with `OwnedArray<T>`, storage created by `std::make_unique_for_overwrite<T[]>` whose elements are not value-initialized. It keeps M2's plain indexed loop, and every element is written exactly once before it can be read. GCC 13.3 and Clang 18.1 vectorize the loop in isolation and in the integrated executor.
 
