@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 #include <random>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -16,6 +17,11 @@ using pxir::Buffer;
 using pxir::ExecutionErrorCode;
 
 namespace {
+
+template <class T>
+std::vector<T> to_vector(std::span<const T> s) {
+    return std::vector<T>(s.begin(), s.end());
+}
 
 pxir::VerifiedProgram vector_add(pxir::ScalarType scalar, std::uint32_t n) {
     pxir::Program p;
@@ -36,13 +42,13 @@ void f32_add_matches_oracle(std::uint32_t n, std::uint64_t seed) {
     const std::vector<Buffer> inputs{Buffer(a), Buffer(b)};
     const pxir::ExecutionResult r = pxir::execute_cpu_reference(vector_add(pxir::f32, n), inputs);
     if (!PXIR_CHECK(r.ok()) || !PXIR_CHECK(r.outputs.size() == 1)) return;
-    const std::vector<float>* c = r.outputs[0].as_f32();
-    if (!PXIR_CHECK(c != nullptr)) return;
+    const auto c = r.outputs[0].f32_view();
+    if (!PXIR_CHECK(c.has_value())) return;
     PXIR_CHECK(pxir_oracle::exactly_equal(*c, expected));
 
     // Inputs are borrowed, never modified.
-    PXIR_CHECK(pxir_oracle::exactly_equal(*inputs[0].as_f32(), a));
-    PXIR_CHECK(pxir_oracle::exactly_equal(*inputs[1].as_f32(), b));
+    PXIR_CHECK(pxir_oracle::exactly_equal(*inputs[0].f32_view(), a));
+    PXIR_CHECK(pxir_oracle::exactly_equal(*inputs[1].f32_view(), b));
 }
 
 void f32_special_values_match_oracle() {
@@ -57,7 +63,7 @@ void f32_special_values_match_oracle() {
     const std::vector<Buffer> inputs{Buffer(a), Buffer(b)};
     const auto r = pxir::execute_cpu_reference(vector_add(pxir::f32, static_cast<std::uint32_t>(a.size())), inputs);
     if (!PXIR_CHECK(r.ok())) return;
-    const std::vector<float>& c = *r.outputs[0].as_f32();
+    const std::span<const float> c = *r.outputs[0].f32_view();
     PXIR_CHECK(pxir_oracle::exactly_equal(c, expected));
     PXIR_CHECK(std::signbit(c[1]));          // -0 + -0 = -0
     PXIR_CHECK(!std::signbit(c[0]));         // +0 + -0 = +0 (round to nearest)
@@ -85,8 +91,8 @@ void i32_add_wraps_and_matches_oracle() {
     const std::vector<Buffer> inputs{Buffer(a), Buffer(b)};
     const auto r = pxir::execute_cpu_reference(vector_add(pxir::i32, 5), inputs);
     if (!PXIR_CHECK(r.ok())) return;
-    const std::vector<std::int32_t>& c = *r.outputs[0].as_i32();
-    PXIR_CHECK((c == std::vector<std::int32_t>{lo, hi, 0, -2, -2}));
+    const std::span<const std::int32_t> c = *r.outputs[0].i32_view();
+    PXIR_CHECK((to_vector(c) == std::vector<std::int32_t>{lo, hi, 0, -2, -2}));
 
     std::mt19937_64 engine(7);
     const auto x = pxir_oracle::generate_i32(engine, 4096);
@@ -95,7 +101,7 @@ void i32_add_wraps_and_matches_oracle() {
     pxir_oracle::native_add(x, y, expected);
     const std::vector<Buffer> random_inputs{Buffer(x), Buffer(y)};
     const auto rr = pxir::execute_cpu_reference(vector_add(pxir::i32, 4096), random_inputs);
-    if (PXIR_CHECK(rr.ok())) PXIR_CHECK(*rr.outputs[0].as_i32() == expected);
+    if (PXIR_CHECK(rr.ok())) PXIR_CHECK(to_vector(*rr.outputs[0].i32_view()) == expected);
 }
 
 void chained_adds_and_outputs_in_order() {
@@ -113,9 +119,9 @@ void chained_adds_and_outputs_in_order() {
     const std::vector<Buffer> inputs{Buffer(std::vector<float>{1, 2, 3}), Buffer(std::vector<float>{10, 20, 30})};
     const auto r = pxir::execute_cpu_reference(*verified.program, inputs);
     if (!PXIR_CHECK(r.ok()) || !PXIR_CHECK(r.outputs.size() == 3)) return;
-    PXIR_CHECK((*r.outputs[0].as_f32() == std::vector<float>{22, 44, 66}));
-    PXIR_CHECK((*r.outputs[1].as_f32() == std::vector<float>{1, 2, 3}));
-    PXIR_CHECK((*r.outputs[2].as_f32() == std::vector<float>{22, 44, 66}));
+    PXIR_CHECK((to_vector(*r.outputs[0].f32_view()) == std::vector<float>{22, 44, 66}));
+    PXIR_CHECK((to_vector(*r.outputs[1].f32_view()) == std::vector<float>{1, 2, 3}));
+    PXIR_CHECK((to_vector(*r.outputs[2].f32_view()) == std::vector<float>{22, 44, 66}));
 }
 
 // ---- Runtime buffers are validated against the IR (fail closed) -------------

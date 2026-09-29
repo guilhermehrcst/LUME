@@ -15,6 +15,7 @@
 #include <limits>
 #include <optional>
 #include <random>
+#include <span>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -177,7 +178,7 @@ int main(int argc, char** argv) {
             return 1;
         }
         // Every run, warmup included, is checked against the oracle outside the timed region.
-        const std::vector<float>& c = *result.outputs.at(0).as_f32();
+        const std::span<const float> c = *result.outputs.at(0).f32_view();
         all_equal = all_equal && pxir_oracle::exactly_equal(c, native_c);
         pxir_checksum = pxir_oracle::fnv1a(c);
         if (i >= opt.warmup) pxir_ns.push_back(t);

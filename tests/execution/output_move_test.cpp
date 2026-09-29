@@ -2,8 +2,10 @@
 // last use; every other output copies. These tests check that results,
 // ordering and borrowed inputs are unchanged by that rule.
 
+#include <algorithm>
 #include <cstdint>
 #include <random>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -44,14 +46,18 @@ pxir::ExecutionResult run(pxir::Program program, const Inputs& in) {
     const std::vector<Buffer> buffers{Buffer(in.a), Buffer(in.b)};
     pxir::ExecutionResult r = pxir::execute_cpu_reference(*verified.program, buffers);
     PXIR_CHECK(r.ok());
-    PXIR_CHECK(pxir_oracle::exactly_equal(*buffers[0].as_f32(), in.a));
-    PXIR_CHECK(pxir_oracle::exactly_equal(*buffers[1].as_f32(), in.b));
+    PXIR_CHECK(pxir_oracle::exactly_equal(*buffers[0].f32_view(), in.a));
+    PXIR_CHECK(pxir_oracle::exactly_equal(*buffers[1].f32_view(), in.b));
     return r;
 }
 
+bool same_i32(std::span<const std::int32_t> x, const std::vector<std::int32_t>& y) {
+    return x.size() == y.size() && std::equal(x.begin(), x.end(), y.begin());
+}
+
 bool output_equals(const pxir::ExecutionResult& r, std::size_t k, const std::vector<float>& expected) {
-    return k < r.outputs.size() && r.outputs[k].as_f32() != nullptr &&
-           pxir_oracle::exactly_equal(*r.outputs[k].as_f32(), expected);
+    return k < r.outputs.size() && r.outputs[k].f32_view().has_value() &&
+           pxir_oracle::exactly_equal(*r.outputs[k].f32_view(), expected);
 }
 
 // A: output C, its single and final use -> moved.
@@ -142,10 +148,10 @@ void i32_owned_outputs() {
     const std::vector<Buffer> buffers{Buffer(x), Buffer(y)};
     const auto r = pxir::execute_cpu_reference(*verified.program, buffers);
     if (!PXIR_CHECK(r.ok()) || !PXIR_CHECK(r.outputs.size() == 2)) return;
-    PXIR_CHECK(r.outputs[0].as_i32() != nullptr && *r.outputs[0].as_i32() == expected);
-    PXIR_CHECK(r.outputs[1].as_i32() != nullptr && *r.outputs[1].as_i32() == expected);
-    PXIR_CHECK(*buffers[0].as_i32() == x);
-    PXIR_CHECK(*buffers[1].as_i32() == y);
+    PXIR_CHECK(r.outputs[0].i32_view() && same_i32(*r.outputs[0].i32_view(), expected));
+    PXIR_CHECK(r.outputs[1].i32_view() && same_i32(*r.outputs[1].i32_view(), expected));
+    PXIR_CHECK(same_i32(*buffers[0].i32_view(), x));
+    PXIR_CHECK(same_i32(*buffers[1].i32_view(), y));
 }
 
 // G: outputs appear exactly in IR order, whether each is a move or a copy.
