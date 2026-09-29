@@ -1,0 +1,13 @@
+function(pxir_add_test name source)
+    add_executable(${name} ${source})
+    target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/support)
+    target_link_libraries(${name} PRIVATE pxir pxir_oracle)
+    pxir_set_warnings(${name})
+    add_test(NAME ${name} COMMAND ${name})
+    set_tests_properties(${name} PROPERTIES LABELS "pxir;correctness")
+endfunction()
+
+pxir_add_test(pxir_ir_test ir/ir_test.cpp)
+pxir_add_test(pxir_verifier_test verifier/verifier_test.cpp)
+pxir_add_test(pxir_execution_test execution/execution_test.cpp)
+pxir_add_test(pxir_invalid_test invalid/invalid_test.cpp)

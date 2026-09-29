@@ -60,13 +60,39 @@ The first experiment establishes a deliberately small baseline: how much represe
 
 See [`experiments/001-data-types`](experiments/001-data-types/README.md).
 
+## M0: minimal executable IR
+
+M0 is the first executable PXIR foundation. It represents `C = A + B` over `f32[N]` in a compact IR, verifies it, executes it on a scalar CPU reference executor, and checks the result against an independent native baseline.
+
+```cpp
+pxir::Program program;
+auto a = program.input(pxir::f32, 1024);
+auto b = program.input(pxir::f32, 1024);
+auto c = program.add(a, b);
+program.output(c);
+```
+
+Debug dump (for humans only; this is not a PXIR language):
+
+```text
+%0 = input f32[1024]
+%1 = input f32[1024]
+%2 = add %0, %1
+output %2
+```
+
+- **Supports:** `f32`/`i32` types, `input`/`add`/`output`, a mandatory verifier (only a `VerifiedProgram` can execute), a CPU scalar reference executor, positive and negative correctness tests, and a baseline benchmark.
+- **Does not support:** a textual PXIR language or parser, LLVM, CUDA, SIMD, optimization passes, JIT, a tensor compiler, or AI workloads.
+
+M0 makes no performance claim. See [`docs/m0-core-ir.md`](docs/m0-core-ir.md) for the design, the verifier invariants, the correctness policy, and the baseline measurements.
+
 ## Build
 
 Requirements:
 
 - CMake 3.20+
 - a C11 compiler
-- later phases will require a C++20 compiler
+- a C++20 compiler (GCC 13 and Clang 18 are tested locally; CI also builds with the macOS and Windows runner defaults)
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -74,16 +100,26 @@ cmake --build build --config Release
 ctest --test-dir build -C Release --output-on-failure
 ```
 
-Example:
+Examples:
 
 ```bash
 ./build/experiments/001-data-types/pxir_exp_001 u32 1000000
+./build/benchmarks/pxir_bench_vector_add            # [elements] [seed] [warmup] [iterations]
+ctest --test-dir build -L correctness              # PXIR correctness tests only
+```
+
+Sanitizers and strict warnings (GCC/Clang):
+
+```bash
+cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Debug -DPXIR_SANITIZE=address,undefined -DPXIR_WARNINGS_AS_ERRORS=ON
+cmake --build build-san && ctest --test-dir build-san --output-on-failure
 ```
 
 ## Research documentation
 
 - [`docs/research.md`](docs/research.md): research question, hypotheses, scope and non-goals.
 - [`docs/benchmark-methodology.md`](docs/benchmark-methodology.md): rules for measurements and performance claims.
+- [`docs/m0-core-ir.md`](docs/m0-core-ir.md): M0 IR design, verifier invariants, correctness policy and baseline.
 
 ## License
 
