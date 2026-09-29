@@ -103,6 +103,20 @@ M2 makes exactly one runtime change. The reference executor transfers an executo
 
 Details and caveats are in [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md).
 
+## M3: single-write result construction (rejected; research record only)
+
+M3 tested single-write result construction using standard C++20 `reserve` + `emplace_back`, instead of `std::vector<T>(n)` + indexed writes.
+
+- **What it achieved:** it removed the explicit zero-fill and reduced the model from 16 to 12 B/element.
+- **What went wrong:** GCC 13.3 and Clang 18.1 both failed to vectorize the append loop.
+- **Measured at N = 1,048,576** (interleaved A/B, one machine):
+  - M2: about 0.63 ms;
+  - M3 with GCC: about 1.08 ms;
+  - M3 with Clang: about 1.21× M2.
+- **Status:** M3 was therefore rejected as canonical runtime behavior. The current executor keeps M2's result construction; M3's code exists only in the experimental commit `2888c0a`.
+
+Details, raw data and the reproduction reference are in [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md).
+
 ## Build
 
 Requirements:
@@ -139,6 +153,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m0-core-ir.md`](docs/m0-core-ir.md): M0 IR design, verifier invariants, correctness policy and baseline.
 - [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md): M1 measurement of where the reference executor spends time.
 - [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md): M2 output move on last use, A/B against M1.
+- [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md): M3 single-write result construction, a rejected experiment (negative result).
 
 ## License
 
