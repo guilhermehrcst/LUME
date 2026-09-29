@@ -5,6 +5,8 @@
 #include <string>
 #include <utility>
 
+#include "input_validation.hpp"
+
 namespace pxir {
 
 std::string_view to_string(ExecutionErrorCode code) noexcept {
@@ -55,18 +57,17 @@ std::optional<Buffer> add_buffers(const Buffer& lhs, const Buffer& rhs) {
 
 }  // namespace
 
-ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span<const Buffer> inputs) {
-    const ProgramStorage& s = verified.program().storage();
+namespace detail {
 
-    // Phase 1: validate every caller buffer against the IR before computing anything.
+std::optional<ExecutionError> validate_inputs(const ProgramStorage& s, std::span<const Buffer> inputs) {
     std::size_t input_count = 0;
     for (const Operation& op : s.operations) {
         if (op.opcode == Opcode::input) ++input_count;
     }
     if (inputs.size() != input_count) {
-        return fail(ExecutionErrorCode::input_count_mismatch, "program has " + std::to_string(input_count) +
-                                                                  " inputs, got " + std::to_string(inputs.size()) +
-                                                                  " buffers");
+        return ExecutionError{ExecutionErrorCode::input_count_mismatch,
+                              "program has " + std::to_string(input_count) + " inputs, got " +
+                                  std::to_string(inputs.size()) + " buffers"};
     }
     std::size_t k = 0;
     for (const Operation& op : s.operations) {
@@ -75,16 +76,28 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
         const Type type = s.types[s.values[op.result.index()].type.index()];
         const std::string where = "input " + std::to_string(k) + " (%" + std::to_string(op.result.value) + ")";
         if (buffer.scalar() != type.scalar) {
-            return fail(ExecutionErrorCode::input_scalar_mismatch, where + ": expected " +
-                                                                       std::string(to_string(type.scalar)) + ", got " +
-                                                                       std::string(to_string(buffer.scalar())));
+            return ExecutionError{ExecutionErrorCode::input_scalar_mismatch,
+                                  where + ": expected " + std::string(to_string(type.scalar)) + ", got " +
+                                      std::string(to_string(buffer.scalar()))};
         }
         if (buffer.length() != type.length) {
-            return fail(ExecutionErrorCode::input_length_mismatch, where + ": expected length " +
-                                                                       std::to_string(type.length) + ", got " +
-                                                                       std::to_string(buffer.length()));
+            return ExecutionError{ExecutionErrorCode::input_length_mismatch,
+                                  where + ": expected length " + std::to_string(type.length) + ", got " +
+                                      std::to_string(buffer.length())};
         }
         ++k;
+    }
+    return std::nullopt;
+}
+
+}  // namespace detail
+
+ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span<const Buffer> inputs) {
+    const ProgramStorage& s = verified.program().storage();
+
+    // Phase 1: validate every caller buffer against the IR before computing anything.
+    if (std::optional<ExecutionError> error = detail::validate_inputs(s, inputs)) {
+        return ExecutionResult{{}, std::move(*error)};
     }
 
     // Phase 2: interpret operations in order. bound[v] points at the buffer

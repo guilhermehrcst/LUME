@@ -1,0 +1,445 @@
+// PXIR M1: cost breakdown of the scalar reference executor for C = A + B.
+//
+// Observational only. It times the unmodified executor plus isolated
+// operations equivalent to each executor stage, over several N. Nothing here
+// changes how PXIR executes. See docs/m1-executor-cost-breakdown.md.
+//
+// usage: pxir_bench_executor_breakdown [sizes=1,256,...] [seed=42] [warmup=5]
+//                                      [iterations=51] [order=forward|reverse]
+//
+// Output: one line per (N, component) of space-separated key=value fields.
+//
+// Methodology:
+// - A sample is one steady_clock interval around K back-to-back repetitions
+//   of the measured operation; the reported per-op time is interval / K.
+//   K > 1 only where one operation is too short to time on its own.
+// - Anything a repetition produces is kept in pre-sized holders until the
+//   interval ends, then checked (untimed) against the oracle. Results are
+//   therefore observable and cannot be removed as dead code. Allocations that
+//   produce nothing observable escape through a volatile pointer sink.
+// - Minor page faults (getrusage) are read just outside each interval.
+
+#include <algorithm>
+#include <chrono>
+#include <cinttypes>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <functional>
+#include <limits>
+#include <optional>
+#include <random>
+#include <string>
+#include <string_view>
+#include <vector>
+
+#if defined(__unix__) || defined(__APPLE__)
+#include <sys/resource.h>
+#define PXIR_HAVE_GETRUSAGE 1
+#endif
+
+#include "input_validation.hpp"
+#include "pxir/ir/program.hpp"
+#include "pxir/runtime/cpu_reference.hpp"
+#include "pxir/verify/verifier.hpp"
+#include "pxir_oracle/oracle.hpp"
+
+#ifndef PXIR_BUILD_CONFIG
+#define PXIR_BUILD_CONFIG "unknown"
+#endif
+
+namespace {
+
+using Clock = std::chrono::steady_clock;
+
+// Writing an address here makes the pointed-to allocation observable without
+// making the data itself volatile.
+const void* volatile g_sink = nullptr;
+
+std::int64_t minor_faults() {
+#ifdef PXIR_HAVE_GETRUSAGE
+    rusage usage{};
+    if (getrusage(RUSAGE_SELF, &usage) == 0) return static_cast<std::int64_t>(usage.ru_minflt);
+#endif
+    return -1;
+}
+
+struct Config {
+    std::vector<std::uint32_t> sizes{1, 256, 4096, 65536, 1048576, 4194304};
+    std::uint64_t seed = 42;
+    std::uint32_t warmup = 5;
+    std::uint32_t iterations = 51;
+    bool reverse = false;
+};
+
+struct Summary {
+    double median = 0, min = 0, max = 0;  // ns per op
+    double faults = 0;                    // median minor faults per op; -1 if unavailable
+};
+
+double median_of(std::vector<double> v) {
+    std::sort(v.begin(), v.end());
+    return v[v.size() / 2];
+}
+
+// Setup and check run untimed around each interval; `run` is passed as a
+// template argument so the timed loop has no indirect calls.
+template <class Setup, class Run, class Check>
+std::optional<Summary> measure(const Config& cfg, std::size_t batch, Setup&& setup, Run&& run, Check&& check) {
+    std::vector<double> ns;
+    std::vector<double> faults;
+    for (std::uint32_t s = 0; s < cfg.warmup + cfg.iterations; ++s) {
+        setup();
+        const std::int64_t f0 = minor_faults();
+        const auto t0 = Clock::now();
+        for (std::size_t k = 0; k < batch; ++k) run(k);
+        const auto t1 = Clock::now();
+        const std::int64_t f1 = minor_faults();
+        if (!check()) return std::nullopt;
+        if (s < cfg.warmup) continue;
+        const auto kd = static_cast<double>(batch);
+        ns.push_back(static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count()) / kd);
+        faults.push_back(f0 < 0 ? -1.0 : static_cast<double>(f1 - f0) / kd);
+    }
+    Summary out;
+    out.median = median_of(ns);
+    out.min = *std::min_element(ns.begin(), ns.end());
+    out.max = *std::max_element(ns.begin(), ns.end());
+    out.faults = median_of(faults);
+    return out;
+}
+
+void print_summary(std::size_t n, const char* name, std::size_t batch, double model_bytes_per_element,
+                   const Summary& s) {
+    std::printf("n=%zu component=%s batch=%zu median_ns=%.1f min_ns=%.1f max_ns=%.1f ns_per_element=%.4f "
+                "minflt_per_op=%.2f",
+                n, name, batch, s.median, s.min, s.max, s.median / static_cast<double>(n), s.faults);
+    if (model_bytes_per_element > 0) {
+        const double bytes = model_bytes_per_element * static_cast<double>(n);
+        std::printf(" model_bytes=%.0f model_gbps=%.2f", bytes, bytes / s.median);
+    }
+    std::printf(" correctness=exact\n");
+}
+
+bool parse_u64(std::string_view text, std::uint64_t& out) {
+    if (text.empty()) return false;
+    std::uint64_t v = 0;
+    for (const char ch : text) {
+        if (ch < '0' || ch > '9') return false;
+        const auto d = static_cast<std::uint64_t>(ch - '0');
+        if (v > (std::numeric_limits<std::uint64_t>::max() - d) / 10) return false;
+        v = v * 10 + d;
+    }
+    out = v;
+    return true;
+}
+
+bool parse_args(int argc, char** argv, Config& cfg) {
+    for (int i = 1; i < argc; ++i) {
+        const std::string_view arg = argv[i];
+        const auto eq = arg.find('=');
+        if (eq == std::string_view::npos) return false;
+        const std::string_view key = arg.substr(0, eq);
+        const std::string_view value = arg.substr(eq + 1);
+        std::uint64_t v = 0;
+        if (key == "sizes") {
+            cfg.sizes.clear();
+            std::size_t start = 0;
+            while (start <= value.size()) {
+                const auto comma = value.find(',', start);
+                const auto item = value.substr(start, comma == std::string_view::npos ? value.npos : comma - start);
+                if (!parse_u64(item, v) || v == 0 || v >= std::numeric_limits<std::uint32_t>::max()) return false;
+                cfg.sizes.push_back(static_cast<std::uint32_t>(v));
+                if (comma == std::string_view::npos) break;
+                start = comma + 1;
+            }
+        } else if (key == "seed" && parse_u64(value, v)) {
+            cfg.seed = v;
+        } else if (key == "warmup" && parse_u64(value, v) && v <= 1000) {
+            cfg.warmup = static_cast<std::uint32_t>(v);
+        } else if (key == "iterations" && parse_u64(value, v) && v >= 1 && v <= 100000) {
+            cfg.iterations = static_cast<std::uint32_t>(v);
+        } else if (key == "order" && (value == "forward" || value == "reverse")) {
+            cfg.reverse = value == "reverse";
+        } else {
+            return false;
+        }
+    }
+    return !cfg.sizes.empty();
+}
+
+std::string compiler_id() {
+#if defined(__clang__)
+    return std::string("clang ") + __clang_version__;
+#elif defined(__GNUC__)
+    return std::string("gcc ") + __VERSION__;
+#elif defined(_MSC_VER)
+    return "msvc " + std::to_string(_MSC_FULL_VER);
+#else
+    return "unknown";
+#endif
+}
+
+// Repetitions per interval for operations whose cost scales with N. Large N
+// uses K = 1 so allocator behavior matches one executor call at a time.
+std::size_t batch_for(std::uint32_t n) { return n >= 4096 ? 1 : 1000; }
+constexpr std::size_t fixed_batch = 1000;  // for N-independent operations
+
+// The executor's add loop, written in the same form as add_buffers().
+void executor_style_add(const std::vector<float>& a, const std::vector<float>& b, std::vector<float>& c) {
+    for (std::size_t i = 0; i < c.size(); ++i) c[i] = a[i] + b[i];
+}
+
+bool run_size(const Config& cfg, std::uint32_t n_u32) {
+    const std::size_t n = n_u32;
+
+    // Deterministic inputs, as in pxir_bench_vector_add: A then B from one stream.
+    std::mt19937_64 engine(cfg.seed);
+    const std::vector<float> a = pxir_oracle::generate_f32(engine, n);
+    const std::vector<float> b = pxir_oracle::generate_f32(engine, n);
+    std::vector<float> expected(n);
+    pxir_oracle::native_add(a, b, expected);
+
+    const std::vector<pxir::Buffer> inputs{pxir::Buffer(a), pxir::Buffer(b)};
+    const std::vector<float>& in_a = *inputs[0].as_f32();
+    const std::vector<float>& in_b = *inputs[1].as_f32();
+
+    pxir::Program program;
+    program.output(program.add(program.input(pxir::f32, n_u32), program.input(pxir::f32, n_u32)));
+    pxir::VerifyResult verified = pxir::verify(std::move(program));
+    if (!verified.ok()) return false;
+    const pxir::VerifiedProgram& vp = *verified.program;
+    const pxir::ProgramStorage& storage = vp.program().storage();
+    const std::size_t value_count = storage.values.size();
+
+    const std::size_t kb = batch_for(n_u32);
+    const pxir::Buffer source(expected);  // what an output copy reads
+
+    // Holders keep produced results alive until the interval ends.
+    std::vector<std::vector<float>> vecs(std::max(kb, fixed_batch));
+    std::vector<std::vector<pxir::Buffer>> outs(kb);
+    std::vector<pxir::ExecutionResult> results;
+    results.reserve(kb);
+
+    const auto no_setup = [] {};
+    const auto always_ok = [] { return true; };
+    bool preallocated = false;
+    // C is allocated and first touched once per component, untimed, so every
+    // "preallocated" sample sees the same state: C mapped and last written by
+    // the previous sample.
+    const auto preallocate_once = [&] {
+        if (preallocated) return;
+        for (std::size_t k = 0; k < kb; ++k) vecs[k].assign(n, 0.0f);
+        preallocated = true;
+    };
+    const auto release_all = [&] {
+        for (auto& v : vecs) std::vector<float>().swap(v);
+        preallocated = false;
+    };
+    const auto vecs_equal_expected = [&] {
+        for (std::size_t k = 0; k < kb; ++k) {
+            if (!pxir_oracle::exactly_equal(vecs[k], expected)) return false;
+        }
+        return true;
+    };
+
+    // Each entry measures one component and prints it; false on a correctness failure.
+    struct Entry {
+        const char* name;
+        std::size_t batch;
+        double model_bytes_per_element;  // minimum traffic of the stated model; 0 when N-independent
+        std::function<std::optional<Summary>()> measure;
+    };
+    std::vector<Entry> entries{
+        {"timer_overhead", 1, 0, [&] { return measure(cfg, 1, no_setup, [](std::size_t) {}, always_ok); }},
+        {"native_add_preallocated", kb, 12,
+         [&] {
+             return measure(cfg, kb, preallocate_once, [&](std::size_t k) { pxir_oracle::native_add(a, b, vecs[k]); },
+                            vecs_equal_expected);
+         }},
+        {"add_loop_preallocated", kb, 12,
+         [&] {
+             return measure(cfg, kb, preallocate_once,
+                            [&](std::size_t k) { executor_style_add(in_a, in_b, vecs[k]); }, vecs_equal_expected);
+         }},
+        {"input_validation", fixed_batch, 0,
+         [&] {
+             std::size_t errors = 0;
+             return measure(
+                 cfg, fixed_batch, [&] { errors = 0; },
+                 [&](std::size_t) {
+                     if (pxir::detail::validate_inputs(storage, inputs)) ++errors;
+                 },
+                 [&] { return errors == 0; });
+         }},
+        {"executor_setup", fixed_batch, 0,
+         [&] {
+             return measure(
+                 cfg, fixed_batch, no_setup,
+                 [&](std::size_t) {
+                     // Same construction as execute_cpu_reference: bound, owned and
+                     // an empty ExecutionResult, all destroyed at scope exit.
+                     std::vector<const pxir::Buffer*> bound(value_count, nullptr);
+                     std::vector<std::optional<pxir::Buffer>> owned(value_count);
+                     pxir::ExecutionResult result;
+                     g_sink = bound.data();
+                     g_sink = owned.data();
+                     g_sink = &result;
+                 },
+                 always_ok);
+         }},
+        {"result_buffer_create", kb, 4,
+         [&] {
+             return measure(
+                 cfg, kb, release_all, [&](std::size_t k) { vecs[k] = std::vector<float>(n); },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (vecs[k].size() != n || vecs[k][0] != 0.0f || vecs[k][n - 1] != 0.0f) return false;
+                     }
+                     return true;
+                 });
+         }},
+        {"result_buffer_release", kb, 0,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) vecs[k] = std::vector<float>(n);
+                 },
+                 [&](std::size_t k) { vecs[k] = std::vector<float>(); },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (vecs[k].capacity() != 0) return false;
+                     }
+                     return true;
+                 });
+         }},
+        {"result_create_plus_add", kb, 16,
+         [&] {
+             return measure(
+                 cfg, kb, release_all,
+                 [&](std::size_t k) {
+                     std::vector<float> c(n);
+                     executor_style_add(in_a, in_b, c);
+                     vecs[k] = std::move(c);
+                 },
+                 vecs_equal_expected);
+         }},
+        {"output_materialization", kb, 8,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (auto& o : outs) std::vector<pxir::Buffer>().swap(o);
+                 },
+                 [&](std::size_t k) { outs[k].push_back(source); },  // as result.outputs.push_back(*value)
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                             return false;
+                         }
+                     }
+                     return true;
+                 });
+         }},
+        {"validation_message_replica", fixed_batch, 0,
+         [&] {
+             std::size_t chars = 0;
+             return measure(
+                 cfg, fixed_batch, [&] { chars = 0; },
+                 [&](std::size_t) {
+                     // The `where` string validate_inputs builds for every input,
+                     // even when the input is valid.
+                     for (std::uint32_t k = 0; k < 2; ++k) {
+                         const std::string where =
+                             "input " + std::to_string(k) + " (%" + std::to_string(k) + ")";
+                         g_sink = where.data();
+                         chars += where.size();
+                     }
+                 },
+                 [&] { return chars == fixed_batch * 24; });
+         }},
+        {"data_path_replica", kb, 24,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (auto& o : outs) std::vector<pxir::Buffer>().swap(o);
+                 },
+                 [&](std::size_t k) {
+                     // The executor's allocations and copies in the same order and
+                     // with the same lifetimes, without validation or
+                     // interpretation: create C, add, wrap, copy into a fresh
+                     // outputs vector, free C. The output lives past the interval.
+                     std::vector<float> c(n);
+                     executor_style_add(in_a, in_b, c);
+                     const pxir::Buffer value(std::move(c));
+                     std::vector<pxir::Buffer> outputs;
+                     outputs.push_back(value);
+                     outs[k] = std::move(outputs);
+                 },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                             return false;
+                         }
+                     }
+                     return true;
+                 });
+         }},
+        {"pxir_execution_total", kb, 24,
+         [&] {
+             return measure(
+                 cfg, kb, [&] { results.clear(); },
+                 [&](std::size_t) { results.push_back(pxir::execute_cpu_reference(vp, inputs)); },
+                 [&] {
+                     if (results.size() != kb) return false;
+                     for (const auto& r : results) {
+                         if (!r.ok() || r.outputs.size() != 1 ||
+                             !pxir_oracle::exactly_equal(*r.outputs[0].as_f32(), expected)) {
+                             return false;
+                         }
+                     }
+                     return true;
+                 });
+         }},
+    };
+    if (cfg.reverse) std::reverse(entries.begin(), entries.end());
+
+    for (const Entry& e : entries) {
+        release_all();
+        for (auto& o : outs) std::vector<pxir::Buffer>().swap(o);
+        results.clear();
+        const std::optional<Summary> s = e.measure();
+        if (!s) {
+            std::printf("n=%zu component=%s correctness=MISMATCH\n", n, e.name);
+            return false;
+        }
+        print_summary(n, e.name, e.batch, e.model_bytes_per_element, *s);
+    }
+    std::printf("n=%zu checksum_fnv1a=0x%016" PRIx64 "\n", n, pxir_oracle::fnv1a(expected));
+    return true;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    Config cfg;
+    if (!parse_args(argc, argv, cfg)) {
+        std::fprintf(stderr,
+                     "usage: %s [sizes=1,256,...] [seed=42] [warmup=5] [iterations=51] [order=forward|reverse]\n",
+                     argv[0]);
+        return 2;
+    }
+    std::printf("pxir_benchmark=executor_breakdown\n");
+    std::printf("workload=C=A+B dtype=f32 seed=%" PRIu64 " warmup=%u iterations=%u order=%s\n", cfg.seed,
+                static_cast<unsigned>(cfg.warmup), static_cast<unsigned>(cfg.iterations),
+                cfg.reverse ? "reverse" : "forward");
+    std::printf("compiler=%s\nbuild_config=%s\n", compiler_id().c_str(), PXIR_BUILD_CONFIG);
+    std::printf("statistic=median_per_op_over_samples page_faults=%s\n",
+                minor_faults() < 0 ? "unavailable" : "getrusage_ru_minflt");
+    for (const std::uint32_t n : cfg.sizes) {
+        if (!run_size(cfg, n)) return 1;
+    }
+    return 0;
+}
