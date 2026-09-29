@@ -45,19 +45,27 @@ std::int32_t wrapping_add(std::int32_t a, std::int32_t b) noexcept {
 
 // The reference kernel. nullopt when the buffers disagree in scalar type or
 // length, which a verified program with validated inputs never produces.
+//
+// Each result element is constructed exactly once, with its final value:
+// reserve() allocates capacity without creating elements, and emplace_back()
+// appends each sum. After a successful reserve(n) the n appends never
+// reallocate, and nothing is written outside [0, size()). If reserve() throws,
+// no result exists and the exception propagates as before.
 std::optional<Buffer> add_buffers(const Buffer& lhs, const Buffer& rhs) {
     if (const auto* a = lhs.as_f32()) {
         const auto* b = rhs.as_f32();
         if (b == nullptr || a->size() != b->size()) return std::nullopt;
-        std::vector<float> c(a->size());
-        for (std::size_t i = 0; i < c.size(); ++i) c[i] = (*a)[i] + (*b)[i];
+        std::vector<float> c;
+        c.reserve(a->size());
+        for (std::size_t i = 0; i < a->size(); ++i) c.emplace_back((*a)[i] + (*b)[i]);
         return Buffer(std::move(c));
     }
     if (const auto* a = lhs.as_i32()) {
         const auto* b = rhs.as_i32();
         if (b == nullptr || a->size() != b->size()) return std::nullopt;
-        std::vector<std::int32_t> c(a->size());
-        for (std::size_t i = 0; i < c.size(); ++i) c[i] = wrapping_add((*a)[i], (*b)[i]);
+        std::vector<std::int32_t> c;
+        c.reserve(a->size());
+        for (std::size_t i = 0; i < a->size(); ++i) c.emplace_back(wrapping_add((*a)[i], (*b)[i]));
         return Buffer(std::move(c));
     }
     return std::nullopt;

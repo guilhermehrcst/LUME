@@ -103,6 +103,14 @@ M2 makes exactly one runtime change. The reference executor transfers an executo
 
 Details and caveats are in [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md).
 
+## M3: single-write result construction (research result, not canonical)
+
+M3 tested whether the executor could build each add result exactly once, using `reserve` + `emplace_back` instead of `std::vector<T>(n)` + indexed writes. The change is correct, standard-conforming C++20, and removes the zero-fill (the model drops from 16 to 12 B/element).
+
+It is **slower than M2**. Neither GCC 13.3 nor Clang 18.1 vectorizes the `emplace_back` loop, and the loop costs about 1 ns per element even without SIMD. Measured in an interleaved A/B against M2 on one machine, N = 1,048,576: 0.63 ms → 1.08 ms (GCC) and 0.66 ms → 0.80 ms (Clang).
+
+M3 is recorded as a negative result and is **not** proposed as canonical behavior. Details are in [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md).
+
 ## Build
 
 Requirements:
@@ -139,6 +147,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m0-core-ir.md`](docs/m0-core-ir.md): M0 IR design, verifier invariants, correctness policy and baseline.
 - [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md): M1 measurement of where the reference executor spends time.
 - [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md): M2 output move on last use, A/B against M1.
+- [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md): M3 single-write result construction, a negative result against M2.
 
 ## License
 

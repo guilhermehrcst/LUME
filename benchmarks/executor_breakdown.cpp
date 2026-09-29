@@ -8,7 +8,12 @@
 // Component names from M1 keep their M1 definitions: `output_materialization`
 // and `data_path_replica` are the output COPY path. M2 adds
 // `output_move_materialization` and `data_path_move_replica` for the output
-// MOVE path. Only `pxir_execution_total` follows the executor in this tree.
+// MOVE path. `result_buffer_create`, `result_create_plus_add` and
+// `data_path_move_replica` remain the value-initialized (zero-fill) result
+// path; M3 adds `result_buffer_reserve`, `add_construct_reserved`,
+// `result_reserve_plus_add` and `data_path_single_write_replica` for the
+// reserve + emplace_back result path. Only `pxir_execution_total` follows the
+// executor in this tree.
 //
 // usage: pxir_bench_executor_breakdown [sizes=1,256,...] [seed=42] [warmup=5]
 //                                      [iterations=51] [order=forward|reverse]
@@ -191,9 +196,15 @@ std::string compiler_id() {
 std::size_t batch_for(std::uint32_t n) { return n >= 4096 ? 1 : 1000; }
 constexpr std::size_t fixed_batch = 1000;  // for N-independent operations
 
-// The executor's add loop, written in the same form as add_buffers().
+// The M1/M2 executor's add loop: indexed writes into a value-initialized result.
 void executor_style_add(const std::vector<float>& a, const std::vector<float>& b, std::vector<float>& c) {
     for (std::size_t i = 0; i < c.size(); ++i) c[i] = a[i] + b[i];
+}
+
+// The M3 executor's add loop, in the same form as add_buffers(): append each
+// sum to `c`, whose capacity is already at least a.size().
+void executor_style_emplace_add(const std::vector<float>& a, const std::vector<float>& b, std::vector<float>& c) {
+    for (std::size_t i = 0; i < a.size(); ++i) c.emplace_back(a[i] + b[i]);
 }
 
 bool run_size(const Config& cfg, std::uint32_t n_u32) {
@@ -472,9 +483,82 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                      return true;
                  });
          }},
-        // Model bytes follow the executor in this tree: since M2 the single
-        // output of C = A + B is moved, so 4 (zero-fill) + 12 (add) = 16.
-        {"pxir_execution_total", kb, 16,
+        {"result_buffer_reserve", kb, 0,
+         [&] {
+             return measure(
+                 cfg, kb, release_all,
+                 [&](std::size_t k) {
+                     // Capacity only: no element is constructed.
+                     std::vector<float> c;
+                     c.reserve(n);
+                     vecs[k] = std::move(c);
+                 },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (!vecs[k].empty() || vecs[k].capacity() < n) return false;
+                     }
+                     return true;
+                 });
+         }},
+        {"add_construct_reserved", kb, 12,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     // Untimed: size 0, capacity >= n, via standard operations only.
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         vecs[k].clear();
+                         vecs[k].reserve(n);
+                     }
+                 },
+                 [&](std::size_t k) { executor_style_emplace_add(in_a, in_b, vecs[k]); }, vecs_equal_expected);
+         }},
+        {"result_reserve_plus_add", kb, 12,
+         [&] {
+             return measure(
+                 cfg, kb, release_all,
+                 [&](std::size_t k) {
+                     std::vector<float> c;
+                     c.reserve(n);
+                     executor_style_emplace_add(in_a, in_b, c);
+                     vecs[k] = std::move(c);
+                 },
+                 vecs_equal_expected);
+         }},
+        {"data_path_single_write_replica", kb, 12,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (auto& o : outs) std::vector<pxir::Buffer>().swap(o);
+                 },
+                 [&](std::size_t k) {
+                     // The M3 executor's data path without validation or
+                     // interpretation: reserve C, construct each sum once, wrap
+                     // in an owned slot, move into a fresh outputs vector. The
+                     // output lives past the interval.
+                     std::vector<float> c;
+                     c.reserve(n);
+                     executor_style_emplace_add(in_a, in_b, c);
+                     std::optional<pxir::Buffer> slot(pxir::Buffer(std::move(c)));
+                     std::vector<pxir::Buffer> outputs;
+                     outputs.push_back(std::move(*slot));
+                     slot.reset();
+                     outs[k] = std::move(outputs);
+                 },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                             return false;
+                         }
+                     }
+                     return true;
+                 });
+         }},
+        // Model bytes follow the executor in this tree: since M3 the single
+        // output of C = A + B is constructed once (12: read A, read B, write C)
+        // and moved (0 N-scaled payload bytes). M2 was 16, M1 was 24.
+        {"pxir_execution_total", kb, 12,
          [&] {
              return measure(
                  cfg, kb, [&] { results.clear(); },
