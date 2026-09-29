@@ -1,0 +1,58 @@
+# Auto-vectorization evidence for add_buffers (src/runtime/cpu_reference.cpp)
+# A = canonical M2 main 594a223 (add loops at lines 53 f32, 60 i32); B = M3 branch (add loops at lines 60 f32, 68 i32).
+# Flags: -std=c++20 -O3 -DNDEBUG (CMake Release), no -march (baseline x86-64 SSE2).
+
+## A GCC 13.3.0 -fopt-info-vec-all (add-loop lines)
+src/runtime/cpu_reference.cpp:53:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:53:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:53:35: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:60:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:60:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:60:35: optimized: loop vectorized using 8 byte vectors
+## A GCC object: add instructions
+      2 addps
+      3 addss
+      2 paddd
+## A Clang 18.1.3 -Rpass/-Rpass-missed/-Rpass-analysis=loop-vectorize (add-loop lines)
+src/runtime/cpu_reference.cpp:53:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:60:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+## A Clang object: add instructions
+      2 addps
+      5 addss
+      2 paddd
+
+## B GCC 13.3.0 -fopt-info-vec-all (add-loop lines)
+src/runtime/cpu_reference.cpp:54:23: missed: splitting region at control altering definition _306 = operator new (_286);
+src/runtime/cpu_reference.cpp:54:23: note: vectorized 0 loops in function.
+src/runtime/cpu_reference.cpp:60:35: missed: splitting region at dominance boundary bb77
+src/runtime/cpu_reference.cpp:60:35: note: ***** Analysis failed with vector mode VOID
+src/runtime/cpu_reference.cpp:68:35: missed: splitting region at dominance boundary bb78
+src/runtime/cpu_reference.cpp:68:35: note: ***** Analysis failed with vector mode VOID
+## B GCC object: add instructions
+      1 addss
+## B Clang 18.1.3 -Rpass/-Rpass-missed/-Rpass-analysis=loop-vectorize (add-loop lines)
+src/runtime/cpu_reference.cpp:60:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+src/runtime/cpu_reference.cpp:60:9: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+src/runtime/cpu_reference.cpp:60:9: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+src/runtime/cpu_reference.cpp:68:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+src/runtime/cpu_reference.cpp:68:9: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+src/runtime/cpu_reference.cpp:68:9: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+## B Clang object: add instructions
+      1 addss
+
+## B GCC -O3 inner f32 loop (objdump excerpt)
+     650:	mov    %rsi,%rax
+     653:	add    $0x1,%r14
+     657:	sub    %rdx,%rax
+     65a:	sar    $0x2,%rax
+     65e:	cmp    %rax,%r14
+     661:	jae    600 <pxir::(anonymous namespace)::add_buffers(pxir::Buffer const&, pxir::Buffer const&)+0xe0>
+     663:	mov    (%rbx),%rax
+     666:	movss  (%rax,%r14,4),%xmm0
+     66c:	addss  (%rdx,%r14,4),%xmm0
+     672:	movss  %xmm0,(%rsp)
+     677:	cmp    %rcx,%r13
+     67a:	jne    648 <pxir::(anonymous namespace)::add_buffers(pxir::Buffer const&, pxir::Buffer const&)+0x128>
+     67c:	movabs $0x1fffffffffffffff,%rcx
+     686:	mov    %r13,%rax
+     689:	sub    %r15,%rax

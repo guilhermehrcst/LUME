@@ -1,0 +1,6 @@
+# strace -f -e trace=brk,mmap,munmap,madvise ./probe 10  (default glibc malloc)
+# probe: docs/data/m2/strace_probe.cpp, 10 executor calls at N=1048576 (GCC 13.3 -O2, glibc 2.39).
+# A = canonical M2 main 594a223. Excerpt: the loop only.
+--- begin loop
+brk(0x5572bf727000)                     = 0x5572bf727000
+--- end loop
