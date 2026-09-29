@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 #include "input_validation.hpp"
@@ -20,6 +21,11 @@ std::string_view to_string(ExecutionErrorCode code) noexcept {
 }
 
 namespace {
+
+// Transferring an owned Buffer into ExecutionResult::outputs relies on a
+// non-throwing move that leaves the source empty-but-valid; vector growth in
+// `outputs` also relies on it to move rather than copy existing elements.
+static_assert(std::is_nothrow_move_constructible_v<Buffer>);
 
 ExecutionResult fail(ExecutionErrorCode code, std::string message) {
     return ExecutionResult{{}, ExecutionError{code, std::move(message)}};
@@ -101,10 +107,21 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
     }
 
     // Phase 2: interpret operations in order. bound[v] points at the buffer
-    // holding value v: a caller input or an entry of `owned`. Both vectors are
-    // sized once and never resized, so the pointers stay valid.
+    // holding value v: a caller input (borrowed) or an entry of `owned`
+    // (executor-owned). Both vectors are sized once and never resized, so the
+    // pointers stay valid.
     std::vector<const Buffer*> bound(s.values.size(), nullptr);
     std::vector<std::optional<Buffer>> owned(s.values.size());
+
+    // last_use[v] is the index of the last operation that reads value v; the
+    // invalid id means v is never read. The program is verified, so every
+    // operand id is valid and defined before use.
+    std::vector<OperationId> last_use(s.values.size());
+    for (std::size_t i = 0; i < s.operations.size(); ++i) {
+        for (const ValueId operand : s.operations[i].operands) {
+            if (operand.is_valid()) last_use[operand.index()] = OperationId{static_cast<std::uint32_t>(i)};
+        }
+    }
     const auto lookup = [&](ValueId v) -> const Buffer* { return v.index() < bound.size() ? bound[v.index()] : nullptr; };
 
     ExecutionResult result;
@@ -126,9 +143,21 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
                 break;
             }
             case Opcode::output: {
-                const Buffer* value = lookup(op.operands[0]);
+                const ValueId id = op.operands[0];
+                const Buffer* value = lookup(id);
                 if (value == nullptr) return internal_error("op " + std::to_string(i) + " output unbound");
-                result.outputs.push_back(*value);
+                std::optional<Buffer>& slot = owned[id.index()];
+                if (slot.has_value() && last_use[id.index()] == OperationId{static_cast<std::uint32_t>(i)}) {
+                    // Executor-owned and never read again: transfer the buffer
+                    // instead of copying it, then unbind it so no later lookup
+                    // can reach the moved-from state.
+                    result.outputs.push_back(std::move(*slot));
+                    slot.reset();
+                    bound[id.index()] = nullptr;
+                } else {
+                    // Caller-owned input, or a value still read later: copy.
+                    result.outputs.push_back(*value);
+                }
                 break;
             }
             default:

@@ -1,8 +1,14 @@
-// PXIR M1: cost breakdown of the scalar reference executor for C = A + B.
+// PXIR M1/M2: cost breakdown of the scalar reference executor for C = A + B.
 //
-// Observational only. It times the unmodified executor plus isolated
-// operations equivalent to each executor stage, over several N. Nothing here
-// changes how PXIR executes. See docs/m1-executor-cost-breakdown.md.
+// Times the executor built from this tree plus isolated operations equivalent
+// to each executor stage, over several N. Nothing here changes how PXIR
+// executes. See docs/m1-executor-cost-breakdown.md and
+// docs/m2-output-move-last-use.md.
+//
+// Component names from M1 keep their M1 definitions: `output_materialization`
+// and `data_path_replica` are the output COPY path. M2 adds
+// `output_move_materialization` and `data_path_move_replica` for the output
+// MOVE path. Only `pxir_execution_total` follows the executor in this tree.
 //
 // usage: pxir_bench_executor_breakdown [sizes=1,256,...] [seed=42] [warmup=5]
 //                                      [iterations=51] [order=forward|reverse]
@@ -218,6 +224,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
     // Holders keep produced results alive until the interval ends.
     std::vector<std::vector<float>> vecs(std::max(kb, fixed_batch));
     std::vector<std::vector<pxir::Buffer>> outs(kb);
+    std::vector<std::optional<pxir::Buffer>> move_sources(kb);
     std::vector<pxir::ExecutionResult> results;
     results.reserve(kb);
 
@@ -287,6 +294,28 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                      g_sink = &result;
                  },
                  always_ok);
+         }},
+        {"last_use_analysis", fixed_batch, 0,
+         [&] {
+             std::size_t unused = 0;
+             return measure(
+                 cfg, fixed_batch, [&] { unused = 0; },
+                 [&](std::size_t) {
+                     // Same construction as execute_cpu_reference (M2): one table
+                     // entry per value, one pass over every operand.
+                     std::vector<pxir::OperationId> last_use(value_count);
+                     for (std::size_t i = 0; i < storage.operations.size(); ++i) {
+                         for (const pxir::ValueId operand : storage.operations[i].operands) {
+                             if (operand.is_valid()) {
+                                 last_use[operand.index()] = pxir::OperationId{static_cast<std::uint32_t>(i)};
+                             }
+                         }
+                     }
+                     g_sink = last_use.data();
+                     for (const pxir::OperationId op : last_use) if (!op.is_valid()) ++unused;
+                 },
+                 // %0, %1 are read by the add and %2 by the output: nothing unused.
+                 [&] { return unused == 0; });
          }},
         {"result_buffer_create", kb, 4,
          [&] {
@@ -387,7 +416,65 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                      return true;
                  });
          }},
-        {"pxir_execution_total", kb, 24,
+        {"output_move_materialization", kb, 0,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     // Untimed: one N-sized owned source per repetition, as the
+                     // executor holds its add result in an optional<Buffer> slot.
+                     for (auto& o : outs) std::vector<pxir::Buffer>().swap(o);
+                     for (std::size_t k = 0; k < kb; ++k) move_sources[k].emplace(expected);
+                 },
+                 [&](std::size_t k) {
+                     // As the executor's final-use output: move into a fresh
+                     // outputs vector, then reset the slot.
+                     outs[k].push_back(std::move(*move_sources[k]));
+                     move_sources[k].reset();
+                 },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (move_sources[k].has_value() || outs[k].size() != 1 ||
+                             !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                             return false;
+                         }
+                     }
+                     return true;
+                 });
+         }},
+        {"data_path_move_replica", kb, 16,
+         [&] {
+             return measure(
+                 cfg, kb,
+                 [&] {
+                     for (auto& o : outs) std::vector<pxir::Buffer>().swap(o);
+                 },
+                 [&](std::size_t k) {
+                     // The M2 executor's allocations and transfers in the same
+                     // order and with the same lifetimes, without validation or
+                     // interpretation: create C, add, wrap in an owned slot, move
+                     // into a fresh outputs vector. The output (C itself) lives
+                     // past the interval.
+                     std::vector<float> c(n);
+                     executor_style_add(in_a, in_b, c);
+                     std::optional<pxir::Buffer> slot(pxir::Buffer(std::move(c)));
+                     std::vector<pxir::Buffer> outputs;
+                     outputs.push_back(std::move(*slot));
+                     slot.reset();
+                     outs[k] = std::move(outputs);
+                 },
+                 [&] {
+                     for (std::size_t k = 0; k < kb; ++k) {
+                         if (outs[k].size() != 1 || !pxir_oracle::exactly_equal(*outs[k][0].as_f32(), expected)) {
+                             return false;
+                         }
+                     }
+                     return true;
+                 });
+         }},
+        // Model bytes follow the executor in this tree: since M2 the single
+        // output of C = A + B is moved, so 4 (zero-fill) + 12 (add) = 16.
+        {"pxir_execution_total", kb, 16,
          [&] {
              return measure(
                  cfg, kb, [&] { results.clear(); },

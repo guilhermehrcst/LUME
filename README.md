@@ -92,6 +92,17 @@ M1 is observational and changes nothing about execution. It measures where the M
 
 On the measurement machine (glibc 2.39), most of the large-N cost comes from re-faulting heap pages that the allocator returns to the OS between calls, rather than from the IR abstraction. The measured input validation and executor setup together cost about 0.12 µs per call. Interpretation and dispatch were not measured on their own: they are inferred to be small only because a replica with no interpreter matches the full executor within this experiment's noise. The single-machine methodology, the raw data, and what remains unknown are in [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md).
 
+## M2: move owned output on last use
+
+M2 makes exactly one runtime change. The reference executor transfers an executor-owned result buffer into `ExecutionResult::outputs`, with no N-sized copy, when the output is that value's last use. Outputs of inputs, and outputs of values read again later, are still copied. This is not a zero-copy executor: the result buffer is still allocated and zero-initialized.
+
+- **Model:** on the canonical `C = A + B; output C` path, user-level traffic falls from 24 to 16 B/element.
+- **Measured** (interleaved A/B against M1, one machine with glibc 2.39): at N = 1,048,576 the executor went from 3.29 ms (2,016 page faults per call) to 0.60 ms (0 faults).
+- **Allocator dependence:** with every large block forced through mmap, M2 still faults, about half as often as M1.
+- **Small N:** the last-use table adds 20–23 ns in isolation.
+
+Details and caveats are in [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md).
+
 ## Build
 
 Requirements:
@@ -127,6 +138,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/benchmark-methodology.md`](docs/benchmark-methodology.md): rules for measurements and performance claims.
 - [`docs/m0-core-ir.md`](docs/m0-core-ir.md): M0 IR design, verifier invariants, correctness policy and baseline.
 - [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md): M1 measurement of where the reference executor spends time.
+- [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md): M2 output move on last use, A/B against M1.
 
 ## License
 

@@ -37,8 +37,11 @@ struct ExecutionResult {
 // operation; correctness is the only goal.
 //
 // `inputs[k]` is bound to the k-th input operation. All inputs are validated
-// against the IR types before any computation. Inputs are not copied; every
-// add allocates a fresh result buffer, and every output copies its value.
+// against the IR types before any computation. Inputs are borrowed: they are
+// read in place and never moved or modified. Every add allocates a fresh
+// result buffer. An output transfers an executor-owned buffer without copying
+// it when that output is the value's last use; otherwise (an output of an
+// input, or of a value read again later) it copies the value.
 //
 // Semantics: f32 add is IEEE-754 binary32 addition in the current rounding
 // mode; i32 add wraps modulo 2^32.
