@@ -30,15 +30,16 @@ The two paths do different work, so the ~7× ratio was not a result about PXIR. 
 | --- | --- | --- |
 | H1 | The scalar arithmetic loop is not responsible for most of the ~7× difference. | **Supported.** The executor-form add loop costs the same as the native loop (456 vs 468 µs at N = 1M). |
 | H2 | Result allocation/initialization and output copying contribute substantially. | **Supported, but the mechanism was not the one expected.** In isolation, zero-fill and copy cost 145 + 299 µs, about 13% of the total. The dominant cost is re-faulting pages that glibc returns to the OS between calls. That comes from how the executor's buffer lifetimes interact with the allocator, and no isolated component captures it (§11). |
-| H3 | For large N, memory traffic dominates fixed interpreter dispatch. | **Supported.** Validation, setup and dispatch total about 0.12 µs against milliseconds of memory work. |
-| H4 | For very small N, validation-independent bookkeeping and dispatch become proportionally important. | **Supported, with a qualification.** At N = 1, fixed costs are about 80% of the call. The largest single fixed cost is input validation (88 ns), not dispatch, and about 61 ns of it is associated with building diagnostic strings even when the input is valid. |
+| H3 | For large N, memory traffic dominates fixed interpreter dispatch. | **Supported.** Measured: input validation plus executor setup total about 0.12 µs, against milliseconds of memory work. Inferred, not measured: interpretation and dispatch are also small, because `data_path_replica` (no interpreter) matches `pxir_execution_total` within noise. Dispatch was not isolated and has no measured value. |
+| H4 | For very small N, validation-independent bookkeeping and dispatch become proportionally important. | **Supported, with qualifications.** On the batched N = 1 path (K = 1000, §4), measured validation plus setup is about 80% of the per-call time. The largest measured fixed cost is input validation (88 ns), and about 61 ns of it is associated with building diagnostic strings even when the input is valid. Dispatch was not measured separately, so it can't be ranked against validation. |
 
 ## 4. Experimental methodology
 
 Harness: `benchmarks/executor_breakdown.cpp`, which builds `pxir_bench_executor_breakdown`. It has no external dependencies. Timing uses `std::chrono::steady_clock`.
 
 - **Sample.** One sample is one steady_clock interval around **K** back-to-back repetitions. The per-op time is the interval divided by K. For each (N, component) there are 5 warmup samples and 51 measured samples, and the reported statistic is the median; min and max are recorded too. The mean is never used.
-- **Batching.** K = 1000 for operations that don't depend on N (validation, setup, message replica), and for every component when N < 4096. Otherwise K = 1, so large buffers see the allocator the way a single executor call does. The interval overhead is measured by `timer_overhead` at 26–30 ns. That is negligible when divided by K = 1000, but noticeable for K = 1 operations under about 1 µs.
+- **Batching.** K = 1000 for operations that don't depend on N (validation, setup, message replica), and for every component when N < 4096. Otherwise K = 1, so large buffers see the allocator the way a single executor call does.
+- **Lifetimes under batching.** When K = 1000, every result produced in an interval is kept until the interval ends. For `pxir_execution_total` that means 1,000 `ExecutionResult`s, and their output buffers, are alive at once. In a one-call-at-a-time loop, each result would be destroyed before the next call. The allocator state for small N (N = 1 and N = 256) is therefore not the same as canonical one-call execution. This doesn't affect the main large-N finding, because N ≥ 4,096 uses K = 1. N = 1 and N = 256 remain useful for showing the scale of fixed costs, but their exact allocation proportions should not be read as one-call allocator behaviour. The interval overhead is measured by `timer_overhead` at 26–30 ns. That is negligible when divided by K = 1000, but noticeable for K = 1 operations under about 1 µs.
 - **No indirect calls while timing.** The timed operation is a template argument, so the timed loop contains no `std::function`.
 - **Dead-code elimination is prevented:**
   - Every produced result (vectors, `Buffer`s, `ExecutionResult`s) goes into a pre-sized holder that outlives the interval.
@@ -83,7 +84,7 @@ The raw outputs of every run cited here are in [`docs/data/m1/`](data/m1/).
 | Flags | CMake Release: `-O3 -DNDEBUG`, with no `-march`, so the target is baseline x86-64 (SSE2) |
 | Commit | This branch, which is `381159e` plus M1 changes |
 
-The L3 is large enough to hold the whole N = 1M working set (12 MiB for the kernel). Throughput around 27 GB/s at large N is therefore **not** DRAM bandwidth. It is the streaming rate of this VM's cache and memory hierarchy, which the measurements cannot separate further.
+The working set fits within the reported L3 capacity (12 MiB of kernel traffic at N = 1M, 48 MiB at N = 4M), and the observed rates of about 27 GB/s are consistent with cache-resident execution. Actual cache-hierarchy and DRAM traffic were not measured: there were no hardware performance counters, and a virtualized L3 may be shared or partitioned in ways `lscpu` doesn't show. The rates are the streaming rates this VM's memory hierarchy delivered, and this experiment can't attribute them to a specific level.
 
 ## 6. Workloads
 
@@ -108,7 +109,7 @@ The executor stages below were confirmed by reading `src/runtime/cpu_reference.c
 | `pxir_execution_total` | The unmodified `execute_cpu_reference(vp, inputs)`; the `ExecutionResult` is kept and freed after the interval | Canonical full path, timed the same way as M0 |
 | `timer_overhead` | An empty interval | Measurement floor |
 
-`fixed_or_dispatch_overhead` is not reported as its own component, because interpretation (op loop, switch, id lookup, binding) was not isolated. It is bounded below instead: at N = 1 the total is within the noise of validation + setup + data path (§9).
+`fixed_or_dispatch_overhead` is not reported as its own component, because interpretation (op loop, switch, id lookup, binding) was not isolated and has no measured value. It is only bounded indirectly: `pxir_execution_total` is within noise of `input_validation` + `executor_setup` + `data_path_replica` for N ≤ 4,096 (on the batched path), and within noise of `data_path_replica` alone at N ≥ 1M. Any interpretation cost therefore fits inside the residual or noise of this experiment.
 
 ## 8. Measurements
 
@@ -252,12 +253,14 @@ Inside the fault-free path, all measured in the same T1 run, the isolated compon
 
 | N | Total | Native | Total / native | Faults/call | Dominant cost (measured or associated) |
 | ---: | ---: | ---: | ---: | ---: | --- |
-| 1 | 150 ns | 1.6 ns | 94× | 0 | Fixed: validation 88 ns + setup 32 ns + small allocations |
-| 256 | 252 ns | 24 ns | 10.5× | 0 | Fixed costs plus two small allocations and a copy |
+| 1 | 150 ns ‡ | 1.6 ns | 94× | 0 | Fixed: validation 88 ns + setup 32 ns + small allocations (batched path) |
+| 256 | 252 ns ‡ | 24 ns | 10.5× | 0 | Fixed costs plus two small allocations and a copy (batched path) |
 | 4,096 | 1.17 µs | 0.54 µs | 2.2× | 0 | Extra data movement (zero-fill and copy); fixed costs about 10% |
 | 65,536 | 133.5 µs | 7.8 µs | **17×** | 96 | Page faults: 96 × 1.17 µs ≈ 112 µs; fault-free total 20.9 µs (2.7×) |
 | 1,048,576 | 3,466 µs | 468 µs | 7.4× | 2,016 | Page faults (72%); fault-free total 962 µs (2.07×) |
 | 4,194,304 | 15,052 µs | 1,848 µs | 8.1× | 8,160 | Page faults; fault-free total 3,801 µs (2.04×) |
+
+‡ Measured with K = 1000 per interval, with all 1,000 results alive until the interval ends (§4). These values show the scale of fixed costs, not canonical one-call allocator behaviour.
 
 - **Constant costs (measured on all six sizes):** `input_validation` 79–97 ns, `executor_setup` 28–33 ns, timer floor 26–30 ns. They don't vary with N.
 - **Costs that scale with N:** the add loop, zero-fill, copy, and fault counts. The fault counts follow **2 × pages(4·N) − 32**: 96 = 2·64 − 32, 2,016 = 2·1,024 − 32, 8,160 = 2·4,096 − 32. That fits both 4·N-byte buffers being returned to the OS each call, apart from 32 pages (128 KiB, glibc's default `M_TOP_PAD`). **Inferred, not traced below N = 1M.**
@@ -288,10 +291,10 @@ The measured gap is 3,466 − 468 ≈ 3,000 µs:
 | --- | ---: | --- |
 | Re-faulting heap pages the allocator returned to the OS | ≈ 2,500 µs (84%) | Measured: T1 removes it; 2,016 faults × 1.22 µs predicts it; strace shows the per-call brk grow/shrink |
 | Extra warm data movement (zero-fill of C and output copy) | ≈ 445–500 µs (15–17%) | Isolated `result_buffer_create` + `output_materialization`; T1 total minus native |
-| Validation, setup, interpretation | ≈ 0.1 µs (< 0.01%) | Measured `input_validation` + `executor_setup`; interpretation bounded by total − replica, which is within noise |
+| Validation and setup (measured); interpretation and dispatch (not measured) | ≈ 0.12 µs measured (< 0.01%), plus an unmeasured interpretation cost | Measured: `input_validation` + `executor_setup`. Interpretation is only bounded indirectly by total − replica, which is within noise. |
 | Unexplained | ≈ 0–50 µs, within run-to-run noise (±80 µs) | — |
 
-**Where the gap comes from.** The IR abstraction (validation, bookkeeping and dispatch) is not a meaningful part of the large-N gap on this machine. The gap comes from how the executor materializes values:
+**Where the gap comes from.** The measured parts of the IR abstraction (validation and bookkeeping) are not a meaningful part of the large-N gap on this machine. Interpretation and dispatch were not measured, but the replica bound leaves no room for them to be meaningful either. The gap comes from how the executor materializes values:
 - it allocates a fresh result;
 - it copies that result into a second fresh buffer;
 - it frees the result inside the call, while the caller frees the output afterwards.
@@ -317,8 +320,9 @@ With glibc's default dynamic thresholds, those two adjacent 4 MiB frees cross th
 
 - **Shared virtualized hardware:** a Docker container on a shared VM. Noisy neighbours, the hypervisor's page-table cost (which affects the per-fault cost), and a masked CPU model.
 - **Frequency scaling:** no governor is visible, and the frequency can't be pinned from inside the container.
-- **Cache state:** the L3 is 260 MiB, so N ≤ 4M runs from cache rather than DRAM on this host. A machine with a smaller L3 would show different large-N rates. Preallocated components see a C that is warm from the previous sample.
+- **Cache state:** the reported L3 is 260 MiB, so the N ≤ 4M working sets fit within it, and the observed rates are consistent with cache-resident execution. Actual cache and DRAM traffic were not measured. A machine with a smaller L3 could show different large-N rates. Preallocated components see a C that is warm from the previous sample.
 - **Allocator state and implementation:** this is the dominant effect, and it is **specific to glibc 2.39's dynamic mmap/trim thresholds**. Other allocators (jemalloc, mimalloc, macOS libmalloc, the Windows heap), other glibc versions, or a long-running process with a different heap history could remove or change the fault behaviour entirely. At N = 256 (K = 1000), allocation timings depend on component order through heap growth (†, §8).
+- **Batched small-N lifetimes:** for N < 4,096 (K = 1000), produced results, including the 1,000 `ExecutionResult`s of `pxir_execution_total`, stay alive until the interval ends. Output-buffer lifetimes and allocator state therefore differ from one-at-a-time execution. Small-N allocation costs and proportions (for example "about 80% of N = 1") describe this batched path, not canonical single-call behaviour. The N ≥ 4,096 results, including the page-fault finding, use K = 1 and are not affected.
 - **OS scheduling:** the max values (for example 0.57 ms against a 0.47 ms median for native at 1M) show preemption. Medians over 51 samples, and medians of three runs, reduce but don't remove this.
 - **Compiler version and flags:** GCC 13.3 `-O3` without `-march`. Clang 18.1 results agree with GCC to within about 20% (largest difference: N = 1 total, 178 vs 150 ns). Other compilers are unmeasured.
 - **Timing overhead:** the steady_clock interval costs 26–30 ns. That is negligible for batched components, but it inflates K = 1 results under about 1 µs by up to about 5%.
@@ -344,7 +348,7 @@ With glibc's default dynamic thresholds, those two adjacent 4 MiB frees cross th
 
 - About 72% of executor time at N = 1M comes from re-faulting pages that glibc returns to the OS between calls. It is triggered by the executor's two same-sized buffers (result and output copy) being freed together at the top of the heap, where they cross glibc's dynamic trim threshold.
 - About 26% is the extra data movement (zero-fill and copy), which doubles the model bytes relative to native.
-- The IR abstraction's own overheads matter only at small N: at N = 1 they are about 80% of 150 ns.
+- The IR abstraction's measured overheads (validation and setup) matter only at small N: on the batched N = 1 path they are about 80% of the 150 ns per-call time. Interpretation and dispatch are inside the residual and were not measured separately.
 
 **NOT YET KNOWN**
 
