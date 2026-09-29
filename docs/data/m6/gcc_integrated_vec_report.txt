@@ -1,0 +1,20 @@
+src/runtime/cpu_reference.cpp:106:39: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:106:39: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:106:39: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:109:39: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:109:39: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:109:39: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:112:39: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:112:39: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:60:68: missed: splitting region at dominance boundary bb215
+src/runtime/cpu_reference.cpp:60:68: missed: splitting region at dominance boundary bb95
+src/runtime/cpu_reference.cpp:73:43: missed: not vectorized: more than one data ref in stmt: x = MEM[(const struct span &)&a];
+src/runtime/cpu_reference.cpp:74:43: missed: not vectorized: more than one data ref in stmt: y = MEM[(const struct span &)&b];
+src/runtime/cpu_reference.cpp:76:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:76:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:76:35: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:82:50: missed: not vectorized: more than one data ref in stmt: x = MEM[(const struct span &)&a];
+src/runtime/cpu_reference.cpp:83:50: missed: not vectorized: more than one data ref in stmt: y = MEM[(const struct span &)&b];
+src/runtime/cpu_reference.cpp:85:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:85:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:85:35: optimized: loop vectorized using 8 byte vectors

@@ -1,0 +1,21 @@
+/tmp/claude-0/m6/cr_probe.cpp:106:39: optimized:  loop versioned for vectorization because of possible aliasing
+/tmp/claude-0/m6/cr_probe.cpp:106:39: optimized: loop vectorized using 16 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:106:39: optimized: loop vectorized using 8 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:109:39: optimized:  loop versioned for vectorization because of possible aliasing
+/tmp/claude-0/m6/cr_probe.cpp:109:39: optimized: loop vectorized using 16 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:109:39: optimized: loop vectorized using 8 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:112:39: optimized: loop vectorized using 16 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:112:39: optimized: loop vectorized using 8 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:76:35: optimized:  loop versioned for vectorization because of possible aliasing
+/tmp/claude-0/m6/cr_probe.cpp:76:35: optimized: loop vectorized using 16 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:76:35: optimized: loop vectorized using 8 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:85:35: optimized:  loop versioned for vectorization because of possible aliasing
+/tmp/claude-0/m6/cr_probe.cpp:85:35: optimized: loop vectorized using 16 byte vectors
+/tmp/claude-0/m6/cr_probe.cpp:85:35: optimized: loop vectorized using 8 byte vectors
+/usr/include/c++/13/bits/basic_string.h:218:26: optimized: basic block part vectorized using 16 byte vectors
+/usr/include/c++/13/bits/stl_vector.h:100:16: optimized: basic block part vectorized using 16 byte vectors
+/usr/include/c++/13/bits/stl_vector.h:100:4: optimized: basic block part vectorized using 16 byte vectors
+/usr/include/c++/13/bits/stl_vector.h:106:4: optimized: basic block part vectorized using 16 byte vectors
+/usr/include/c++/13/bits/stl_vector.h:115:13: optimized: basic block part vectorized using 16 byte vectors
+/usr/include/c++/13/bits/stl_vector.h:398:25: optimized: basic block part vectorized using 16 byte vectors
+/usr/include/c++/13/bits/vector.tcc:521:30: optimized: basic block part vectorized using 16 byte vectors

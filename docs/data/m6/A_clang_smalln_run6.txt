@@ -1,0 +1,29 @@
+pxir_benchmark=intermediate_materialization
+workload=D=A+B;E=D+C dtype=f32 seed=42 warmup=5 iterations=51 order=forward
+compiler=clang 18.1.3 (1ubuntu1)
+build_config=Release
+statistic=median_per_op_over_samples page_faults=getrusage_ru_minflt
+n=1 component=timer_overhead batch=1 median_ns=30.0 min_ns=28.0 max_ns=32.0 ns_per_element=30.0000 minflt_per_op=0.00 correctness=exact
+n=1 component=native_fused_preallocated batch=1000 median_ns=1.3 min_ns=1.3 max_ns=2.0 ns_per_element=1.3330 minflt_per_op=0.00 model_bytes=16 model_gbps=12.00 correctness=exact
+n=1 component=native_two_pass_preallocated batch=1000 median_ns=3.8 min_ns=3.6 max_ns=4.3 ns_per_element=3.7590 minflt_per_op=0.00 model_bytes=24 model_gbps=6.38 correctness=exact
+n=1 component=native_fused_dual_output batch=1000 median_ns=3.4 min_ns=3.3 max_ns=3.6 ns_per_element=3.4020 minflt_per_op=0.00 model_bytes=20 model_gbps=5.88 correctness=exact
+n=1 component=owned_fused_allocate_plus_compute batch=1000 median_ns=12.4 min_ns=11.3 max_ns=16.0 ns_per_element=12.3760 minflt_per_op=0.00 model_bytes=16 model_gbps=1.29 correctness=exact
+n=1 component=owned_two_pass_materialized batch=1000 median_ns=22.5 min_ns=19.7 max_ns=38.6 ns_per_element=22.4840 minflt_per_op=0.00 model_bytes=24 model_gbps=1.07 correctness=exact
+n=1 component=input_validation_chain batch=1000 median_ns=125.5 min_ns=115.9 max_ns=149.5 ns_per_element=125.4980 minflt_per_op=0.00 correctness=exact
+n=1 component=pxir_single_add_control batch=1000 median_ns=199.7 min_ns=184.7 max_ns=254.6 ns_per_element=199.7310 minflt_per_op=0.00 model_bytes=12 model_gbps=0.06 correctness=exact
+n=1 component=pxir_chain_final_only batch=1000 median_ns=269.1 min_ns=249.6 max_ns=311.8 ns_per_element=269.0820 minflt_per_op=0.00 model_bytes=24 model_gbps=0.09 correctness=exact
+n=1 component=pxir_chain_intermediate_output batch=1000 median_ns=315.3 min_ns=289.5 max_ns=512.3 ns_per_element=315.2950 minflt_per_op=0.00 model_bytes=32 model_gbps=0.10 correctness=exact
+n=1 component=pxir_chain_output_after_use batch=1000 median_ns=307.7 min_ns=272.5 max_ns=429.5 ns_per_element=307.7130 minflt_per_op=0.00 model_bytes=24 model_gbps=0.08 correctness=exact
+n=1 checksum_d_fnv1a=0xaca8646a589c0bfb checksum_e_fnv1a=0x922d115fd62350c3
+n=256 component=timer_overhead batch=1 median_ns=30.0 min_ns=28.0 max_ns=32.0 ns_per_element=0.1172 minflt_per_op=0.00 correctness=exact
+n=256 component=native_fused_preallocated batch=1000 median_ns=31.1 min_ns=29.9 max_ns=62.5 ns_per_element=0.1213 minflt_per_op=0.00 model_bytes=4096 model_gbps=131.89 correctness=exact
+n=256 component=native_two_pass_preallocated batch=1000 median_ns=68.5 min_ns=63.0 max_ns=98.1 ns_per_element=0.2677 minflt_per_op=0.00 model_bytes=6144 model_gbps=89.66 correctness=exact
+n=256 component=native_fused_dual_output batch=1000 median_ns=137.8 min_ns=128.3 max_ns=181.1 ns_per_element=0.5384 minflt_per_op=0.00 model_bytes=5120 model_gbps=37.14 correctness=exact
+n=256 component=owned_fused_allocate_plus_compute batch=1000 median_ns=270.5 min_ns=253.2 max_ns=325.2 ns_per_element=1.0565 minflt_per_op=0.20 model_bytes=4096 model_gbps=15.14 correctness=exact
+n=256 component=owned_two_pass_materialized batch=1000 median_ns=623.4 min_ns=585.9 max_ns=739.6 ns_per_element=2.4351 minflt_per_op=0.45 model_bytes=6144 model_gbps=9.86 correctness=exact
+n=256 component=input_validation_chain batch=1000 median_ns=124.3 min_ns=115.7 max_ns=161.0 ns_per_element=0.4856 minflt_per_op=0.00 correctness=exact
+n=256 component=pxir_single_add_control batch=1000 median_ns=290.3 min_ns=239.6 max_ns=424.6 ns_per_element=1.1339 minflt_per_op=0.00 model_bytes=3072 model_gbps=10.58 correctness=exact
+n=256 component=pxir_chain_final_only batch=1000 median_ns=377.8 min_ns=348.7 max_ns=703.5 ns_per_element=1.4759 minflt_per_op=0.00 model_bytes=6144 model_gbps=16.26 correctness=exact
+n=256 component=pxir_chain_intermediate_output batch=1000 median_ns=657.5 min_ns=433.9 max_ns=896.8 ns_per_element=2.5684 minflt_per_op=0.00 model_bytes=8192 model_gbps=12.46 correctness=exact
+n=256 component=pxir_chain_output_after_use batch=1000 median_ns=448.4 min_ns=409.6 max_ns=642.6 ns_per_element=1.7514 minflt_per_op=0.00 model_bytes=6144 model_gbps=13.70 correctness=exact
+n=256 checksum_d_fnv1a=0x5c7dd306ca1b64a2 checksum_e_fnv1a=0x103ee848ce508f71

@@ -1,0 +1,296 @@
+0000000000000010 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]>:
+      10:	mov    %rdi,%rax
+      13:	mov    %rsi,%rdi
+      16:	cmp    $0x1,%ecx
+      19:	je     f8 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0xe8>
+      1f:	cmp    $0x2,%ecx
+      22:	jne    a8 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x98>
+      28:	test   %rsi,%rsi
+      2b:	je     228 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x218>
+      31:	lea    -0x1(%rsi),%rdx
+      35:	cmp    $0x2,%rdx
+      39:	jbe    231 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x221>
+      3f:	mov    %rsi,%rcx
+      42:	mov    %rax,%rdx
+      45:	shr    $0x2,%rcx
+      49:	shl    $0x4,%rcx
+      4d:	add    %rax,%rcx
+      50:	movups (%rdx),%xmm0
+      53:	add    $0x10,%rdx
+      57:	addps  %xmm0,%xmm0
+      5a:	movups %xmm0,-0x10(%rdx)
+      5e:	cmp    %rdx,%rcx
+      61:	jne    50 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x40>
+      63:	test   $0x3,%sil
+      67:	je     a4 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x94>
+      69:	mov    %rsi,%rdx
+      6c:	and    $0xfffffffffffffffc,%rdx
+      70:	sub    %rdx,%rsi
+      73:	cmp    $0x1,%rsi
+      77:	je     94 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x84>
+      79:	lea    (%rax,%rdx,4),%rcx
+      7d:	movq   (%rcx),%xmm0
+      81:	addps  %xmm0,%xmm0
+      84:	movlps %xmm0,(%rcx)
+      87:	test   $0x1,%sil
+      8b:	je     a4 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x94>
+      8d:	and    $0xfffffffffffffffe,%rsi
+      91:	add    %rsi,%rdx
+      94:	lea    (%rax,%rdx,4),%rax
+      98:	movss  (%rax),%xmm0
+      9c:	addss  %xmm0,%xmm0
+      a0:	movss  %xmm0,(%rax)
+      a4:	ret
+      a5:	nopl   (%rax)
+      a8:	test   %rsi,%rsi
+      ab:	je     230 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x220>
+      b1:	cmp    $0x1,%rsi
+      b5:	je     210 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x200>
+      bb:	lea    0x4(%rdx),%rcx
+      bf:	mov    %rax,%r8
+      c2:	sub    %rcx,%r8
+      c5:	xor    %ecx,%ecx
+      c7:	cmp    $0x8,%r8
+      cb:	ja     1d0 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x1c0>
+      d1:	nopl   0x0(%rax)
+      d8:	movss  (%rax,%rcx,4),%xmm0
+      dd:	addss  (%rdx,%rcx,4),%xmm0
+      e2:	movss  %xmm0,(%rax,%rcx,4)
+      e7:	add    $0x1,%rcx
+      eb:	cmp    %rcx,%rsi
+      ee:	jne    d8 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0xc8>
+      f0:	ret
+      f1:	nopl   0x0(%rax)
+      f8:	test   %rsi,%rsi
+      fb:	je     220 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x210>
+     101:	cmp    $0x1,%rsi
+     105:	je     208 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x1f8>
+     10b:	lea    0x4(%rdx),%rcx
+     10f:	mov    %rax,%r8
+     112:	sub    %rcx,%r8
+     115:	xor    %ecx,%ecx
+     117:	cmp    $0x8,%r8
+     11b:	ja     140 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x130>
+     11d:	nopl   (%rax)
+     120:	movss  (%rax,%rcx,4),%xmm0
+     125:	addss  (%rdx,%rcx,4),%xmm0
+     12a:	movss  %xmm0,(%rax,%rcx,4)
+     12f:	add    $0x1,%rcx
+     133:	cmp    %rcx,%rsi
+     136:	jne    120 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x110>
+     138:	ret
+     139:	nopl   0x0(%rax)
+     140:	lea    -0x1(%rsi),%rcx
+     144:	cmp    $0x2,%rcx
+     148:	jbe    238 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x228>
+     14e:	shr    $0x2,%rdi
+     152:	xor    %ecx,%ecx
+     154:	shl    $0x4,%rdi
+     158:	nopl   0x0(%rax,%rax,1)
+     160:	movups (%rax,%rcx,1),%xmm0
+     164:	movups (%rdx,%rcx,1),%xmm4
+     168:	addps  %xmm4,%xmm0
+     16b:	movups %xmm0,(%rax,%rcx,1)
+     16f:	add    $0x10,%rcx
+     173:	cmp    %rdi,%rcx
+     176:	jne    160 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x150>
+     178:	test   $0x3,%sil
+     17c:	je     a4 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x94>
+     182:	mov    %rsi,%rdi
+     185:	mov    %rsi,%rcx
+     188:	and    $0x3,%edi
+     18b:	and    $0xfffffffffffffffc,%rcx
+     18f:	cmp    $0x1,%rdi
+     193:	je     1b9 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x1a9>
+     195:	lea    (%rax,%rcx,4),%rsi
+     199:	movq   (%rdx,%rcx,4),%xmm0
+     19e:	movq   (%rsi),%xmm1
+     1a2:	addps  %xmm1,%xmm0
+     1a5:	movlps %xmm0,(%rsi)
+     1a8:	test   $0x1,%dil
+     1ac:	je     a4 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x94>
+     1b2:	and    $0xfffffffffffffffe,%rdi
+     1b6:	add    %rdi,%rcx
+     1b9:	lea    (%rax,%rcx,4),%rax
+     1bd:	movss  (%rax),%xmm0
+     1c1:	addss  (%rdx,%rcx,4),%xmm0
+     1c6:	movss  %xmm0,(%rax)
+     1ca:	ret
+     1cb:	nopl   0x0(%rax,%rax,1)
+     1d0:	lea    -0x1(%rsi),%rcx
+     1d4:	cmp    $0x2,%rcx
+     1d8:	jbe    238 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x228>
+     1da:	shr    $0x2,%rdi
+     1de:	xor    %ecx,%ecx
+     1e0:	shl    $0x4,%rdi
+     1e4:	nopl   0x0(%rax)
+     1e8:	movups (%rdx,%rcx,1),%xmm0
+     1ec:	movups (%rax,%rcx,1),%xmm3
+     1f0:	addps  %xmm3,%xmm0
+     1f3:	movups %xmm0,(%rax,%rcx,1)
+     1f7:	add    $0x10,%rcx
+     1fb:	cmp    %rcx,%rdi
+     1fe:	jne    1e8 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x1d8>
+     200:	jmp    178 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x168>
+     205:	nopl   (%rax)
+     208:	xor    %ecx,%ecx
+     20a:	jmp    120 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x110>
+     20f:	nop
+     210:	xor    %ecx,%ecx
+     212:	jmp    d8 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0xc8>
+     217:	nopw   0x0(%rax,%rax,1)
+     220:	ret
+     221:	nopl   0x0(%rax)
+     228:	ret
+     229:	nopl   0x0(%rax)
+     230:	ret
+     231:	xor    %edx,%edx
+     233:	jmp    70 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x60>
+     238:	xor    %ecx,%ecx
+     23a:	jmp    195 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::{lambda(float, float)#1}) [clone .isra.0]+0x185>
+     23f:	nop
+
+0000000000000280 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]>:
+     280:	mov    %rdi,%rax
+     283:	mov    %rsi,%rdi
+     286:	cmp    $0x1,%ecx
+     289:	je     350 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xd0>
+     28f:	cmp    $0x2,%ecx
+     292:	jne    310 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x90>
+     294:	test   %rsi,%rsi
+     297:	je     478 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x1f8>
+     29d:	lea    -0x1(%rsi),%rdx
+     2a1:	cmp    $0x2,%rdx
+     2a5:	jbe    481 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x201>
+     2ab:	mov    %rsi,%rcx
+     2ae:	mov    %rax,%rdx
+     2b1:	shr    $0x2,%rcx
+     2b5:	shl    $0x4,%rcx
+     2b9:	add    %rax,%rcx
+     2bc:	nopl   0x0(%rax)
+     2c0:	movdqu (%rdx),%xmm0
+     2c4:	add    $0x10,%rdx
+     2c8:	pslld  $0x1,%xmm0
+     2cd:	movups %xmm0,-0x10(%rdx)
+     2d1:	cmp    %rdx,%rcx
+     2d4:	jne    2c0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x40>
+     2d6:	test   $0x3,%sil
+     2da:	je     30d <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x8d>
+     2dc:	mov    %rsi,%rdx
+     2df:	and    $0xfffffffffffffffc,%rdx
+     2e3:	sub    %rdx,%rsi
+     2e6:	cmp    $0x1,%rsi
+     2ea:	je     30a <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x8a>
+     2ec:	lea    (%rax,%rdx,4),%rcx
+     2f0:	movq   (%rcx),%xmm0
+     2f4:	pslld  $0x1,%xmm0
+     2f9:	movq   %xmm0,(%rcx)
+     2fd:	test   $0x1,%sil
+     301:	je     30d <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x8d>
+     303:	and    $0xfffffffffffffffe,%rsi
+     307:	add    %rsi,%rdx
+     30a:	shll   $1,(%rax,%rdx,4)
+     30d:	ret
+     30e:	xchg   %ax,%ax
+     310:	test   %rsi,%rsi
+     313:	je     480 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x200>
+     319:	cmp    $0x1,%rsi
+     31d:	je     460 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x1e0>
+     323:	lea    0x4(%rdx),%rcx
+     327:	mov    %rax,%r8
+     32a:	sub    %rcx,%r8
+     32d:	xor    %ecx,%ecx
+     32f:	cmp    $0x8,%r8
+     333:	ja     418 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x198>
+     339:	nopl   0x0(%rax)
+     340:	mov    (%rdx,%rcx,4),%edi
+     343:	add    %edi,(%rax,%rcx,4)
+     346:	add    $0x1,%rcx
+     34a:	cmp    %rcx,%rsi
+     34d:	jne    340 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xc0>
+     34f:	ret
+     350:	test   %rsi,%rsi
+     353:	je     470 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x1f0>
+     359:	cmp    $0x1,%rsi
+     35d:	je     450 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x1d0>
+     363:	lea    0x4(%rdx),%rcx
+     367:	mov    %rax,%r8
+     36a:	sub    %rcx,%r8
+     36d:	xor    %ecx,%ecx
+     36f:	cmp    $0x8,%r8
+     373:	ja     390 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x110>
+     375:	nopl   (%rax)
+     378:	mov    (%rdx,%rcx,4),%edi
+     37b:	add    %edi,(%rax,%rcx,4)
+     37e:	add    $0x1,%rcx
+     382:	cmp    %rcx,%rsi
+     385:	jne    378 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xf8>
+     387:	ret
+     388:	nopl   0x0(%rax,%rax,1)
+     390:	lea    -0x1(%rsi),%rcx
+     394:	cmp    $0x2,%rcx
+     398:	jbe    488 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x208>
+     39e:	shr    $0x2,%rdi
+     3a2:	xor    %ecx,%ecx
+     3a4:	shl    $0x4,%rdi
+     3a8:	nopl   0x0(%rax,%rax,1)
+     3b0:	movdqu (%rdx,%rcx,1),%xmm0
+     3b5:	movdqu (%rax,%rcx,1),%xmm3
+     3ba:	paddd  %xmm3,%xmm0
+     3be:	movups %xmm0,(%rax,%rcx,1)
+     3c2:	add    $0x10,%rcx
+     3c6:	cmp    %rdi,%rcx
+     3c9:	jne    3b0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x130>
+     3cb:	test   $0x3,%sil
+     3cf:	je     30d <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x8d>
+     3d5:	mov    %rsi,%rdi
+     3d8:	mov    %rsi,%rcx
+     3db:	and    $0x3,%edi
+     3de:	and    $0xfffffffffffffffc,%rcx
+     3e2:	cmp    $0x1,%rdi
+     3e6:	je     40e <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x18e>
+     3e8:	lea    (%rax,%rcx,4),%rsi
+     3ec:	movq   (%rdx,%rcx,4),%xmm0
+     3f1:	movq   (%rsi),%xmm1
+     3f5:	paddd  %xmm1,%xmm0
+     3f9:	movq   %xmm0,(%rsi)
+     3fd:	test   $0x1,%dil
+     401:	je     30d <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x8d>
+     407:	and    $0xfffffffffffffffe,%rdi
+     40b:	add    %rdi,%rcx
+     40e:	mov    (%rdx,%rcx,4),%edx
+     411:	add    %edx,(%rax,%rcx,4)
+     414:	ret
+     415:	nopl   (%rax)
+     418:	lea    -0x1(%rsi),%rcx
+     41c:	cmp    $0x2,%rcx
+     420:	jbe    488 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x208>
+     422:	shr    $0x2,%rdi
+     426:	xor    %ecx,%ecx
+     428:	shl    $0x4,%rdi
+     42c:	nopl   0x0(%rax)
+     430:	movdqu (%rax,%rcx,1),%xmm0
+     435:	movdqu (%rdx,%rcx,1),%xmm2
+     43a:	paddd  %xmm2,%xmm0
+     43e:	movups %xmm0,(%rax,%rcx,1)
+     442:	add    $0x10,%rcx
+     446:	cmp    %rcx,%rdi
+     449:	jne    430 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x1b0>
+     44b:	jmp    3cb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x14b>
+     450:	xor    %ecx,%ecx
+     452:	jmp    378 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xf8>
+     457:	nopw   0x0(%rax,%rax,1)
+     460:	xor    %ecx,%ecx
+     462:	jmp    340 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xc0>
+     467:	nopw   0x0(%rax,%rax,1)
+     470:	ret
+     471:	nopl   0x0(%rax)
+     478:	ret
+     479:	nopl   0x0(%rax)
+     480:	ret
+     481:	xor    %edx,%edx
+     483:	jmp    2e3 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x63>
+     488:	xor    %ecx,%ecx
+     48a:	jmp    3e8 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x168>
+     48f:	nop
+

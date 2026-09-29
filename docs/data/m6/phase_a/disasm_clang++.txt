@@ -1,0 +1,124 @@
+0000000000001dd0 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)>:
+    1dd0:	test   %rsi,%rsi
+    1dd3:	je     1eab <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0xdb>
+    1dd9:	cmp    $0x8,%rsi
+    1ddd:	jb     1df1 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0x21>
+    1ddf:	lea    (%rdx,%rsi,4),%rax
+    1de3:	cmp    %rdi,%rax
+    1de6:	jbe    1e59 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0x89>
+    1de8:	lea    (%rdi,%rsi,4),%rax
+    1dec:	cmp    %rdx,%rax
+    1def:	jbe    1e59 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0x89>
+    1df1:	xor    %eax,%eax
+    1df3:	mov    %rsi,%r8
+    1df6:	mov    %rax,%rcx
+    1df9:	and    $0x3,%r8
+    1dfd:	je     1e20 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0x50>
+    1dff:	mov    %rax,%rcx
+    1e02:	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+    1e10:	mov    (%rdx,%rcx,4),%r9d
+    1e14:	add    %r9d,(%rdi,%rcx,4)
+    1e18:	inc    %rcx
+    1e1b:	dec    %r8
+    1e1e:	jne    1e10 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0x40>
+    1e20:	sub    %rsi,%rax
+    1e23:	cmp    $0xfffffffffffffffc,%rax
+    1e27:	ja     1eab <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0xdb>
+    1e2d:	nopl   (%rax)
+    1e30:	mov    (%rdx,%rcx,4),%eax
+    1e33:	add    %eax,(%rdi,%rcx,4)
+    1e36:	mov    0x4(%rdx,%rcx,4),%eax
+    1e3a:	add    %eax,0x4(%rdi,%rcx,4)
+    1e3e:	mov    0x8(%rdx,%rcx,4),%eax
+    1e42:	add    %eax,0x8(%rdi,%rcx,4)
+    1e46:	mov    0xc(%rdx,%rcx,4),%eax
+    1e4a:	add    %eax,0xc(%rdi,%rcx,4)
+    1e4e:	add    $0x4,%rcx
+    1e52:	cmp    %rcx,%rsi
+    1e55:	jne    1e30 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0x60>
+    1e57:	jmp    1eab <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0xdb>
+    1e59:	mov    %rsi,%rax
+    1e5c:	and    $0xfffffffffffffff8,%rax
+    1e60:	xor    %ecx,%ecx
+    1e62:	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+    1e70:	movdqu (%rdi,%rcx,4),%xmm0
+    1e75:	movdqu 0x10(%rdi,%rcx,4),%xmm1
+    1e7b:	movdqu (%rdx,%rcx,4),%xmm2
+    1e80:	paddd  %xmm0,%xmm2
+    1e84:	movdqu 0x10(%rdx,%rcx,4),%xmm0
+    1e8a:	paddd  %xmm1,%xmm0
+    1e8e:	movdqu %xmm2,(%rdi,%rcx,4)
+    1e93:	movdqu %xmm0,0x10(%rdi,%rcx,4)
+    1e99:	add    $0x8,%rcx
+    1e9d:	cmp    %rcx,%rax
+    1ea0:	jne    1e70 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0xa0>
+    1ea2:	cmp    %rsi,%rax
+    1ea5:	jne    1df3 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>)+0x23>
+    1eab:	ret
+    1eac:	nopl   0x0(%rax)
+
+0000000000001eb0 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)>:
+    1eb0:	test   %rsi,%rsi
+    1eb3:	je     1fb3 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x103>
+    1eb9:	cmp    $0x8,%rsi
+    1ebd:	jb     1ed9 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x29>
+    1ebf:	lea    (%rdx,%rsi,4),%rax
+    1ec3:	cmp    %rdi,%rax
+    1ec6:	jbe    1f70 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xc0>
+    1ecc:	lea    (%rdi,%rsi,4),%rax
+    1ed0:	cmp    %rdx,%rax
+    1ed3:	jbe    1f70 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xc0>
+    1ed9:	xor    %eax,%eax
+    1edb:	mov    %rsi,%r8
+    1ede:	mov    %rax,%rcx
+    1ee1:	and    $0x3,%r8
+    1ee5:	je     1f07 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x57>
+    1ee7:	mov    %rax,%rcx
+    1eea:	nopw   0x0(%rax,%rax,1)
+    1ef0:	movss  (%rdi,%rcx,4),%xmm0
+    1ef5:	addss  (%rdx,%rcx,4),%xmm0
+    1efa:	movss  %xmm0,(%rdi,%rcx,4)
+    1eff:	inc    %rcx
+    1f02:	dec    %r8
+    1f05:	jne    1ef0 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x40>
+    1f07:	sub    %rsi,%rax
+    1f0a:	cmp    $0xfffffffffffffffc,%rax
+    1f0e:	ja     1fb3 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x103>
+    1f14:	data16 data16 cs nopw 0x0(%rax,%rax,1)
+    1f20:	movss  (%rdi,%rcx,4),%xmm0
+    1f25:	addss  (%rdx,%rcx,4),%xmm0
+    1f2a:	movss  0x4(%rdi,%rcx,4),%xmm1
+    1f30:	movss  %xmm0,(%rdi,%rcx,4)
+    1f35:	addss  0x4(%rdx,%rcx,4),%xmm1
+    1f3b:	movss  %xmm1,0x4(%rdi,%rcx,4)
+    1f41:	movss  0x8(%rdi,%rcx,4),%xmm0
+    1f47:	addss  0x8(%rdx,%rcx,4),%xmm0
+    1f4d:	movss  %xmm0,0x8(%rdi,%rcx,4)
+    1f53:	movss  0xc(%rdi,%rcx,4),%xmm0
+    1f59:	addss  0xc(%rdx,%rcx,4),%xmm0
+    1f5f:	movss  %xmm0,0xc(%rdi,%rcx,4)
+    1f65:	add    $0x4,%rcx
+    1f69:	cmp    %rcx,%rsi
+    1f6c:	jne    1f20 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x70>
+    1f6e:	jmp    1fb3 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x103>
+    1f70:	mov    %rsi,%rax
+    1f73:	and    $0xfffffffffffffff8,%rax
+    1f77:	xor    %ecx,%ecx
+    1f79:	nopl   0x0(%rax)
+    1f80:	movups (%rdi,%rcx,4),%xmm0
+    1f84:	movups 0x10(%rdi,%rcx,4),%xmm1
+    1f89:	movups (%rdx,%rcx,4),%xmm2
+    1f8d:	addps  %xmm0,%xmm2
+    1f90:	movups 0x10(%rdx,%rcx,4),%xmm0
+    1f95:	addps  %xmm1,%xmm0
+    1f98:	movups %xmm2,(%rdi,%rcx,4)
+    1f9c:	movups %xmm0,0x10(%rdi,%rcx,4)
+    1fa1:	add    $0x8,%rcx
+    1fa5:	cmp    %rcx,%rax
+    1fa8:	jne    1f80 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0xd0>
+    1faa:	cmp    %rsi,%rax
+    1fad:	jne    1edb <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)+0x2b>
+    1fb3:	ret
+
+Disassembly of section .text._ZNSt23mersenne_twister_engineImLm64ELm312ELm156ELm31ELm13043109905998158313ELm29ELm6148914691236517205ELm17ELm8202884508482404352ELm37ELm18444473444759240704ELm43ELm6364136223846793005EEclEv:
+

@@ -1,0 +1,3 @@
+--- begin loop
+--- end loop
+mode=chain4 n=1048576 iters=51 minor_faults_in_loop=2052 per_call=40.2 median_ns=1549055

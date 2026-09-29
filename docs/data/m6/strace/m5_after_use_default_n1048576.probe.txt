@@ -1,0 +1,3 @@
+--- begin loop
+--- end loop
+mode=after_use n=1048576 iters=10 minor_faults_in_loop=8133 per_call=813.3 median_ns=983255

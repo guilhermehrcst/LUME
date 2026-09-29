@@ -6,10 +6,26 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <variant>
 
 #include "input_validation.hpp"
 
 namespace pxir {
+
+namespace detail {
+
+// Mutable access to executor-owned storage. Only OwnedArray-backed buffers
+// (created by the executor) expose mutable elements; a vector-backed buffer,
+// which is how caller inputs are stored, yields nullopt for both types.
+struct RuntimeBufferAccess {
+    template <class T>
+    [[nodiscard]] static std::optional<std::span<T>> mutable_elements(Buffer& buffer) noexcept {
+        if (auto* array = std::get_if<OwnedArray<T>>(&buffer.data_)) return std::span<T>(array->data(), array->size());
+        return std::nullopt;
+    }
+};
+
+}  // namespace detail
 
 std::string_view to_string(ExecutionErrorCode code) noexcept {
     switch (code) {
@@ -70,6 +86,58 @@ std::optional<Buffer> add_buffers(const Buffer& lhs, const Buffer& rhs) {
         return Buffer(std::move(c));
     }
     return std::nullopt;
+}
+
+// d[i] = lhs[i] + rhs[i] where the destination is the storage of `lhs`, of
+// `rhs`, or of both (the same value used twice). Operand order is preserved.
+// `other` is the non-destination operand; when both operands are the
+// destination it is the destination itself. Each iteration reads its operands
+// at i before writing element i, and never touches another index, so the
+// exact overlap of destination and operand is safe.
+enum class Reuse { lhs, rhs, both };
+
+template <class T, class Add>
+void add_in_place(std::span<T> destination, std::span<const T> other, Reuse reuse, Add add) noexcept {
+    const std::size_t n = destination.size();
+    T* d = destination.data();
+    const T* o = other.data();
+    switch (reuse) {
+        case Reuse::lhs:
+            for (std::size_t i = 0; i < n; ++i) d[i] = add(d[i], o[i]);
+            break;
+        case Reuse::rhs:
+            for (std::size_t i = 0; i < n; ++i) d[i] = add(o[i], d[i]);
+            break;
+        case Reuse::both:
+            for (std::size_t i = 0; i < n; ++i) d[i] = add(d[i], d[i]);
+            break;
+    }
+}
+
+// In-place counterpart of add_buffers. `destination` must be the very object
+// that `lhs`, `rhs`, or both refer to, and must be executor-owned
+// (OwnedArray-backed). Nothing is written unless scalar type and length agree
+// across all three; false means no element was modified. No allocation.
+bool add_buffers_in_place(Buffer& destination, const Buffer& lhs, const Buffer& rhs) {
+    const bool is_lhs = &lhs == &destination;
+    const bool is_rhs = &rhs == &destination;
+    if (!is_lhs && !is_rhs) return false;
+    const Reuse reuse = is_lhs && is_rhs ? Reuse::both : (is_lhs ? Reuse::lhs : Reuse::rhs);
+    const Buffer& other = is_lhs ? rhs : lhs;  // the destination itself when both
+
+    if (const auto o = other.f32_view()) {
+        const auto d = detail::RuntimeBufferAccess::mutable_elements<float>(destination);
+        if (!d || d->size() != o->size()) return false;
+        add_in_place<float>(*d, *o, reuse, [](float a, float b) noexcept { return a + b; });
+        return true;
+    }
+    if (const auto o = other.i32_view()) {
+        const auto d = detail::RuntimeBufferAccess::mutable_elements<std::int32_t>(destination);
+        if (!d || d->size() != o->size()) return false;
+        add_in_place<std::int32_t>(*d, *o, reuse, wrapping_add);
+        return true;
+    }
+    return false;
 }
 
 }  // namespace
@@ -147,6 +215,27 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
                 const Buffer* lhs = lookup(op.operands[0]);
                 const Buffer* rhs = lookup(op.operands[1]);
                 if (lhs == nullptr || rhs == nullptr) return internal_error("op " + std::to_string(i) + " operand unbound");
+                // An operand is reusable as the destination iff the executor owns
+                // it and this add is its last use (outputs count as uses, so a
+                // later output blocks reuse). Caller inputs are never owned.
+                // Preference: lhs, then rhs.
+                const OperationId here{static_cast<std::uint32_t>(i)};
+                const auto reusable = [&](ValueId v) { return owned[v.index()].has_value() && last_use[v.index()] == here; };
+                const ValueId reuse = reusable(op.operands[0]) ? op.operands[0]
+                                      : reusable(op.operands[1]) ? op.operands[1]
+                                                                 : ValueId{};
+                if (reuse.is_valid()) {
+                    // Compute inside the operand's storage first; only then
+                    // move ownership to the result and unbind the old value.
+                    if (!add_buffers_in_place(*owned[reuse.index()], *lhs, *rhs)) {
+                        return internal_error("op " + std::to_string(i) + " operand buffers disagree");
+                    }
+                    owned[op.result.index()] = std::move(owned[reuse.index()]);
+                    owned[reuse.index()].reset();
+                    bound[reuse.index()] = nullptr;
+                    bound[op.result.index()] = &*owned[op.result.index()];
+                    break;
+                }
                 std::optional<Buffer> sum = add_buffers(*lhs, *rhs);
                 if (!sum) return internal_error("op " + std::to_string(i) + " operand buffers disagree");
                 owned[op.result.index()] = std::move(sum);

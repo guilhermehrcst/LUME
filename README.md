@@ -141,6 +141,18 @@ Measured on one machine at N = 1,048,576, relative to the native fused loop:
 
 Details are in [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md).
 
+## M6: last-use in-place result reuse
+
+M6 reuses executor-owned storage when an `add` consumes an operand for the last time: the result is computed inside that operand's buffer and ownership moves to the result value. It keeps two computational passes (this is not fusion) and the 24 B/element two-pass payload model; it removes one result allocation and lowers the logical peak (final-only chain: 8 to 4 B/element). Caller inputs are never reused, and a later output of a value blocks reuse. No IR, verifier or public API change.
+
+Measured on one machine, GCC, N = 1,048,576, `D = A + B; E = D + C`:
+- Default glibc: 2.90 ms to 0.80 ms and 2,016 to 0 minor faults per call.
+- Forced mmap (T2): fault sets 2 to 1.
+- Trim/mmap disabled (T1): 0.97 ms to 0.80 ms, which is not explained by payload (unchanged); a preallocated microbenchmark shows an in-place second pass at about 0.84x an out-of-place one.
+- Controls that cannot reuse (single add, output after use) are unchanged in time and faults. Non-reusing programs are 3 to 5 % slower at N = 1 to 256.
+
+Details, evidence and the merge conditions are in [`docs/m6-last-use-inplace-reuse.md`](docs/m6-last-use-inplace-reuse.md).
+
 ## Build
 
 Requirements:
@@ -180,6 +192,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md): M3 single-write result construction, a rejected experiment (negative result).
 - [`docs/m4-vectorizable-owned-storage.md`](docs/m4-vectorizable-owned-storage.md): M4 single-write owned storage that keeps auto-vectorization.
 - [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md): M5 intermediate-materialization baseline (observational).
+- [`docs/m6-last-use-inplace-reuse.md`](docs/m6-last-use-inplace-reuse.md): M6 last-use in-place result reuse.
 
 ## License
 
