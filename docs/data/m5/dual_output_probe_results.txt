@@ -1,0 +1,22 @@
+# docs/data/m5/dual_output_probe.cpp output (medians of 3001 calls), GCC 13.3 then Clang 18.1, -O3 -DNDEBUG
+== g++
+N=   4096 fused=     1434 two_pass=     1557 (1.09x) dual=     3008 (2.10x) dual_restrict=     3003 (2.09x) dual_e_first=     3211 (2.24x) ns
+N=  65536 fused=    18970 two_pass=    17891 (0.94x) dual=    35363 (1.86x) dual_restrict=    34658 (1.83x) dual_e_first=    34466 (1.82x) ns
+N=1048576 fused=   570185 two_pass=   889321 (1.56x) dual=   753816 (1.32x) dual_restrict=   738473 (1.30x) dual_e_first=   746680 (1.31x) ns
+== clang++
+N=   4096 fused=      772 two_pass=     1091 (1.41x) dual=     1963 (2.54x) dual_restrict=     2010 (2.60x) dual_e_first=     2531 (3.28x) ns
+N=  65536 fused=    11806 two_pass=    18193 (1.54x) dual=    36639 (3.10x) dual_restrict=    36258 (3.07x) dual_e_first=    35810 (3.03x) ns
+N=1048576 fused=   602502 two_pass=   888477 (1.47x) dual=   761655 (1.26x) dual_restrict=   754087 (1.25x) dual_e_first=   726268 (1.21x) ns
+
+# docs/data/m5 alias offset probe (d_out shifted against c and e), GCC 13.3 -O3, N=4096:
+a%4096=688 b=704 c=720 e=736
+d_out shift=   0 floats: (d_out - c) mod 4096 =   32 B, (d_out - e) mod 4096 =   16 B -> median 2487 ns
+d_out shift=   1 floats: (d_out - c) mod 4096 =   36 B, (d_out - e) mod 4096 =   20 B -> median 2661 ns
+d_out shift=   4 floats: (d_out - c) mod 4096 =   48 B, (d_out - e) mod 4096 =   32 B -> median 2490 ns
+d_out shift=   8 floats: (d_out - c) mod 4096 =   64 B, (d_out - e) mod 4096 =   48 B -> median 1913 ns
+d_out shift=  16 floats: (d_out - c) mod 4096 =   96 B, (d_out - e) mod 4096 =   80 B -> median 2203 ns
+d_out shift=  64 floats: (d_out - c) mod 4096 =  288 B, (d_out - e) mod 4096 =  272 B -> median 2158 ns
+d_out shift= 128 floats: (d_out - c) mod 4096 =  544 B, (d_out - e) mod 4096 =  528 B -> median 2143 ns
+d_out shift= 256 floats: (d_out - c) mod 4096 = 1056 B, (d_out - e) mod 4096 = 1040 B -> median 2145 ns
+d_out shift= 512 floats: (d_out - c) mod 4096 = 2080 B, (d_out - e) mod 4096 = 2064 B -> median 2156 ns
+d_out shift=1024 floats: (d_out - c) mod 4096 =   32 B, (d_out - e) mod 4096 =   16 B -> median 2467 ns

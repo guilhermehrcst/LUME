@@ -1,0 +1,8 @@
+# strace -f -e trace=brk,mmap,munmap,madvise ./strace_probe_chain intermediate 10  (default glibc malloc)
+# probe: docs/data/m5/strace_probe_chain.cpp; canonical M4 executor (main 4c958a6), GCC 13.3 -O2, glibc 2.39. Excerpt: the loop and the probe's own fault count.
+--- begin loop
+brk(0x5651b04e5000)                     = 0x5651b04e5000
+brk(0x5651b08e5000)                     = 0x5651b08e5000
+brk(0x5651b0ce5000)                     = 0x5651b0ce5000
+--- end loop
+minor_faults_in_loop=3074 per_call=307.4

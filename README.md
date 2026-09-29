@@ -117,7 +117,7 @@ M3 tested single-write result construction using standard C++20 `reserve` + `emp
 
 Details, raw data and the reproduction reference are in [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md).
 
-## M4: vectorizable single-write owned storage (experimental branch)
+## M4: vectorizable single-write owned storage
 
 M4 replaces the zero-filled `std::vector` result with `OwnedArray<T>`, storage created by `std::make_unique_for_overwrite<T[]>` whose elements are not value-initialized. It keeps M2's plain indexed loop, and every element is written exactly once before it can be read. GCC 13.3 and Clang 18.1 vectorize the loop in isolation and in the integrated executor.
 
@@ -129,6 +129,17 @@ Measured in an interleaved A/B against M2 on one machine, N = 1,048,576:
 With Clang, small N shows a regression of about 9 ns at N = 1.
 
 M4 changes the public `Buffer` API: `as_f32`/`as_i32` are replaced by `f32_view`/`i32_view` (`std::optional<std::span<const T>>`). Details, evidence and the merge conditions are in [`docs/m4-vectorizable-owned-storage.md`](docs/m4-vectorizable-owned-storage.md).
+
+## M5: multi-operation / intermediate-materialization baseline
+
+M5 is observational: the runtime is unchanged and no fusion was implemented. It measures `D = A + B; E = D + C` through the canonical executor against native fused (`e[i] = (a[i] + b[i]) + c[i]`) and two-pass loops, and against an interpreter-free replica.
+
+Measured on one machine at N = 1,048,576, relative to the native fused loop:
+- **Steady state (glibc trim/mmap disabled):** the PXIR chain costs about the same as a native two-pass loop and is 1.54× the fused loop, close to the 24/16 B/element model.
+- **Default glibc:** the chain is 4.3× the fused loop. Most of that comes from the allocator trimming and re-faulting the two result buffers (2,016 minor faults per call), not from the intermediate's extra bytes.
+- **Outputting D before its later use** (a required copy) adds about 0.3 ms; outputting it after its last use (a move) adds almost nothing.
+
+Details are in [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md).
 
 ## Build
 
@@ -168,6 +179,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m2-output-move-last-use.md`](docs/m2-output-move-last-use.md): M2 output move on last use, A/B against M1.
 - [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md): M3 single-write result construction, a rejected experiment (negative result).
 - [`docs/m4-vectorizable-owned-storage.md`](docs/m4-vectorizable-owned-storage.md): M4 single-write owned storage that keeps auto-vectorization.
+- [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md): M5 intermediate-materialization baseline (observational).
 
 ## License
 

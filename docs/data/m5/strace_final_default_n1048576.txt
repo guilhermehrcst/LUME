@@ -1,0 +1,35 @@
+# strace -f -e trace=brk,mmap,munmap,madvise ./strace_probe_chain final 10  (default glibc malloc)
+# probe: docs/data/m5/strace_probe_chain.cpp; canonical M4 executor (main 4c958a6), GCC 13.3 -O2, glibc 2.39. Excerpt: the loop and the probe's own fault count.
+--- begin loop
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+brk(0x55b847ebf000)                     = 0x55b847ebf000
+brk(0x55b8482bf000)                     = 0x55b8482bf000
+brk(0x55b847abf000)                     = 0x55b847abf000
+--- end loop
+minor_faults_in_loop=20195 per_call=2019.5
