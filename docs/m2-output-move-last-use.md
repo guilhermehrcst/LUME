@@ -56,7 +56,7 @@ if (slot.has_value() && last_use[id.index()] == OperationId{i}) {
 
 Unchanged: the IR, typed ids, the verifier, `VerifiedProgram`, the public API (`execute_cpu_reference`, `Buffer`, `ExecutionResult`), input validation, zero-initialization of results, `bound` and `owned`, the error codes and messages, and compiler flags. The only other source change is the doc comment in `include/pxir/runtime/cpu_reference.hpp`, which now describes the move rule.
 
-`static_assert(std::is_nothrow_move_constructible_v<Buffer>)` records what the design relies on. `Buffer` wraps a `std::variant` of two `std::vector`s, so its implicit move is `noexcept` and leaves the source holding an empty vector. The same property makes growth of `outputs` move existing elements rather than copy them.
+`static_assert(std::is_nothrow_move_constructible_v<Buffer>)` records what the design relies on. `Buffer` wraps a `std::variant` of two `std::vector`s, so its implicit move is `noexcept`. As with moved-from standard-library containers, the source remains valid but its value must be treated as unspecified. PXIR does not depend on that state: the owned slot is reset and the value unbound immediately after the move. The same `noexcept` property lets `std::vector<Buffer>` move existing elements rather than copy them when `outputs` grows.
 
 ## 5. Last-use analysis
 
@@ -78,7 +78,7 @@ It is one pass over the operations. It is correct for M0's straight-line IR beca
 | --- | --- | --- |
 | A caller's input is never moved or modified | Only `owned[v]` is ever moved from, and it is filled only by `add` results, whose storage `add_buffers` allocates separately. Inputs are reached only through `const Buffer*` into the caller's span. An output of an input takes the copy branch because its `owned` slot is empty. | Tests A–G check the caller's buffers after execution (`run()` checks both, F checks the i32 inputs) |
 | No move before a later use | A move requires `last_use[v] == i`, so no later operation reads `v` | Tests B, C, G; mutation test (§15) |
-| A moved-from value is unreachable | After the move, `slot.reset()` and `bound[v] = nullptr`. Any lookup would fail closed with an internal error instead of reading an empty buffer. | Mutation 2 (§15) shows what happens without the reset |
+| A moved-from value is unreachable | After the move, `slot.reset()` and `bound[v] = nullptr`. Any later lookup would fail closed with an internal error instead of reading the moved-from Buffer, whose contents are unspecified. | Mutation 2 (§15) shows what happens without the reset |
 | Output order is IR order | Each output still appends exactly once, in operation order | Test G (mix of moves and copies) |
 | Error semantics are unchanged | Validation, the `unbound` check and the kernel checks are untouched; the new branch creates no new error | All M0 and M1 error tests unchanged and green |
 | Repeated execution is unaffected | The move touches only per-call state (`owned`, `bound`, `result`), never the `VerifiedProgram` | Test `repeated_execution_is_stable` |
@@ -224,7 +224,7 @@ The small-N change is the sum of two measured effects: the added last-use table 
 
 - **Mutation test** (temporary, not committed):
   1. **Move any owned value at output, ignoring last use.** Killed. `pxir_output_move_test` fails B, C, F, G and the repeated-execution case: the second read of the value fails closed with an internal "unbound" error. The M0 test `chained_adds_and_outputs_in_order` fails too.
-  2. **Extra: also keep `bound` pointing at the moved-from buffer.** Killed by the same cases, but here the second output silently returns an **empty** buffer. This shows why the reset and unbind in §4 matter: a premature move fails closed instead of returning a wrong result.
+  2. **Extra: also keep `bound` pointing at the moved-from buffer.** Killed by the same cases. In the tested libstdc++ environment (GCC 13.3), the moved-from Buffer appeared empty, so the later output returned an empty result. That is an observation from this environment, not a portable C++ guarantee. The portable conclusion is that reading a moved-from Buffer here would rely on an unspecified state and is semantically invalid. Clearing `bound` makes such a bug fail closed instead: with `slot.reset()` and `bound[id] = nullptr` (§4), PXIR never relies on moved-from contents.
 
   The implementation was restored and all 15 tests pass.
 

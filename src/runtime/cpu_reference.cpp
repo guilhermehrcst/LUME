@@ -22,9 +22,11 @@ std::string_view to_string(ExecutionErrorCode code) noexcept {
 
 namespace {
 
-// Transferring an owned Buffer into ExecutionResult::outputs relies on a
-// non-throwing move that leaves the source empty-but-valid; vector growth in
-// `outputs` also relies on it to move rather than copy existing elements.
+// Transferring an owned Buffer into ExecutionResult::outputs relies on Buffer
+// being nothrow move constructible; vector growth in `outputs` also relies on
+// it to move rather than copy existing elements. After a move the source is
+// valid but its value is unspecified: PXIR never inspects or reuses it, and
+// the executor immediately resets the owned slot and clears bound[id].
 static_assert(std::is_nothrow_move_constructible_v<Buffer>);
 
 ExecutionResult fail(ExecutionErrorCode code, std::string message) {
