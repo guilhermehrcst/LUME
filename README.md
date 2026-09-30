@@ -141,6 +141,17 @@ Measured on one machine at N = 1,048,576, relative to the native fused loop:
 
 Details are in [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md).
 
+## Experiment 002: columnar encodings for an event-log workload
+
+Experiment 002 is the first test of H1 and H2 on a workload that is not a vector add: an append-only event log held in memory as a plain typed columnar layout (B1), a dictionary-encoded one (B2) and a dictionary + bit-packing + delta one (E1). The hypothesis and thresholds were pre-registered before any measurement, and the layouts are lossless (checked by a round-trip test that was itself mutation-tested).
+
+Measured (GCC 13.3 and Clang 18.1, one machine, synthetic calibrated workload, 200k to 3M rows):
+- **Footprint (T1, passed):** E1 uses 0.215x the bytes of B1 (24.8 vs 115.2 B/row) and 0.576x those of B2.
+- **Scan cost (T2, failed):** the worst scan is 3.3-4.2x B1, on a query that must rebuild every timestamp from deltas; point lookups are 1.4-1.7x slower.
+- The pre-registered hypothesis is therefore **not supported**: the encodings trade time for memory on this implementation.
+
+Details, raw data and limitations are in [`experiments/002-columnar-encodings`](experiments/002-columnar-encodings/README.md).
+
 ## Build
 
 Requirements:
@@ -180,6 +191,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m3-single-write-result.md`](docs/m3-single-write-result.md): M3 single-write result construction, a rejected experiment (negative result).
 - [`docs/m4-vectorizable-owned-storage.md`](docs/m4-vectorizable-owned-storage.md): M4 single-write owned storage that keeps auto-vectorization.
 - [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md): M5 intermediate-materialization baseline (observational).
+- [`experiments/002-columnar-encodings/README.md`](experiments/002-columnar-encodings/README.md): experiment 002, pre-registered columnar-encoding test (T1 passed, T2 failed).
 
 ## License
 
