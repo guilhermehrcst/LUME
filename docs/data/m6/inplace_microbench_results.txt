@@ -1,0 +1,30 @@
+gcc run1
+n=4096 out_of_place_ns=1452 in_place_ns=1180 fused_ns=884 in_place/out_of_place=0.813
+n=65536 out_of_place_ns=23205 in_place_ns=19258 fused_ns=13811 in_place/out_of_place=0.830
+n=1048576 out_of_place_ns=1012175 in_place_ns=848841 fused_ns=621524 in_place/out_of_place=0.839
+n=4194304 out_of_place_ns=3753596 in_place_ns=3255391 fused_ns=2594373 in_place/out_of_place=0.867
+clang run1
+n=4096 out_of_place_ns=1134 in_place_ns=930 fused_ns=774 in_place/out_of_place=0.820
+n=65536 out_of_place_ns=18758 in_place_ns=16761 fused_ns=12856 in_place/out_of_place=0.894
+n=1048576 out_of_place_ns=965025 in_place_ns=860281 fused_ns=674536 in_place/out_of_place=0.891
+n=4194304 out_of_place_ns=3903312 in_place_ns=3239202 fused_ns=2559078 in_place/out_of_place=0.830
+gcc run2
+n=4096 out_of_place_ns=2136 in_place_ns=1177 fused_ns=1539 in_place/out_of_place=0.551
+n=65536 out_of_place_ns=22654 in_place_ns=19290 fused_ns=16564 in_place/out_of_place=0.852
+n=1048576 out_of_place_ns=994170 in_place_ns=833036 fused_ns=649404 in_place/out_of_place=0.838
+n=4194304 out_of_place_ns=3928823 in_place_ns=3283183 fused_ns=2592145 in_place/out_of_place=0.836
+clang run2
+n=4096 out_of_place_ns=1137 in_place_ns=937 fused_ns=772 in_place/out_of_place=0.824
+n=65536 out_of_place_ns=18470 in_place_ns=17435 fused_ns=12223 in_place/out_of_place=0.944
+n=1048576 out_of_place_ns=972997 in_place_ns=819510 fused_ns=649879 in_place/out_of_place=0.842
+n=4194304 out_of_place_ns=3869517 in_place_ns=3245540 fused_ns=2562687 in_place/out_of_place=0.839
+gcc run3
+n=4096 out_of_place_ns=1449 in_place_ns=1182 fused_ns=883 in_place/out_of_place=0.816
+n=65536 out_of_place_ns=22998 in_place_ns=19267 fused_ns=13818 in_place/out_of_place=0.838
+n=1048576 out_of_place_ns=953851 in_place_ns=803320 fused_ns=630877 in_place/out_of_place=0.842
+n=4194304 out_of_place_ns=3848768 in_place_ns=3304797 fused_ns=2646557 in_place/out_of_place=0.859
+clang run3
+n=4096 out_of_place_ns=1135 in_place_ns=932 fused_ns=775 in_place/out_of_place=0.821
+n=65536 out_of_place_ns=17217 in_place_ns=20226 fused_ns=12263 in_place/out_of_place=1.175
+n=1048576 out_of_place_ns=940274 in_place_ns=787682 fused_ns=618895 in_place/out_of_place=0.838
+n=4194304 out_of_place_ns=3740816 in_place_ns=3135734 fused_ns=2459873 in_place/out_of_place=0.838

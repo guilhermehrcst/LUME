@@ -1,0 +1,132 @@
+0000000000000130 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]>:
+ 130:	mov    %rdi,%rcx
+ 133:	mov    %rsi,%rdi
+ 136:	test   %rsi,%rsi
+ 139:	je     16f <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x3f>
+ 13b:	cmp    $0x1,%rsi
+ 13f:	je     1f0 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0xc0>
+ 145:	lea    0x4(%rdx),%rax
+ 149:	mov    %rcx,%r8
+ 14c:	sub    %rax,%r8
+ 14f:	xor    %eax,%eax
+ 151:	cmp    $0x8,%r8
+ 155:	ja     170 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x40>
+ 157:	nopw   0x0(%rax,%rax,1)
+ 160:	mov    (%rdx,%rax,4),%edi
+ 163:	add    %edi,(%rcx,%rax,4)
+ 166:	add    $0x1,%rax
+ 16a:	cmp    %rax,%rsi
+ 16d:	jne    160 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x30>
+ 16f:	ret
+ 170:	lea    -0x1(%rsi),%rax
+ 174:	cmp    $0x2,%rax
+ 178:	jbe    206 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0xd6>
+ 17e:	shr    $0x2,%rdi
+ 182:	xor    %eax,%eax
+ 184:	shl    $0x4,%rdi
+ 188:	nopl   0x0(%rax,%rax,1)
+ 190:	movdqu (%rcx,%rax,1),%xmm0
+ 195:	movdqu (%rdx,%rax,1),%xmm2
+ 19a:	paddd  %xmm2,%xmm0
+ 19e:	movups %xmm0,(%rcx,%rax,1)
+ 1a2:	add    $0x10,%rax
+ 1a6:	cmp    %rdi,%rax
+ 1a9:	jne    190 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x60>
+ 1ab:	test   $0x3,%sil
+ 1af:	je     16f <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x3f>
+ 1b1:	mov    %rsi,%rax
+ 1b4:	and    $0x3,%esi
+ 1b7:	and    $0xfffffffffffffffc,%rax
+ 1bb:	mov    %rsi,%rdi
+ 1be:	cmp    $0x1,%rsi
+ 1c2:	je     1e6 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0xb6>
+ 1c4:	lea    (%rcx,%rax,4),%rsi
+ 1c8:	movq   (%rdx,%rax,4),%xmm0
+ 1cd:	movq   (%rsi),%xmm1
+ 1d1:	paddd  %xmm1,%xmm0
+ 1d5:	movq   %xmm0,(%rsi)
+ 1d9:	test   $0x1,%dil
+ 1dd:	je     16f <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x3f>
+ 1df:	and    $0xfffffffffffffffe,%rdi
+ 1e3:	add    %rdi,%rax
+ 1e6:	mov    (%rdx,%rax,4),%edx
+ 1e9:	add    %edx,(%rcx,%rax,4)
+ 1ec:	ret
+ 1ed:	nopl   (%rax)
+ 1f0:	xor    %eax,%eax
+ 1f2:	mov    (%rdx,%rax,4),%edi
+ 1f5:	add    %edi,(%rcx,%rax,4)
+ 1f8:	add    $0x1,%rax
+ 1fc:	cmp    %rax,%rsi
+ 1ff:	jne    160 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x30>
+ 205:	ret
+ 206:	xor    %eax,%eax
+ 208:	jmp    1c4 <(anonymous namespace)::add_in_place_i32(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>) [clone .isra.0]+0x94>
+ 20a:	nopw   0x0(%rax,%rax,1)
+
+0000000000000210 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]>:
+ 210:	mov    %rdi,%rcx
+ 213:	mov    %rsi,%rdi
+ 216:	test   %rsi,%rsi
+ 219:	je     258 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x48>
+ 21b:	cmp    $0x1,%rsi
+ 21f:	je     2e0 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0xd0>
+ 225:	lea    0x4(%rdx),%rax
+ 229:	mov    %rcx,%r8
+ 22c:	sub    %rax,%r8
+ 22f:	xor    %eax,%eax
+ 231:	cmp    $0x8,%r8
+ 235:	ja     260 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x50>
+ 237:	nopw   0x0(%rax,%rax,1)
+ 240:	movss  (%rcx,%rax,4),%xmm0
+ 245:	addss  (%rdx,%rax,4),%xmm0
+ 24a:	movss  %xmm0,(%rcx,%rax,4)
+ 24f:	add    $0x1,%rax
+ 253:	cmp    %rax,%rsi
+ 256:	jne    240 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x30>
+ 258:	ret
+ 259:	nopl   0x0(%rax)
+ 260:	lea    -0x1(%rsi),%rax
+ 264:	cmp    $0x2,%rax
+ 268:	jbe    2e7 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0xd7>
+ 26a:	shr    $0x2,%rdi
+ 26e:	xor    %eax,%eax
+ 270:	shl    $0x4,%rdi
+ 274:	nopl   0x0(%rax)
+ 278:	movups (%rcx,%rax,1),%xmm0
+ 27c:	movups (%rdx,%rax,1),%xmm2
+ 280:	addps  %xmm2,%xmm0
+ 283:	movups %xmm0,(%rcx,%rax,1)
+ 287:	add    $0x10,%rax
+ 28b:	cmp    %rdi,%rax
+ 28e:	jne    278 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x68>
+ 290:	test   $0x3,%sil
+ 294:	je     258 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x48>
+ 296:	mov    %rsi,%rdi
+ 299:	mov    %rsi,%rax
+ 29c:	and    $0x3,%edi
+ 29f:	and    $0xfffffffffffffffc,%rax
+ 2a3:	cmp    $0x1,%rdi
+ 2a7:	je     2c9 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0xb9>
+ 2a9:	lea    (%rcx,%rax,4),%rsi
+ 2ad:	movq   (%rdx,%rax,4),%xmm0
+ 2b2:	movq   (%rsi),%xmm1
+ 2b6:	addps  %xmm1,%xmm0
+ 2b9:	movlps %xmm0,(%rsi)
+ 2bc:	test   $0x1,%dil
+ 2c0:	je     258 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x48>
+ 2c2:	and    $0xfffffffffffffffe,%rdi
+ 2c6:	add    %rdi,%rax
+ 2c9:	lea    (%rcx,%rax,4),%rcx
+ 2cd:	movss  (%rcx),%xmm0
+ 2d1:	addss  (%rdx,%rax,4),%xmm0
+ 2d6:	movss  %xmm0,(%rcx)
+ 2da:	ret
+ 2db:	nopl   0x0(%rax,%rax,1)
+ 2e0:	xor    %eax,%eax
+ 2e2:	jmp    240 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x30>
+ 2e7:	xor    %eax,%eax
+ 2e9:	jmp    2a9 <(anonymous namespace)::add_in_place_f32(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>) [clone .isra.0]+0x99>
+ 2eb:	nop
+ 2ec:	nopl   0x0(%rax)
+

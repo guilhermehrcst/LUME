@@ -1,0 +1,304 @@
+00000000000044f0 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)>:
+    44f0:	test   %ecx,%ecx
+    44f2:	je     45c3 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0xd3>
+    44f8:	cmp    $0x1,%ecx
+    44fb:	jne    4680 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x190>
+    4501:	test   %rsi,%rsi
+    4504:	je     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    450a:	cmp    $0x8,%rsi
+    450e:	jb     452a <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x3a>
+    4510:	lea    (%rdx,%rsi,4),%rax
+    4514:	cmp    %rdi,%rax
+    4517:	jbe    46e7 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f7>
+    451d:	lea    (%rdi,%rsi,4),%rax
+    4521:	cmp    %rdx,%rax
+    4524:	jbe    46e7 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f7>
+    452a:	xor    %eax,%eax
+    452c:	mov    %rsi,%r8
+    452f:	mov    %rax,%rcx
+    4532:	and    $0x3,%r8
+    4536:	je     4557 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x67>
+    4538:	mov    %rax,%rcx
+    453b:	nopl   0x0(%rax,%rax,1)
+    4540:	movss  (%rdx,%rcx,4),%xmm0
+    4545:	addss  (%rdi,%rcx,4),%xmm0
+    454a:	movss  %xmm0,(%rdi,%rcx,4)
+    454f:	inc    %rcx
+    4552:	dec    %r8
+    4555:	jne    4540 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x50>
+    4557:	sub    %rsi,%rax
+    455a:	cmp    $0xfffffffffffffffc,%rax
+    455e:	ja     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    4564:	data16 data16 cs nopw 0x0(%rax,%rax,1)
+    4570:	movss  (%rdx,%rcx,4),%xmm0
+    4575:	addss  (%rdi,%rcx,4),%xmm0
+    457a:	movss  %xmm0,(%rdi,%rcx,4)
+    457f:	movss  0x4(%rdx,%rcx,4),%xmm0
+    4585:	addss  0x4(%rdi,%rcx,4),%xmm0
+    458b:	movss  %xmm0,0x4(%rdi,%rcx,4)
+    4591:	movss  0x8(%rdx,%rcx,4),%xmm0
+    4597:	addss  0x8(%rdi,%rcx,4),%xmm0
+    459d:	movss  %xmm0,0x8(%rdi,%rcx,4)
+    45a3:	movss  0xc(%rdx,%rcx,4),%xmm0
+    45a9:	addss  0xc(%rdi,%rcx,4),%xmm0
+    45af:	movss  %xmm0,0xc(%rdi,%rcx,4)
+    45b5:	add    $0x4,%rcx
+    45b9:	cmp    %rcx,%rsi
+    45bc:	jne    4570 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x80>
+    45be:	jmp    46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    45c3:	test   %rsi,%rsi
+    45c6:	je     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    45cc:	cmp    $0x8,%rsi
+    45d0:	jb     45ec <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0xfc>
+    45d2:	lea    (%rdx,%rsi,4),%rax
+    45d6:	cmp    %rdi,%rax
+    45d9:	jbe    4724 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x234>
+    45df:	lea    (%rdi,%rsi,4),%rax
+    45e3:	cmp    %rdx,%rax
+    45e6:	jbe    4724 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x234>
+    45ec:	xor    %eax,%eax
+    45ee:	mov    %rsi,%r8
+    45f1:	mov    %rax,%rcx
+    45f4:	and    $0x3,%r8
+    45f8:	je     4617 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x127>
+    45fa:	mov    %rax,%rcx
+    45fd:	nopl   (%rax)
+    4600:	movss  (%rdi,%rcx,4),%xmm0
+    4605:	addss  (%rdx,%rcx,4),%xmm0
+    460a:	movss  %xmm0,(%rdi,%rcx,4)
+    460f:	inc    %rcx
+    4612:	dec    %r8
+    4615:	jne    4600 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x110>
+    4617:	sub    %rsi,%rax
+    461a:	cmp    $0xfffffffffffffffc,%rax
+    461e:	ja     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    4624:	data16 data16 cs nopw 0x0(%rax,%rax,1)
+    4630:	movss  (%rdi,%rcx,4),%xmm0
+    4635:	addss  (%rdx,%rcx,4),%xmm0
+    463a:	movss  0x4(%rdi,%rcx,4),%xmm1
+    4640:	movss  %xmm0,(%rdi,%rcx,4)
+    4645:	addss  0x4(%rdx,%rcx,4),%xmm1
+    464b:	movss  %xmm1,0x4(%rdi,%rcx,4)
+    4651:	movss  0x8(%rdi,%rcx,4),%xmm0
+    4657:	addss  0x8(%rdx,%rcx,4),%xmm0
+    465d:	movss  %xmm0,0x8(%rdi,%rcx,4)
+    4663:	movss  0xc(%rdi,%rcx,4),%xmm0
+    4669:	addss  0xc(%rdx,%rcx,4),%xmm0
+    466f:	movss  %xmm0,0xc(%rdi,%rcx,4)
+    4675:	add    $0x4,%rcx
+    4679:	cmp    %rcx,%rsi
+    467c:	jne    4630 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x140>
+    467e:	jmp    46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    4680:	test   %rsi,%rsi
+    4683:	je     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    4685:	cmp    $0x8,%rsi
+    4689:	jae    468f <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x19f>
+    468b:	xor    %eax,%eax
+    468d:	jmp    46d0 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1e0>
+    468f:	mov    %rsi,%rax
+    4692:	and    $0xfffffffffffffff8,%rax
+    4696:	xor    %ecx,%ecx
+    4698:	nopl   0x0(%rax,%rax,1)
+    46a0:	movups (%rdi,%rcx,4),%xmm0
+    46a4:	movups 0x10(%rdi,%rcx,4),%xmm1
+    46a9:	addps  %xmm0,%xmm0
+    46ac:	addps  %xmm1,%xmm1
+    46af:	movups %xmm0,(%rdi,%rcx,4)
+    46b3:	movups %xmm1,0x10(%rdi,%rcx,4)
+    46b8:	add    $0x8,%rcx
+    46bc:	cmp    %rcx,%rax
+    46bf:	jne    46a0 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1b0>
+    46c1:	cmp    %rsi,%rax
+    46c4:	je     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    46c6:	cs nopw 0x0(%rax,%rax,1)
+    46d0:	movss  (%rdi,%rax,4),%xmm0
+    46d5:	addss  %xmm0,%xmm0
+    46d9:	movss  %xmm0,(%rdi,%rax,4)
+    46de:	inc    %rax
+    46e1:	cmp    %rax,%rsi
+    46e4:	jne    46d0 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1e0>
+    46e6:	ret
+    46e7:	mov    %rsi,%rax
+    46ea:	and    $0xfffffffffffffff8,%rax
+    46ee:	xor    %ecx,%ecx
+    46f0:	movups (%rdx,%rcx,4),%xmm0
+    46f4:	movups 0x10(%rdx,%rcx,4),%xmm1
+    46f9:	movups (%rdi,%rcx,4),%xmm2
+    46fd:	addps  %xmm0,%xmm2
+    4700:	movups 0x10(%rdi,%rcx,4),%xmm0
+    4705:	addps  %xmm1,%xmm0
+    4708:	movups %xmm2,(%rdi,%rcx,4)
+    470c:	movups %xmm0,0x10(%rdi,%rcx,4)
+    4711:	add    $0x8,%rcx
+    4715:	cmp    %rcx,%rax
+    4718:	jne    46f0 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x200>
+    471a:	cmp    %rsi,%rax
+    471d:	je     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    471f:	jmp    452c <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x3c>
+    4724:	mov    %rsi,%rax
+    4727:	and    $0xfffffffffffffff8,%rax
+    472b:	xor    %ecx,%ecx
+    472d:	nopl   (%rax)
+    4730:	movups (%rdi,%rcx,4),%xmm0
+    4734:	movups 0x10(%rdi,%rcx,4),%xmm1
+    4739:	movups (%rdx,%rcx,4),%xmm2
+    473d:	addps  %xmm0,%xmm2
+    4740:	movups 0x10(%rdx,%rcx,4),%xmm0
+    4745:	addps  %xmm1,%xmm0
+    4748:	movups %xmm2,(%rdi,%rcx,4)
+    474c:	movups %xmm0,0x10(%rdi,%rcx,4)
+    4751:	add    $0x8,%rcx
+    4755:	cmp    %rcx,%rax
+    4758:	jne    4730 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x240>
+    475a:	cmp    %rsi,%rax
+    475d:	je     46e6 <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0x1f6>
+    475f:	jmp    45ee <void pxir::(anonymous namespace)::add_in_place<float, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0>(std::span<float, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, pxir::(anonymous namespace)::add_buffers_in_place(pxir::Buffer&, pxir::Buffer const&, pxir::Buffer const&)::$_0)+0xfe>
+    4764:	data16 data16 cs nopw 0x0(%rax,%rax,1)
+
+0000000000004770 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)>:
+    4770:	test   %ecx,%ecx
+    4772:	je     480c <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x9c>
+    4778:	cmp    $0x1,%ecx
+    477b:	jne    4899 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x129>
+    4781:	test   %rsi,%rsi
+    4784:	je     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    478a:	cmp    $0x8,%rsi
+    478e:	jb     47aa <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x3a>
+    4790:	lea    (%rdx,%rsi,4),%rax
+    4794:	cmp    %rdi,%rax
+    4797:	jbe    48fc <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18c>
+    479d:	lea    (%rdi,%rsi,4),%rax
+    47a1:	cmp    %rdx,%rax
+    47a4:	jbe    48fc <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18c>
+    47aa:	xor    %eax,%eax
+    47ac:	mov    %rsi,%r8
+    47af:	mov    %rax,%rcx
+    47b2:	and    $0x3,%r8
+    47b6:	je     47d0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x60>
+    47b8:	mov    %rax,%rcx
+    47bb:	nopl   0x0(%rax,%rax,1)
+    47c0:	mov    (%rdx,%rcx,4),%r9d
+    47c4:	add    %r9d,(%rdi,%rcx,4)
+    47c8:	inc    %rcx
+    47cb:	dec    %r8
+    47ce:	jne    47c0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x50>
+    47d0:	sub    %rsi,%rax
+    47d3:	cmp    $0xfffffffffffffffc,%rax
+    47d7:	ja     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    47dd:	nopl   (%rax)
+    47e0:	mov    (%rdx,%rcx,4),%eax
+    47e3:	add    %eax,(%rdi,%rcx,4)
+    47e6:	mov    0x4(%rdx,%rcx,4),%eax
+    47ea:	add    %eax,0x4(%rdi,%rcx,4)
+    47ee:	mov    0x8(%rdx,%rcx,4),%eax
+    47f2:	add    %eax,0x8(%rdi,%rcx,4)
+    47f6:	mov    0xc(%rdx,%rcx,4),%eax
+    47fa:	add    %eax,0xc(%rdi,%rcx,4)
+    47fe:	add    $0x4,%rcx
+    4802:	cmp    %rcx,%rsi
+    4805:	jne    47e0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x70>
+    4807:	jmp    48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    480c:	test   %rsi,%rsi
+    480f:	je     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    4815:	cmp    $0x8,%rsi
+    4819:	jb     4835 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0xc5>
+    481b:	lea    (%rdx,%rsi,4),%rax
+    481f:	cmp    %rdi,%rax
+    4822:	jbe    494c <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x1dc>
+    4828:	lea    (%rdi,%rsi,4),%rax
+    482c:	cmp    %rdx,%rax
+    482f:	jbe    494c <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x1dc>
+    4835:	xor    %eax,%eax
+    4837:	mov    %rsi,%r8
+    483a:	mov    %rax,%rcx
+    483d:	and    $0x3,%r8
+    4841:	je     4860 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0xf0>
+    4843:	mov    %rax,%rcx
+    4846:	cs nopw 0x0(%rax,%rax,1)
+    4850:	mov    (%rdx,%rcx,4),%r9d
+    4854:	add    %r9d,(%rdi,%rcx,4)
+    4858:	inc    %rcx
+    485b:	dec    %r8
+    485e:	jne    4850 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0xe0>
+    4860:	sub    %rsi,%rax
+    4863:	cmp    $0xfffffffffffffffc,%rax
+    4867:	ja     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    486d:	nopl   (%rax)
+    4870:	mov    (%rdx,%rcx,4),%eax
+    4873:	add    %eax,(%rdi,%rcx,4)
+    4876:	mov    0x4(%rdx,%rcx,4),%eax
+    487a:	add    %eax,0x4(%rdi,%rcx,4)
+    487e:	mov    0x8(%rdx,%rcx,4),%eax
+    4882:	add    %eax,0x8(%rdi,%rcx,4)
+    4886:	mov    0xc(%rdx,%rcx,4),%eax
+    488a:	add    %eax,0xc(%rdi,%rcx,4)
+    488e:	add    $0x4,%rcx
+    4892:	cmp    %rcx,%rsi
+    4895:	jne    4870 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x100>
+    4897:	jmp    48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    4899:	test   %rsi,%rsi
+    489c:	je     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    489e:	cmp    $0x8,%rsi
+    48a2:	jae    48a8 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x138>
+    48a4:	xor    %eax,%eax
+    48a6:	jmp    48f0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x180>
+    48a8:	mov    %rsi,%rax
+    48ab:	and    $0xfffffffffffffff8,%rax
+    48af:	xor    %ecx,%ecx
+    48b1:	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+    48c0:	movdqu (%rdi,%rcx,4),%xmm0
+    48c5:	movdqu 0x10(%rdi,%rcx,4),%xmm1
+    48cb:	paddd  %xmm0,%xmm0
+    48cf:	paddd  %xmm1,%xmm1
+    48d3:	movdqu %xmm0,(%rdi,%rcx,4)
+    48d8:	movdqu %xmm1,0x10(%rdi,%rcx,4)
+    48de:	add    $0x8,%rcx
+    48e2:	cmp    %rcx,%rax
+    48e5:	jne    48c0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x150>
+    48e7:	cmp    %rsi,%rax
+    48ea:	je     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    48ec:	nopl   0x0(%rax)
+    48f0:	shll   $1,(%rdi,%rax,4)
+    48f3:	inc    %rax
+    48f6:	cmp    %rax,%rsi
+    48f9:	jne    48f0 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x180>
+    48fb:	ret
+    48fc:	mov    %rsi,%rax
+    48ff:	and    $0xfffffffffffffff8,%rax
+    4903:	xor    %ecx,%ecx
+    4905:	data16 cs nopw 0x0(%rax,%rax,1)
+    4910:	movdqu (%rdx,%rcx,4),%xmm0
+    4915:	movdqu 0x10(%rdx,%rcx,4),%xmm1
+    491b:	movdqu (%rdi,%rcx,4),%xmm2
+    4920:	paddd  %xmm0,%xmm2
+    4924:	movdqu 0x10(%rdi,%rcx,4),%xmm0
+    492a:	paddd  %xmm1,%xmm0
+    492e:	movdqu %xmm2,(%rdi,%rcx,4)
+    4933:	movdqu %xmm0,0x10(%rdi,%rcx,4)
+    4939:	add    $0x8,%rcx
+    493d:	cmp    %rcx,%rax
+    4940:	jne    4910 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x1a0>
+    4942:	cmp    %rsi,%rax
+    4945:	je     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    4947:	jmp    47ac <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x3c>
+    494c:	mov    %rsi,%rax
+    494f:	and    $0xfffffffffffffff8,%rax
+    4953:	xor    %ecx,%ecx
+    4955:	data16 cs nopw 0x0(%rax,%rax,1)
+    4960:	movdqu (%rdi,%rcx,4),%xmm0
+    4965:	movdqu 0x10(%rdi,%rcx,4),%xmm1
+    496b:	movdqu (%rdx,%rcx,4),%xmm2
+    4970:	paddd  %xmm0,%xmm2
+    4974:	movdqu 0x10(%rdx,%rcx,4),%xmm0
+    497a:	paddd  %xmm1,%xmm0
+    497e:	movdqu %xmm2,(%rdi,%rcx,4)
+    4983:	movdqu %xmm0,0x10(%rdi,%rcx,4)
+    4989:	add    $0x8,%rcx
+    498d:	cmp    %rcx,%rax
+    4990:	jne    4960 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x1f0>
+    4992:	cmp    %rsi,%rax
+    4995:	je     48fb <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0x18b>
+    499b:	jmp    4837 <void pxir::(anonymous namespace)::add_in_place<int, int (*)(int, int) noexcept>(std::span<int, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, pxir::(anonymous namespace)::Reuse, int (*)(int, int) noexcept)+0xc7>
+
+Disassembly of section .text._ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EEOS8_S9_:
+

@@ -1,0 +1,32 @@
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:138: check failed: r.big_allocations == 1
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:157: check failed: r.big_allocations == 2
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:176: check failed: r.big_allocations == 2
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:123: check failed: is(inputs[2], d.c)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:192: check failed: r.big_allocations == 1
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:123: check failed: is(inputs[2], d.c)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:208: check failed: r.big_allocations == 1
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:226: check failed: r.big_allocations == 3
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:122: check failed: is(inputs[1], d.b)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:123: check failed: is(inputs[2], d.c)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:243: check failed: r.big_allocations == 2
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:123: check failed: is(inputs[2], d.c)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:261: check failed: r.big_allocations == 2
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:123: check failed: is(inputs[2], d.c)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:280: check failed: r.big_allocations == 1
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:122: check failed: is(inputs[1], d.b)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:302: check failed: r.big_allocations == 2
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:121: check failed: is(inputs[0], d.a)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:123: check failed: is(inputs[2], d.c)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:299: check failed: r.result.ok() && r.result.outputs.size() == 2
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:323: check failed: r.big_allocations == 1
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:324: check failed: is(in[0], d.ia) && is(in[1], d.ib) && is(in[2], d.ic)
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:361: check failed: r.ok() && r.outputs.size() == 1
+inplace_reuse: FAIL (31 failures)

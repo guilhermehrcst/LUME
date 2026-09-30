@@ -1,0 +1,3 @@
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:172: check failed: r.result.ok() && r.result.outputs.size() == 2
+/home/user/PXIR/tests/execution/inplace_reuse_test.cpp:258: check failed: r.result.ok() && r.result.outputs.size() == 1
+inplace_reuse: FAIL (2 failures)

@@ -1,0 +1,3 @@
+--- begin loop
+--- end loop
+mode=intermediate n=1048576 iters=10 minor_faults_in_loop=8134 per_call=813.4 median_ns=1135669

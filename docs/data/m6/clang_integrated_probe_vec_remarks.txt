@@ -1,0 +1,5 @@
+/tmp/claude-0/m6/cr_probe.cpp:106:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+/tmp/claude-0/m6/cr_probe.cpp:109:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+/tmp/claude-0/m6/cr_probe.cpp:112:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+/tmp/claude-0/m6/cr_probe.cpp:76:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+/tmp/claude-0/m6/cr_probe.cpp:85:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]

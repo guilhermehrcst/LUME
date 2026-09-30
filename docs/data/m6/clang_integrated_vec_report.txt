@@ -1,0 +1,9 @@
+In file included from src/runtime/cpu_reference.cpp:1:
+src/runtime/cpu_reference.cpp:106:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:109:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:112:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:149:5: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+src/runtime/cpu_reference.cpp:149:5: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+src/runtime/cpu_reference.cpp:199:5: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+src/runtime/cpu_reference.cpp:76:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:85:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]

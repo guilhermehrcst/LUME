@@ -1,0 +1,10 @@
+Probe: src/runtime/cpu_reference.cpp with only __attribute__((noinline)) added to add_in_place (loop bodies unchanged) so instantiations can be attributed; the shipped build inlines them.
+== g++: per-instantiation SIMD/scalar/call instruction counts
+add_in_place<T, float)#1}> :: addps 5
+add_in_place<T, float)#1}> :: addss 4
+add_in_place<T, int) noexcept> :: paddd 3
+add_in_place<T, int) noexcept> :: pslld 2
+== clang++: per-instantiation SIMD/scalar/call instruction counts
+add_in_place<T, $_0> :: addps 6
+add_in_place<T, $_0> :: addss 11
+add_in_place<T, int) noexcept> :: paddd 6

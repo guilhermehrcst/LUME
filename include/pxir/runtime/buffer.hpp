@@ -14,6 +14,11 @@
 
 namespace pxir {
 
+namespace detail {
+// Internal executor access to mutable storage; see Buffer. Not public API.
+struct RuntimeBufferAccess;
+}  // namespace detail
+
 // A host buffer that owns typed elements. Used for executor inputs and outputs.
 //
 // Storage is either a caller-provided std::vector (moved in, never copied) or
@@ -48,6 +53,10 @@ public:
     }
 
 private:
+    // The only route to mutable elements. The executor uses it to overwrite a
+    // buffer it owns; the public interface stays read-only.
+    friend struct detail::RuntimeBufferAccess;
+
     template <class T>
     [[nodiscard]] std::optional<std::span<const T>> view() const noexcept {
         if (const auto* v = std::get_if<std::vector<T>>(&data_)) return std::span<const T>(v->data(), v->size());

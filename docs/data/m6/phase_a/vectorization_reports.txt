@@ -1,0 +1,11 @@
+== GCC 13.3 -O3 -fopt-info-vec-optimized -fopt-info-vec-missed (kernel lines 22-34 only) ==
+docs/data/m6/phase_a/inplace_kernel.cpp:35:31: optimized: loop vectorized using 16 byte vectors
+docs/data/m6/phase_a/inplace_kernel.cpp:35:31: optimized:  loop versioned for vectorization because of possible aliasing
+docs/data/m6/phase_a/inplace_kernel.cpp:35:31: optimized: loop vectorized using 8 byte vectors
+docs/data/m6/phase_a/inplace_kernel.cpp:28:31: optimized: loop vectorized using 16 byte vectors
+docs/data/m6/phase_a/inplace_kernel.cpp:28:31: optimized:  loop versioned for vectorization because of possible aliasing
+docs/data/m6/phase_a/inplace_kernel.cpp:28:31: optimized: loop vectorized using 8 byte vectors
+
+== Clang 18 -O3 -Rpass=loop-vectorize -Rpass-missed=loop-vectorize ==
+docs/data/m6/phase_a/inplace_kernel.cpp:35:5: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+docs/data/m6/phase_a/inplace_kernel.cpp:28:5: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]

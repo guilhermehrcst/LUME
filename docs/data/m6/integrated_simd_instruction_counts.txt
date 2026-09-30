@@ -1,0 +1,4 @@
+g++ m5: addps=2 paddd=2 addss=2
+g++ m6: addps=7 paddd=5 addss=6
+clang++ m5: addps=2 paddd=2 addss=5
+clang++ m6: addps=8 paddd=8 addss=16
