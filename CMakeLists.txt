@@ -48,6 +48,7 @@ if(BUILD_TESTING)
 endif()
 
 add_subdirectory(experiments/001-data-types)
+add_subdirectory(experiments/002-columnar-encodings)
 add_subdirectory(src)
 add_subdirectory(oracle)
 

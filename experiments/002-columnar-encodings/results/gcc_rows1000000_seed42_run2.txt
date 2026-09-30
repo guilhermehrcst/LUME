@@ -1,0 +1,69 @@
+environment cpu="Intel(R) Xeon(R) Processor @ 2.10GHz" ram_kb="       8223868 kB" compiler="13.3.0" build_config=Release commit=bd338ba-dirty
+params rows=1000000 seed=42 rounds=15
+generate ms=163.3
+build layout=B1 ms=103.9
+build layout=B2 ms=97.1
+build layout=E1 ms=125.1
+footprint layout=B1 bytes=115172996 bytes_per_row=115.173
+footprint_part layout=B1 column=event_id bytes_per_row=16.000
+footprint_part layout=B1 column=session_id bytes_per_row=16.000
+footprint_part layout=B1 column=client_seq bytes_per_row=2.000
+footprint_part layout=B1 column=schema_version bytes_per_row=1.000
+footprint_part layout=B1 column=occurred_at bytes_per_row=8.000
+footprint_part layout=B1 column=received_at bytes_per_row=8.000
+footprint_part layout=B1 column=mode bytes_per_row=8.000
+footprint_part layout=B1 column=event_name bytes_per_row=14.000
+footprint_part layout=B1 column=route bytes_per_row=14.000
+footprint_part layout=B1 column=acquisition bytes_per_row=6.002
+footprint_part layout=B1 column=properties bytes_per_row=22.171
+footprint layout=B2 bytes=43016928 bytes_per_row=43.017
+footprint_part layout=B2 column=event_id bytes_per_row=16.000
+footprint_part layout=B2 column=session_id bytes_per_row=3.014
+footprint_part layout=B2 column=client_seq bytes_per_row=2.000
+footprint_part layout=B2 column=schema_version bytes_per_row=1.000
+footprint_part layout=B2 column=occurred_at bytes_per_row=8.000
+footprint_part layout=B2 column=received_at bytes_per_row=8.000
+footprint_part layout=B2 column=mode bytes_per_row=1.000
+footprint_part layout=B2 column=event_name bytes_per_row=1.000
+footprint_part layout=B2 column=route bytes_per_row=1.001
+footprint_part layout=B2 column=acquisition bytes_per_row=1.000
+footprint_part layout=B2 column=properties bytes_per_row=1.002
+footprint layout=E1 bytes=24772139 bytes_per_row=24.772
+footprint_part layout=E1 column=event_id bytes_per_row=16.000
+footprint_part layout=E1 column=session_id bytes_per_row=1.267
+footprint_part layout=E1 column=client_seq bytes_per_row=0.205
+footprint_part layout=E1 column=schema_version bytes_per_row=0.000
+footprint_part layout=E1 column=occurred_at bytes_per_row=3.353
+footprint_part layout=E1 column=received_at bytes_per_row=1.694
+footprint_part layout=E1 column=mode bytes_per_row=0.000
+footprint_part layout=E1 column=event_name bytes_per_row=0.500
+footprint_part layout=E1 column=route bytes_per_row=0.751
+footprint_part layout=E1 column=acquisition bytes_per_row=0.125
+footprint_part layout=E1 column=properties bytes_per_row=0.877
+footprint_without_event_id layout=B1 bytes_per_row=99.173
+footprint_without_event_id layout=B2 bytes_per_row=27.017
+footprint_without_event_id layout=E1 bytes_per_row=8.772
+entropy column=event_name order0_bits_per_row=2.158 e1_bits_per_row=4.002
+entropy column=route order0_bits_per_row=3.405 e1_bits_per_row=6.006
+entropy column=properties order0_bits_per_row=4.021 e1_bits_per_row=7.019
+entropy column=acquisition order0_bits_per_row=0.004 e1_bits_per_row=1.000
+entropy column=client_seq order0_bits_per_row=0.040 e1_bits_per_row=1.643
+entropy column=received_at_minus_occurred_at order0_bits_per_row=9.162 e1_bits_per_row=13.549
+time query=S1 layout=B1 median_ns=8.662 min_ns=8.566 max_ns=8.890
+time query=S1 layout=B2 median_ns=0.244 min_ns=0.177 max_ns=0.301
+time query=S1 layout=E1 median_ns=1.058 min_ns=1.016 max_ns=1.083
+time query=S2 layout=B1 median_ns=8.981 min_ns=8.850 max_ns=9.130
+time query=S2 layout=B2 median_ns=4.008 min_ns=3.925 max_ns=4.296
+time query=S2 layout=E1 median_ns=6.196 min_ns=6.133 max_ns=6.358
+time query=S3 layout=B1 median_ns=0.722 min_ns=0.561 max_ns=0.773
+time query=S3 layout=B2 median_ns=0.736 min_ns=0.564 max_ns=0.791
+time query=S3 layout=E1 median_ns=2.960 min_ns=2.381 max_ns=3.861
+time query=P1 layout=B1 median_ns=279.904 min_ns=259.203 max_ns=317.063
+time query=P1 layout=B2 median_ns=219.313 min_ns=196.693 max_ns=238.485
+time query=P1 layout=E1 median_ns=439.255 min_ns=389.718 max_ns=490.227
+ratio_vs_B1 bytes=0.2151 S1=0.122 S2=0.690 S3=4.097 P1=1.569
+ratio_vs_B2 bytes=0.5759 S1=4.341 S2=1.546 S3=4.020 P1=2.003
+verdict T1 threshold=0.50 observed=0.2151 PASS
+verdict T2 threshold=1.25 observed_worst=4.097 FAIL
+sink=0
+correctness=exact
