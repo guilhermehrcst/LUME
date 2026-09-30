@@ -160,7 +160,8 @@ Ratio E1 / B1 in every configuration measured:
 - No general-purpose compressor (Zstd, LZ4) baseline and no Arrow implementation: B2 is an Arrow-like proxy, not Arrow. Compressors are not directly queryable, so they answer a different question.
 - Every layout assumes rows are clustered by session. Data that arrives interleaved needs a sort or compaction step whose cost is not measured here.
 - Queries are three scans and one lookup; range predicates, joins, updates and deletes are not covered. The layouts are immutable (build once).
-- Not verified: MSVC and macOS builds, concurrent readers, and behaviour on corrupted encoded buffers (the decoders assume well-formed input; only the encoders validate widths).
+- Platforms: the build and both experiment tests (`exp002_roundtrip`, `exp002_smoke`) pass in CI on the Ubuntu, macOS and Windows runners, and under ASan+UBSan on Ubuntu with GCC (GitHub Actions run 36790840587, `main` at `3a5c619`). The workflow does not pin a compiler for the macOS and Windows runners. The smoke test is not performance evidence: every number in section 8 was measured only on Linux with GCC 13.3 and Clang 18.1.
+- Not verified: concurrent readers, and behaviour on corrupted encoded buffers (the decoders assume well-formed input; only the encoders validate widths).
 - Correctness was checked by round trip, and the checker was mutation-tested (six injected bugs, all detected), but that is evidence about these implementations, not a proof.
 
 ## 11. Conclusion
