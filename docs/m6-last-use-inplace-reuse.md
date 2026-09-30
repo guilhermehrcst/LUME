@@ -62,7 +62,7 @@ The buffer is never moved before it is read, no stale `bound` pointer survives, 
 
 ## 7. Runtime implementation
 
-- `add_in_place<T>` (three loops chosen by `Reuse::{lhs, rhs, both}`): `d[i] = add(d[i], o[i])`, `add(o[i], d[i])`, `add(d[i], d[i])`. Operand order is the IR order; there is no commutative rewrite.
+- `add_in_place<T>` (three loops chosen by `Reuse::{lhs, rhs, both}`): `d[i] = add(d[i], o[i])`, `add(o[i], d[i])`, `add(d[i], d[i])`. Operand order follows the IR in the source, but the compiler is free to commute an IEEE addition, so the source order is not a bit-level guarantee. The only observable effect is the payload of a NaN result, which IEEE-754 does not specify and which the oracle ignores (any NaN matches any NaN). An audit probe (not committed; five reuse shapes, 2,000 programs of 64 f32 elements with random NaN payloads, `-O2`) found no difference in any non-NaN element. Clang 18.1 matched M5 bit for bit; GCC 13.3 differed from M5 only for right-operand reuse (48,187 of 128,000 elements, all NaN versus NaN). M5 itself already differs between GCC and Clang, so NaN payloads were never portable across compilers.
 - `add_buffers_in_place(Buffer& destination, const Buffer& lhs, const Buffer& rhs)`: destination identity is by address (`&lhs == &destination`), scalar type and length are checked first, no allocation.
 - Executor: eligibility, then the transition in §5.
 

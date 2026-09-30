@@ -89,7 +89,9 @@ std::optional<Buffer> add_buffers(const Buffer& lhs, const Buffer& rhs) {
 }
 
 // d[i] = lhs[i] + rhs[i] where the destination is the storage of `lhs`, of
-// `rhs`, or of both (the same value used twice). Operand order is preserved.
+// `rhs`, or of both (the same value used twice). Operand order follows the IR
+// in the source; the compiler may still commute the addition, which can change
+// only the payload of a NaN result.
 // `other` is the non-destination operand; when both operands are the
 // destination it is the destination itself. Each iteration reads its operands
 // at i before writing element i, and never touches another index, so the
