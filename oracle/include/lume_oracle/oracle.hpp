@@ -1,9 +1,9 @@
 #pragma once
 
-// Correctness oracle for PXIR M0.
+// Correctness oracle for Lume M0.
 //
-// Deliberately independent of the PXIR library: this header includes no PXIR
-// header and the pxir_oracle target does not link pxir. It provides
+// Deliberately independent of the Lume library: this header includes no Lume
+// header and the lume_oracle target does not link lume. It provides
 // deterministic input generation, native reference kernels, and exact
 // comparison.
 
@@ -15,7 +15,7 @@
 #include <span>
 #include <vector>
 
-namespace pxir_oracle {
+namespace lume_oracle {
 
 // Deterministic f32 values in [-1, 1) with 2^-23 granularity, all exactly
 // representable. std::mt19937_64's output sequence is fixed by the C++
@@ -41,7 +41,7 @@ inline void native_add(std::span<const float> a, std::span<const float> b, std::
     for (std::size_t i = 0; i < c.size(); ++i) c[i] = a[i] + b[i];
 }
 
-// Native wrapping i32 add, written independently of the PXIR executor.
+// Native wrapping i32 add, written independently of the Lume executor.
 inline void native_add(std::span<const std::int32_t> a, std::span<const std::int32_t> b,
                        std::span<std::int32_t> c) noexcept {
     for (std::size_t i = 0; i < c.size(); ++i) {
@@ -86,4 +86,4 @@ inline std::uint64_t fnv1a(std::span<const float> values) noexcept {
     return hash;
 }
 
-}  // namespace pxir_oracle
+}  // namespace lume_oracle

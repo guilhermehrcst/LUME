@@ -1,6 +1,6 @@
 # Benchmark Methodology
 
-PXIR performance results must be reproducible enough for another engineer to rerun the experiment and understand its limitations.
+Lume performance results must be reproducible enough for another engineer to rerun the experiment and understand its limitations.
 
 ## Required experiment structure
 
@@ -28,7 +28,7 @@ Record at minimum:
 - RAM;
 - compiler and version;
 - compiler flags;
-- PXIR commit SHA;
+- Lume commit SHA;
 - dataset size;
 - relevant runtime or library versions.
 
@@ -69,6 +69,6 @@ Prefer:
 
 Avoid:
 
-> PXIR uses 50% less memory.
+> Lume uses 50% less memory.
 
 unless the scope and evidence genuinely justify such a broad statement.

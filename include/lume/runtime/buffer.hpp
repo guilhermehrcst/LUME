@@ -9,10 +9,10 @@
 #include <variant>
 #include <vector>
 
-#include "pxir/ir/types.hpp"
-#include "pxir/runtime/owned_array.hpp"
+#include "lume/ir/types.hpp"
+#include "lume/runtime/owned_array.hpp"
 
-namespace pxir {
+namespace lume {
 
 namespace detail {
 // Internal executor access to mutable storage; see Buffer. Not public API.
@@ -70,4 +70,4 @@ private:
 static_assert(std::is_nothrow_move_constructible_v<Buffer>);
 static_assert(std::is_copy_constructible_v<Buffer>);
 
-}  // namespace pxir
+}  // namespace lume

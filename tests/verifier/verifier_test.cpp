@@ -3,12 +3,12 @@
 #include <cstdio>
 
 #include "check.hpp"
-#include "pxir/verify/verifier.hpp"
+#include "lume/verify/verifier.hpp"
 
 namespace {
 
-pxir::Program vector_add(pxir::ScalarType scalar, std::uint32_t n) {
-    pxir::Program p;
+lume::Program vector_add(lume::ScalarType scalar, std::uint32_t n) {
+    lume::Program p;
     const auto a = p.input(scalar, n);
     const auto b = p.input(scalar, n);
     p.output(p.add(a, b));
@@ -16,66 +16,66 @@ pxir::Program vector_add(pxir::ScalarType scalar, std::uint32_t n) {
 }
 
 void accepts_f32_vector_add() {
-    const pxir::VerifyResult r = pxir::verify(vector_add(pxir::f32, 1024));
-    PXIR_CHECK(r.ok());
-    PXIR_CHECK(r.diagnostics.empty());
+    const lume::VerifyResult r = lume::verify(vector_add(lume::f32, 1024));
+    LUME_CHECK(r.ok());
+    LUME_CHECK(r.diagnostics.empty());
     for (const auto& d : r.diagnostics) std::fprintf(stderr, "  %s\n", d.message.c_str());
 }
 
 void accepts_i32_vector_add() {
-    PXIR_CHECK(pxir::verify(vector_add(pxir::i32, 1)).ok());
+    LUME_CHECK(lume::verify(vector_add(lume::i32, 1)).ok());
 }
 
 void accepts_chained_adds_and_multiple_outputs() {
-    pxir::Program p;
-    const auto a = p.input(pxir::f32, 3);
-    const auto b = p.input(pxir::f32, 3);
+    lume::Program p;
+    const auto a = p.input(lume::f32, 3);
+    const auto b = p.input(lume::f32, 3);
     const auto c = p.add(a, b);
     const auto d = p.add(c, a);
     p.output(d);
     p.output(a);  // passing an input through is allowed
-    PXIR_CHECK(pxir::verify(p).ok());
+    LUME_CHECK(lume::verify(p).ok());
 }
 
 void verified_program_preserves_ir() {
-    const pxir::Program original = vector_add(pxir::f32, 16);
-    const pxir::VerifyResult r = pxir::verify(original);
-    if (!PXIR_CHECK(r.ok())) return;
-    const pxir::ProgramStorage& s = r.program->program().storage();
-    PXIR_CHECK(s.operations.size() == original.storage().operations.size());
-    PXIR_CHECK(s.values.size() == original.storage().values.size());
+    const lume::Program original = vector_add(lume::f32, 16);
+    const lume::VerifyResult r = lume::verify(original);
+    if (!LUME_CHECK(r.ok())) return;
+    const lume::ProgramStorage& s = r.program->program().storage();
+    LUME_CHECK(s.operations.size() == original.storage().operations.size());
+    LUME_CHECK(s.values.size() == original.storage().values.size());
 }
 
 void diagnostics_are_deterministic() {
     const auto build = [] {
-        pxir::Program p;
-        const auto a = p.input(pxir::f32, 100);
-        const auto b = p.input(pxir::i32, 200);
+        lume::Program p;
+        const auto a = p.input(lume::f32, 100);
+        const auto b = p.input(lume::i32, 200);
         p.add(a, b);
-        p.add(a, pxir::ValueId{99});
+        p.add(a, lume::ValueId{99});
         return p;
     };
-    const pxir::VerifyResult first = pxir::verify(build());
-    const pxir::VerifyResult second = pxir::verify(build());
-    PXIR_CHECK(!first.ok());
-    if (!PXIR_CHECK(first.diagnostics.size() == second.diagnostics.size())) return;
+    const lume::VerifyResult first = lume::verify(build());
+    const lume::VerifyResult second = lume::verify(build());
+    LUME_CHECK(!first.ok());
+    if (!LUME_CHECK(first.diagnostics.size() == second.diagnostics.size())) return;
     for (std::size_t i = 0; i < first.diagnostics.size(); ++i) {
-        PXIR_CHECK(first.diagnostics[i].code == second.diagnostics[i].code);
-        PXIR_CHECK(first.diagnostics[i].message == second.diagnostics[i].message);
+        LUME_CHECK(first.diagnostics[i].code == second.diagnostics[i].code);
+        LUME_CHECK(first.diagnostics[i].message == second.diagnostics[i].message);
     }
 }
 
 void diagnostic_messages_are_actionable() {
-    pxir::Program p;
-    const auto a = p.input(pxir::f32, 100);
-    const auto b = p.input(pxir::f32, 200);
+    lume::Program p;
+    const auto a = p.input(lume::f32, 100);
+    const auto b = p.input(lume::f32, 200);
     p.output(p.add(a, b));
-    const pxir::VerifyResult r = pxir::verify(p);
-    if (!PXIR_CHECK(r.diagnostics.size() == 1)) return;
-    const pxir::Diagnostic& d = r.diagnostics[0];
-    PXIR_CHECK(d.code == pxir::DiagnosticCode::shape_mismatch);
-    PXIR_CHECK(d.operation == pxir::OperationId{2});
-    PXIR_CHECK(d.message ==
+    const lume::VerifyResult r = lume::verify(p);
+    if (!LUME_CHECK(r.diagnostics.size() == 1)) return;
+    const lume::Diagnostic& d = r.diagnostics[0];
+    LUME_CHECK(d.code == lume::DiagnosticCode::shape_mismatch);
+    LUME_CHECK(d.operation == lume::OperationId{2});
+    LUME_CHECK(d.message ==
                "error[shape_mismatch] op 2 (add): cannot add %0: f32[100] and %1: f32[200] (lengths differ)");
 }
 
@@ -88,5 +88,5 @@ int main() {
     verified_program_preserves_ir();
     diagnostics_are_deterministic();
     diagnostic_messages_are_actionable();
-    return pxir_test::finish("verifier");
+    return lume_test::finish("verifier");
 }

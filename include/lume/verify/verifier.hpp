@@ -7,10 +7,10 @@
 #include <utility>
 #include <vector>
 
-#include "pxir/ir/ids.hpp"
-#include "pxir/ir/program.hpp"
+#include "lume/ir/ids.hpp"
+#include "lume/ir/program.hpp"
 
-namespace pxir {
+namespace lume {
 
 enum class DiagnosticCode : std::uint8_t {
     table_too_large,        // a table has more entries than 32-bit ids can address
@@ -74,4 +74,4 @@ struct VerifyResult {
 // Diagnostics for a given input are identical on every run.
 VerifyResult verify(Program program);
 
-}  // namespace pxir
+}  // namespace lume

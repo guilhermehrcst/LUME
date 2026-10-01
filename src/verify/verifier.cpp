@@ -1,10 +1,10 @@
-#include "pxir/verify/verifier.hpp"
+#include "lume/verify/verifier.hpp"
 
 #include <cstddef>
 #include <string>
 #include <utility>
 
-namespace pxir {
+namespace lume {
 
 std::string_view to_string(DiagnosticCode code) noexcept {
     switch (code) {
@@ -280,4 +280,4 @@ VerifyResult verify(Program program) {
     return result;
 }
 
-}  // namespace pxir
+}  // namespace lume

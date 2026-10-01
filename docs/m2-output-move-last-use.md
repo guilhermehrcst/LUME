@@ -1,12 +1,12 @@
-# PXIR M2: Move Owned Output on Last Use
+# Lume M2: Move Owned Output on Last Use
 
 M2 is a controlled experiment with exactly one runtime change. When an `output` operation is the final use of a value the executor owns, the executor transfers that `Buffer` into `ExecutionResult::outputs` instead of deep-copying it. Every other output still copies. Everything else was measured with the M1 method, against canonical M1 built from `main` on the same machine.
 
-Every number is from one machine and one allocator (glibc 2.39). None of it is a general performance claim about PXIR.
+Every number is from one machine and one allocator (glibc 2.39). None of it is a general performance claim about Lume.
 
 ## 1. Research question
 
-What happens if PXIR stops deep-copying an executor-owned result when an output is that result's final use, and instead transfers ownership of the `Buffer` directly into the `ExecutionResult`?
+What happens if Lume stops deep-copying an executor-owned result when an output is that result's final use, and instead transfers ownership of the `Buffer` directly into the `ExecutionResult`?
 
 Secondary questions:
 
@@ -54,9 +54,9 @@ if (slot.has_value() && last_use[id.index()] == OperationId{i}) {
 }
 ```
 
-Unchanged: the IR, typed ids, the verifier, `VerifiedProgram`, the public API (`execute_cpu_reference`, `Buffer`, `ExecutionResult`), input validation, zero-initialization of results, `bound` and `owned`, the error codes and messages, and compiler flags. The only other source change is the doc comment in `include/pxir/runtime/cpu_reference.hpp`, which now describes the move rule.
+Unchanged: the IR, typed ids, the verifier, `VerifiedProgram`, the public API (`execute_cpu_reference`, `Buffer`, `ExecutionResult`), input validation, zero-initialization of results, `bound` and `owned`, the error codes and messages, and compiler flags. The only other source change is the doc comment in `include/lume/runtime/cpu_reference.hpp`, which now describes the move rule.
 
-`static_assert(std::is_nothrow_move_constructible_v<Buffer>)` records what the design relies on. `Buffer` wraps a `std::variant` of two `std::vector`s, so its implicit move is `noexcept`. As with moved-from standard-library containers, the source remains valid but its value must be treated as unspecified. PXIR does not depend on that state: the owned slot is reset and the value unbound immediately after the move. The same `noexcept` property lets `std::vector<Buffer>` move existing elements rather than copy them when `outputs` grows.
+`static_assert(std::is_nothrow_move_constructible_v<Buffer>)` records what the design relies on. `Buffer` wraps a `std::variant` of two `std::vector`s, so its implicit move is `noexcept`. As with moved-from standard-library containers, the source remains valid but its value must be treated as unspecified. Lume does not depend on that state: the owned slot is reset and the value unbound immediately after the move. The same `noexcept` property lets `std::vector<Buffer>` move existing elements rather than copy them when `outputs` grows.
 
 ## 5. Last-use analysis
 
@@ -85,7 +85,7 @@ It is one pass over the operations. It is correct for M0's straight-line IR beca
 
 ## 7. Benchmark methodology
 
-This uses the M1 harness (`pxir_bench_executor_breakdown`) and M1's statistics: 5 warmup and 51 measured samples per (N, component), the median reported, K = 1000 for size-independent operations and for N < 4096, and K = 1 otherwise. Page faults come from `getrusage`, and every computed result is checked against the oracle outside the timed interval. See [`m1-executor-cost-breakdown.md`](m1-executor-cost-breakdown.md) §4, including its batching caveat for small N.
+This uses the M1 harness (`lume_bench_executor_breakdown`) and M1's statistics: 5 warmup and 51 measured samples per (N, component), the median reported, K = 1000 for size-independent operations and for N < 4096, and K = 1 otherwise. Page faults come from `getrusage`, and every computed result is checked against the oracle outside the timed interval. See [`m1-executor-cost-breakdown.md`](m1-executor-cost-breakdown.md) §4, including its batching caveat for small N.
 
 Changes to the benchmark:
 
@@ -98,14 +98,14 @@ Changes to the benchmark:
 
 ## 8. A/B methodology
 
-- **A** is canonical `main` (`7e6ec8a`), built in a separate git worktree. **B** is this branch. Both use GCC 13.3.0, CMake Release (`-O3 -DNDEBUG`), `-DPXIR_WARNINGS_AS_ERRORS=ON`, and each binary runs its own tree's benchmark.
+- **A** is canonical `main` (`7e6ec8a`), built in a separate git worktree. **B** is this branch. Both use GCC 13.3.0, CMake Release (`-O3 -DNDEBUG`), `-DLUME_WARNINGS_AS_ERRORS=ON`, and each binary runs its own tree's benchmark.
 - Runs strictly alternate A, B, A, B on the same machine in the same session:
   - default allocator: 6 pairs, all six N;
   - T1: 3 pairs, N ∈ {65,536, 1M, 4M};
   - T2: 1 pair;
   - reverse component order: 1 pair;
   - small-N: 10 pairs at N ∈ {1, 256} with 201 iterations;
-  - canonical `pxir_bench_vector_add`: 3 pairs.
+  - canonical `lume_bench_vector_add`: 3 pairs.
 - "M2/M1" is the ratio of the medians across runs. The range is the ratio within each A/B pair.
 - A Clang 18.1.3 B run was used as a cross-check.
 - The environment matches M1 §5: 4-vCPU Xeon at 2.10 GHz in a Docker VM, L3 reported at 260 MiB, Linux 6.18, 4 KiB pages, glibc 2.39.
@@ -125,9 +125,9 @@ Raw outputs are in [`docs/data/m2/`](data/m2/) (`A_*` = M1, `B_*` = M2).
 | 1,048,576 | 454.0 µs | 3,286.1 µs | 596.6 µs | 0.182 | 0.169 – 0.192 | 1.31× | 2,016 | **0** |
 | 4,194,304 | 1,771.1 µs | 14,473.1 µs | 2,313.2 µs | 0.160 | 0.152 – 0.173 | 1.31× | 8,160 | **0** |
 
-‡ This is the batched K = 1000 path (M1 §4 caveat), and 6 pairs can't resolve N ≤ 256; §14 has the dedicated small-N A/B. The reverse-order pair agrees with the forward runs (M1/M2 at 1M: 3,326 / 610 µs, faults 2,016 / 0). The canonical `pxir_bench_vector_add` (3 pairs) gives M1 3.20–3.28 ms and M2 0.56–0.60 ms, with the same checksum.
+‡ This is the batched K = 1000 path (M1 §4 caveat), and 6 pairs can't resolve N ≤ 256; §14 has the dedicated small-N A/B. The reverse-order pair agrees with the forward runs (M1/M2 at 1M: 3,326 / 610 µs, faults 2,016 / 0). The canonical `lume_bench_vector_add` (3 pairs) gives M1 3.20–3.28 ms and M2 0.56–0.60 ms, with the same checksum.
 
-**Measured.** At N = 1M the M2 executor is 5.5× faster than M1 under default glibc on this machine, and 1.31× native. That is much more than the model alone predicts (24 → 16 B, 1.5×), because the page faults also disappeared (§11). It is an environment-specific result, not a general property of PXIR.
+**Measured.** At N = 1M the M2 executor is 5.5× faster than M1 under default glibc on this machine, and 1.31× native. That is much more than the model alone predicts (24 → 16 B, 1.5×), because the page faults also disappeared (§11). It is an environment-specific result, not a general property of Lume.
 
 ## 10. T1 results (faults removed in both builds)
 
@@ -209,7 +209,7 @@ The small-N change is the sum of two measured effects: the added last-use table 
 
 - **Oracle:** every timed result that computes something is compared exactly with the independent oracle (bitwise for non-NaN values, any NaN matching any NaN, as in M0). All 49 benchmark output files in `docs/data/m2/` are free of `MISMATCH`.
 - **Checksums:** at every N, the output checksums of M1 (GCC), M2 (GCC) and M2 (Clang 18.1.3) are identical. For example, N = 1M gives `0xf09ed3431c02ceea`, the same as M0 and M1.
-- **New semantic tests** (`tests/execution/output_move_test.cpp`, suite `pxir_output_move_test`); cases A–G also check that the caller's input buffers are unchanged:
+- **New semantic tests** (`tests/execution/output_move_test.cpp`, suite `lume_output_move_test`); cases A–G also check that the caller's input buffers are unchanged:
 
 | Case | Program | Checks |
 | --- | --- | --- |
@@ -223,8 +223,8 @@ The small-N change is the sum of two measured effects: the added last-use table 
 | — | Same program executed 3 times | Identical results every call |
 
 - **Mutation test** (temporary, not committed):
-  1. **Move any owned value at output, ignoring last use.** Killed. `pxir_output_move_test` fails B, C, F, G and the repeated-execution case: the second read of the value fails closed with an internal "unbound" error. The M0 test `chained_adds_and_outputs_in_order` fails too.
-  2. **Extra: also keep `bound` pointing at the moved-from buffer.** Killed by the same cases. In the tested libstdc++ environment (GCC 13.3), the moved-from Buffer appeared empty, so the later output returned an empty result. That is an observation from this environment, not a portable C++ guarantee. The portable conclusion is that reading a moved-from Buffer here would rely on an unspecified state and is semantically invalid. Clearing `bound` makes such a bug fail closed instead: with `slot.reset()` and `bound[id] = nullptr` (§4), PXIR never relies on moved-from contents.
+  1. **Move any owned value at output, ignoring last use.** Killed. `lume_output_move_test` fails B, C, F, G and the repeated-execution case: the second read of the value fails closed with an internal "unbound" error. The M0 test `chained_adds_and_outputs_in_order` fails too.
+  2. **Extra: also keep `bound` pointing at the moved-from buffer.** Killed by the same cases. In the tested libstdc++ environment (GCC 13.3), the moved-from Buffer appeared empty, so the later output returned an empty result. That is an observation from this environment, not a portable C++ guarantee. The portable conclusion is that reading a moved-from Buffer here would rely on an unspecified state and is semantically invalid. Clearing `bound` makes such a bug fail closed instead: with `slot.reset()` and `bound[id] = nullptr` (§4), Lume never relies on moved-from contents.
 
   The implementation was restored and all 15 tests pass.
 

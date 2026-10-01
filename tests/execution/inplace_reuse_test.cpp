@@ -15,9 +15,9 @@
 #include <vector>
 
 #include "check.hpp"
-#include "pxir/runtime/cpu_reference.hpp"
-#include "pxir/verify/verifier.hpp"
-#include "pxir_oracle/oracle.hpp"
+#include "lume/runtime/cpu_reference.hpp"
+#include "lume/verify/verifier.hpp"
+#include "lume_oracle/oracle.hpp"
 
 namespace {
 
@@ -45,27 +45,27 @@ void operator delete[](void* p, std::size_t) noexcept { std::free(p); }
 
 namespace {
 
-using pxir::Buffer;
+using lume::Buffer;
 using F = std::vector<float>;
 using I = std::vector<std::int32_t>;
 
 constexpr std::uint32_t kN = 4099;
 
-pxir::VerifiedProgram verified(pxir::Program p) {
-    pxir::VerifyResult r = pxir::verify(std::move(p));
+lume::VerifiedProgram verified(lume::Program p) {
+    lume::VerifyResult r = lume::verify(std::move(p));
     return std::move(*r.program);
 }
 
 struct Run {
-    pxir::ExecutionResult result;
+    lume::ExecutionResult result;
     std::size_t big_allocations = 0;
 };
 
-Run run(const pxir::VerifiedProgram& program, const std::vector<Buffer>& inputs) {
+Run run(const lume::VerifiedProgram& program, const std::vector<Buffer>& inputs) {
     g_threshold = kN * sizeof(float);
     g_big_allocations = 0;
     g_armed = true;
-    Run r{pxir::execute_cpu_reference(program, inputs), 0};
+    Run r{lume::execute_cpu_reference(program, inputs), 0};
     g_armed = false;
     r.big_allocations = g_big_allocations;
     return r;
@@ -73,18 +73,18 @@ Run run(const pxir::VerifiedProgram& program, const std::vector<Buffer>& inputs)
 
 F sum(const F& x, const F& y) {
     F out(x.size());
-    pxir_oracle::native_add(x, y, out);
+    lume_oracle::native_add(x, y, out);
     return out;
 }
 I sum(const I& x, const I& y) {
     I out(x.size());
-    pxir_oracle::native_add(x, y, out);
+    lume_oracle::native_add(x, y, out);
     return out;
 }
 
 bool is(const Buffer& b, const F& expected) {
     const auto v = b.f32_view();
-    return v && pxir_oracle::exactly_equal(*v, expected);
+    return v && lume_oracle::exactly_equal(*v, expected);
 }
 bool is(const Buffer& b, const I& expected) {
     const auto v = b.i32_view();
@@ -99,44 +99,44 @@ struct Data {
 Data make_data(std::uint32_t seed) {
     std::mt19937_64 engine(seed);
     Data d;
-    d.a = pxir_oracle::generate_f32(engine, kN);
-    d.b = pxir_oracle::generate_f32(engine, kN);
-    d.c = pxir_oracle::generate_f32(engine, kN);
-    d.g = pxir_oracle::generate_f32(engine, kN);
-    d.ia = pxir_oracle::generate_i32(engine, kN);
-    d.ib = pxir_oracle::generate_i32(engine, kN);
-    d.ic = pxir_oracle::generate_i32(engine, kN);
+    d.a = lume_oracle::generate_f32(engine, kN);
+    d.b = lume_oracle::generate_f32(engine, kN);
+    d.c = lume_oracle::generate_f32(engine, kN);
+    d.g = lume_oracle::generate_f32(engine, kN);
+    d.ia = lume_oracle::generate_i32(engine, kN);
+    d.ib = lume_oracle::generate_i32(engine, kN);
+    d.ic = lume_oracle::generate_i32(engine, kN);
     return d;
 }
 
 std::vector<Buffer> f32_inputs(const Data& d) { return {Buffer(d.a), Buffer(d.b), Buffer(d.c), Buffer(d.g)}; }
 
-pxir::Program four_f32_inputs(pxir::ValueId (&v)[4]) {
-    pxir::Program p;
-    for (auto& x : v) x = p.input(pxir::f32, kN);
+lume::Program four_f32_inputs(lume::ValueId (&v)[4]) {
+    lume::Program p;
+    for (auto& x : v) x = p.input(lume::f32, kN);
     return p;
 }
 
 // Inputs are borrowed: their content must be unchanged after execution.
 void inputs_unchanged(const std::vector<Buffer>& inputs, const Data& d) {
-    PXIR_CHECK(is(inputs[0], d.a));
-    PXIR_CHECK(is(inputs[1], d.b));
-    PXIR_CHECK(is(inputs[2], d.c));
-    PXIR_CHECK(is(inputs[3], d.g));
+    LUME_CHECK(is(inputs[0], d.a));
+    LUME_CHECK(is(inputs[1], d.b));
+    LUME_CHECK(is(inputs[2], d.c));
+    LUME_CHECK(is(inputs[3], d.g));
 }
 
 // A. D = A + B; E = D + C; output E.  One result buffer instead of two.
 void final_only() {
     const Data d = make_data(1);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     p.output(p.add(dd, v[2]));
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
-    PXIR_CHECK(is(r.result.outputs[0], sum(sum(d.a, d.b), d.c)));
-    PXIR_CHECK(r.big_allocations == 1);
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
+    LUME_CHECK(is(r.result.outputs[0], sum(sum(d.a, d.b), d.c)));
+    LUME_CHECK(r.big_allocations == 1);
     inputs_unchanged(in, d);
 }
 
@@ -145,17 +145,17 @@ void final_only() {
 void output_before_use() {
     const Data d = make_data(2);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     p.output(dd);
     p.output(p.add(dd, v[2]));
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 2)) return;
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 2)) return;
     const F expected_d = sum(d.a, d.b);
-    PXIR_CHECK(is(r.result.outputs[0], expected_d));  // not clobbered by the reuse
-    PXIR_CHECK(is(r.result.outputs[1], sum(expected_d, d.c)));
-    PXIR_CHECK(r.big_allocations == 2);  // D and the output copy of D; E reuses D
+    LUME_CHECK(is(r.result.outputs[0], expected_d));  // not clobbered by the reuse
+    LUME_CHECK(is(r.result.outputs[1], sum(expected_d, d.c)));
+    LUME_CHECK(r.big_allocations == 2);  // D and the output copy of D; E reuses D
     inputs_unchanged(in, d);
 }
 
@@ -163,18 +163,18 @@ void output_before_use() {
 void output_after_use() {
     const Data d = make_data(3);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     const auto e = p.add(dd, v[2]);
     p.output(dd);
     p.output(e);
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 2)) return;
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 2)) return;
     const F expected_d = sum(d.a, d.b);
-    PXIR_CHECK(is(r.result.outputs[0], expected_d));
-    PXIR_CHECK(is(r.result.outputs[1], sum(expected_d, d.c)));
-    PXIR_CHECK(r.big_allocations == 2);  // D and E both exist
+    LUME_CHECK(is(r.result.outputs[0], expected_d));
+    LUME_CHECK(is(r.result.outputs[1], sum(expected_d, d.c)));
+    LUME_CHECK(r.big_allocations == 2);  // D and E both exist
     inputs_unchanged(in, d);
 }
 
@@ -183,14 +183,14 @@ void output_after_use() {
 void right_operand() {
     const Data d = make_data(4);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     p.output(p.add(v[2], dd));
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
-    PXIR_CHECK(is(r.result.outputs[0], sum(d.c, sum(d.a, d.b))));
-    PXIR_CHECK(r.big_allocations == 1);
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
+    LUME_CHECK(is(r.result.outputs[0], sum(d.c, sum(d.a, d.b))));
+    LUME_CHECK(r.big_allocations == 1);
     inputs_unchanged(in, d);
 }
 
@@ -198,15 +198,15 @@ void right_operand() {
 void same_operand_twice() {
     const Data d = make_data(5);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     p.output(p.add(dd, dd));
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
     const F expected_d = sum(d.a, d.b);
-    PXIR_CHECK(is(r.result.outputs[0], sum(expected_d, expected_d)));
-    PXIR_CHECK(r.big_allocations == 1);
+    LUME_CHECK(is(r.result.outputs[0], sum(expected_d, expected_d)));
+    LUME_CHECK(r.big_allocations == 1);
     inputs_unchanged(in, d);
 }
 
@@ -214,17 +214,17 @@ void same_operand_twice() {
 void borrowed_inputs() {
     const Data d = make_data(6);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     p.output(p.add(v[0], v[1]));
     p.output(p.add(v[0], v[0]));  // the last use of an input is still not a reuse
     p.output(p.add(v[2], v[3]));
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 3)) return;
-    PXIR_CHECK(is(r.result.outputs[0], sum(d.a, d.b)));
-    PXIR_CHECK(is(r.result.outputs[1], sum(d.a, d.a)));
-    PXIR_CHECK(is(r.result.outputs[2], sum(d.c, d.g)));
-    PXIR_CHECK(r.big_allocations == 3);  // each add allocates; each output moves
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 3)) return;
+    LUME_CHECK(is(r.result.outputs[0], sum(d.a, d.b)));
+    LUME_CHECK(is(r.result.outputs[1], sum(d.a, d.a)));
+    LUME_CHECK(is(r.result.outputs[2], sum(d.c, d.g)));
+    LUME_CHECK(r.big_allocations == 3);  // each add allocates; each output moves
     inputs_unchanged(in, d);
 }
 
@@ -233,15 +233,15 @@ void borrowed_inputs() {
 void both_owned() {
     const Data d = make_data(7);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     const auto f = p.add(v[2], v[3]);
     p.output(p.add(dd, f));
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
-    PXIR_CHECK(is(r.result.outputs[0], sum(sum(d.a, d.b), sum(d.c, d.g))));
-    PXIR_CHECK(r.big_allocations == 2);
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
+    LUME_CHECK(is(r.result.outputs[0], sum(sum(d.a, d.b), sum(d.c, d.g))));
+    LUME_CHECK(r.big_allocations == 2);
     inputs_unchanged(in, d);
 }
 
@@ -250,16 +250,16 @@ void both_owned() {
 void later_computational_use() {
     const Data d = make_data(8);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     const auto e = p.add(dd, v[2]);
     p.output(p.add(dd, e));
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
     const F expected_d = sum(d.a, d.b);
-    PXIR_CHECK(is(r.result.outputs[0], sum(expected_d, sum(expected_d, d.c))));
-    PXIR_CHECK(r.big_allocations == 2);  // D, E; F reuses D
+    LUME_CHECK(is(r.result.outputs[0], sum(expected_d, sum(expected_d, d.c))));
+    LUME_CHECK(r.big_allocations == 2);  // D, E; F reuses D
     inputs_unchanged(in, d);
 }
 
@@ -268,17 +268,17 @@ void later_computational_use() {
 void longer_chain() {
     const Data d = make_data(9);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     auto x = p.add(v[0], v[1]);
     x = p.add(x, v[2]);
     x = p.add(x, v[3]);
     x = p.add(x, v[0]);
     p.output(x);
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
-    PXIR_CHECK(is(r.result.outputs[0], sum(sum(sum(sum(d.a, d.b), d.c), d.g), d.a)));
-    PXIR_CHECK(r.big_allocations == 1);
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
+    LUME_CHECK(is(r.result.outputs[0], sum(sum(sum(sum(d.a, d.b), d.c), d.g), d.a)));
+    LUME_CHECK(r.big_allocations == 1);
     inputs_unchanged(in, d);
 }
 
@@ -287,20 +287,20 @@ void longer_chain() {
 void repeated_execution() {
     const Data d = make_data(10);
     auto in = f32_inputs(d);
-    pxir::ValueId v[4];
-    pxir::Program p = four_f32_inputs(v);
+    lume::ValueId v[4];
+    lume::Program p = four_f32_inputs(v);
     const auto dd = p.add(v[0], v[1]);
     p.output(dd);
     p.output(p.add(v[2], dd));
-    const pxir::VerifiedProgram program = verified(std::move(p));
+    const lume::VerifiedProgram program = verified(std::move(p));
     const F expected_d = sum(d.a, d.b);
     const F expected_e = sum(d.c, expected_d);
     for (int k = 0; k < 4; ++k) {
         const Run r = run(program, in);
-        if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 2)) return;
-        PXIR_CHECK(is(r.result.outputs[0], expected_d));
-        PXIR_CHECK(is(r.result.outputs[1], expected_e));
-        PXIR_CHECK(r.big_allocations == 2);
+        if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 2)) return;
+        LUME_CHECK(is(r.result.outputs[0], expected_d));
+        LUME_CHECK(is(r.result.outputs[1], expected_e));
+        LUME_CHECK(r.big_allocations == 2);
         inputs_unchanged(in, d);
     }
 }
@@ -309,20 +309,20 @@ void repeated_execution() {
 void i32_cases() {
     const Data d = make_data(11);
     const std::vector<Buffer> in{Buffer(d.ia), Buffer(d.ib), Buffer(d.ic)};
-    pxir::Program p;
-    const auto a = p.input(pxir::i32, kN);
-    const auto b = p.input(pxir::i32, kN);
-    const auto c = p.input(pxir::i32, kN);
+    lume::Program p;
+    const auto a = p.input(lume::i32, kN);
+    const auto b = p.input(lume::i32, kN);
+    const auto c = p.input(lume::i32, kN);
     const auto x = p.add(a, b);
     const auto y = p.add(x, c);     // lhs reuse
     const auto z = p.add(c, y);     // rhs reuse
     p.output(p.add(z, z));          // same operand twice
     const Run r = run(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
+    if (!LUME_CHECK(r.result.ok() && r.result.outputs.size() == 1)) return;
     const I ez = sum(d.ic, sum(sum(d.ia, d.ib), d.ic));
-    PXIR_CHECK(is(r.result.outputs[0], sum(ez, ez)));
-    PXIR_CHECK(r.big_allocations == 1);
-    PXIR_CHECK(is(in[0], d.ia) && is(in[1], d.ib) && is(in[2], d.ic));
+    LUME_CHECK(is(r.result.outputs[0], sum(ez, ez)));
+    LUME_CHECK(r.big_allocations == 1);
+    LUME_CHECK(is(in[0], d.ia) && is(in[1], d.ib) && is(in[2], d.ic));
 }
 
 void i32_wrap_boundaries() {
@@ -332,14 +332,14 @@ void i32_wrap_boundaries() {
     const I b{1, -1, hi, 1, lo};
     const I c{hi, lo, 2, lo, lo};
     const std::vector<Buffer> in{Buffer(a), Buffer(b), Buffer(c)};
-    pxir::Program p;
-    const auto ia = p.input(pxir::i32, 5);
-    const auto ib = p.input(pxir::i32, 5);
-    const auto ic = p.input(pxir::i32, 5);
+    lume::Program p;
+    const auto ia = p.input(lume::i32, 5);
+    const auto ib = p.input(lume::i32, 5);
+    const auto ic = p.input(lume::i32, 5);
     p.output(p.add(p.add(ia, ib), ic));
-    const auto r = pxir::execute_cpu_reference(verified(std::move(p)), in);
-    if (!PXIR_CHECK(r.ok() && r.outputs.size() == 1)) return;
-    PXIR_CHECK(is(r.outputs[0], I{-1, -1, 0, lo, 0}));
+    const auto r = lume::execute_cpu_reference(verified(std::move(p)), in);
+    if (!LUME_CHECK(r.ok() && r.outputs.size() == 1)) return;
+    LUME_CHECK(is(r.outputs[0], I{-1, -1, 0, lo, 0}));
 }
 
 // f32 special values through the in-place path, both operand sides.
@@ -352,15 +352,15 @@ void f32_specials() {
     const F c{-0.0f, -inf, 2.0f, 0.0f, inf, den, -den, -0.0f};
     const std::vector<Buffer> in{Buffer(a), Buffer(b), Buffer(c)};
     for (const bool rhs : {false, true}) {
-        pxir::Program p;
-        const auto ia = p.input(pxir::f32, 8);
-        const auto ib = p.input(pxir::f32, 8);
-        const auto ic = p.input(pxir::f32, 8);
+        lume::Program p;
+        const auto ia = p.input(lume::f32, 8);
+        const auto ib = p.input(lume::f32, 8);
+        const auto ic = p.input(lume::f32, 8);
         const auto x = p.add(ia, ib);
         p.output(rhs ? p.add(ic, x) : p.add(x, ic));
-        const auto r = pxir::execute_cpu_reference(verified(std::move(p)), in);
-        if (!PXIR_CHECK(r.ok() && r.outputs.size() == 1)) return;
-        PXIR_CHECK(is(r.outputs[0], rhs ? sum(c, sum(a, b)) : sum(sum(a, b), c)));
+        const auto r = lume::execute_cpu_reference(verified(std::move(p)), in);
+        if (!LUME_CHECK(r.ok() && r.outputs.size() == 1)) return;
+        LUME_CHECK(is(r.outputs[0], rhs ? sum(c, sum(a, b)) : sum(sum(a, b), c)));
     }
 }
 
@@ -380,5 +380,5 @@ int main() {
     i32_cases();
     i32_wrap_boundaries();
     f32_specials();
-    return pxir_test::finish("inplace_reuse");
+    return lume_test::finish("inplace_reuse");
 }

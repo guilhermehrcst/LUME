@@ -14,10 +14,10 @@
 #include <vector>
 
 #include "check.hpp"
-#include "pxir/runtime/owned_array.hpp"
-#include "pxir_oracle/oracle.hpp"
+#include "lume/runtime/owned_array.hpp"
+#include "lume_oracle/oracle.hpp"
 
-using pxir::OwnedArray;
+using lume::OwnedArray;
 
 static_assert(std::is_nothrow_move_constructible_v<OwnedArray<float>>);
 static_assert(std::is_nothrow_move_constructible_v<OwnedArray<std::int32_t>>);
@@ -54,12 +54,12 @@ constexpr std::uint32_t edge_lengths[] = {1, 3, 4, 5, 7, 8, 9, 15, 16, 17, 31, 3
 void f32_edge_lengths() {
     for (const std::uint32_t n : edge_lengths) {
         std::mt19937_64 engine(n);
-        const auto a = pxir_oracle::generate_f32(engine, n);
-        const auto b = pxir_oracle::generate_f32(engine, n);
+        const auto a = lume_oracle::generate_f32(engine, n);
+        const auto b = lume_oracle::generate_f32(engine, n);
         std::vector<float> expected(n);
-        pxir_oracle::native_add(a, b, expected);
+        lume_oracle::native_add(a, b, expected);
         const OwnedArray<float> c = add_f32(a, b);
-        if (!PXIR_CHECK(c.size() == n && pxir_oracle::exactly_equal(c.view(), expected))) {
+        if (!LUME_CHECK(c.size() == n && lume_oracle::exactly_equal(c.view(), expected))) {
             std::fprintf(stderr, "  f32 n=%u\n", n);
         }
     }
@@ -68,12 +68,12 @@ void f32_edge_lengths() {
 void i32_edge_lengths() {
     for (const std::uint32_t n : edge_lengths) {
         std::mt19937_64 engine(500 + n);
-        const auto a = pxir_oracle::generate_i32(engine, n);
-        const auto b = pxir_oracle::generate_i32(engine, n);
+        const auto a = lume_oracle::generate_i32(engine, n);
+        const auto b = lume_oracle::generate_i32(engine, n);
         std::vector<std::int32_t> expected(n);
-        pxir_oracle::native_add(a, b, expected);
+        lume_oracle::native_add(a, b, expected);
         const OwnedArray<std::int32_t> c = add_i32(a, b);
-        if (!PXIR_CHECK(c.size() == n && same_i32(c.view(), expected))) std::fprintf(stderr, "  i32 n=%u\n", n);
+        if (!LUME_CHECK(c.size() == n && same_i32(c.view(), expected))) std::fprintf(stderr, "  i32 n=%u\n", n);
     }
 }
 
@@ -92,11 +92,11 @@ void f32_special_values() {
             b[(offset + k) % 17] = sb[k];
         }
         std::vector<float> expected(17);
-        pxir_oracle::native_add(a, b, expected);
-        PXIR_CHECK(pxir_oracle::exactly_equal(add_f32(a, b).view(), expected));
+        lume_oracle::native_add(a, b, expected);
+        LUME_CHECK(lume_oracle::exactly_equal(add_f32(a, b).view(), expected));
     }
     const std::vector<float> nz{-0.0f};
-    PXIR_CHECK(std::signbit(add_f32(nz, nz)[0]));
+    LUME_CHECK(std::signbit(add_f32(nz, nz)[0]));
 }
 
 void i32_wrap() {
@@ -105,7 +105,7 @@ void i32_wrap() {
     const std::vector<std::int32_t> a{hi, lo, hi, lo, -1, 1, 0, hi};
     const std::vector<std::int32_t> b{1, -1, hi, lo, 1, -1, lo, lo};
     const std::vector<std::int32_t> expected{lo, hi, -2, 0, 0, 0, lo, -1};
-    PXIR_CHECK(same_i32(add_i32(a, b).view(), expected));
+    LUME_CHECK(same_i32(add_i32(a, b).view(), expected));
 }
 
 // Copies are deep: same size and values, distinct storage, and writing one
@@ -114,23 +114,23 @@ template <class T>
 void copy_is_deep(const OwnedArray<T>& original) {
     OwnedArray<T> source = original;  // mutable copy to probe independence
     const OwnedArray<T> copy = source;
-    PXIR_CHECK(copy.size() == source.size());
-    PXIR_CHECK(copy.data() != source.data());
-    for (std::size_t i = 0; i < source.size(); ++i) PXIR_CHECK(copy[i] == source[i]);
+    LUME_CHECK(copy.size() == source.size());
+    LUME_CHECK(copy.data() != source.data());
+    for (std::size_t i = 0; i < source.size(); ++i) LUME_CHECK(copy[i] == source[i]);
     const T before = copy[0];
     source[0] = static_cast<T>(source[0] + T{1});
-    PXIR_CHECK(copy[0] == before);
+    LUME_CHECK(copy[0] == before);
 
     OwnedArray<T> assigned = OwnedArray<T>::for_overwrite(1);
     assigned[0] = T{};
     assigned = copy;  // copy assignment
-    PXIR_CHECK(assigned.size() == copy.size() && assigned.data() != copy.data());
-    for (std::size_t i = 0; i < copy.size(); ++i) PXIR_CHECK(assigned[i] == copy[i]);
+    LUME_CHECK(assigned.size() == copy.size() && assigned.data() != copy.data());
+    for (std::size_t i = 0; i < copy.size(); ++i) LUME_CHECK(assigned[i] == copy[i]);
 
     auto& self = assigned;
     assigned = self;  // self-assignment keeps contents
-    PXIR_CHECK(assigned.size() == copy.size());
-    for (std::size_t i = 0; i < copy.size(); ++i) PXIR_CHECK(assigned[i] == copy[i]);
+    LUME_CHECK(assigned.size() == copy.size());
+    for (std::size_t i = 0; i < copy.size(); ++i) LUME_CHECK(assigned[i] == copy[i]);
 }
 
 void copies_are_deep() {
@@ -146,20 +146,20 @@ void moves_transfer_ownership() {
     const float* storage = a.data();
 
     OwnedArray<float> b(std::move(a));  // move construction
-    PXIR_CHECK(b.data() == storage && b.size() == 3);
-    PXIR_CHECK(a.size() == 0 && a.data() == nullptr);  // NOLINT: moved-from state is specified here
+    LUME_CHECK(b.data() == storage && b.size() == 3);
+    LUME_CHECK(a.size() == 0 && a.data() == nullptr);  // NOLINT: moved-from state is specified here
 
     OwnedArray<float> c;
     c = std::move(b);  // move assignment
-    PXIR_CHECK(c.data() == storage && c.size() == 3);
-    PXIR_CHECK(b.size() == 0 && b.data() == nullptr);  // NOLINT
+    LUME_CHECK(c.data() == storage && c.size() == 3);
+    LUME_CHECK(b.size() == 0 && b.data() == nullptr);  // NOLINT
 
     // Growth of a vector of arrays moves elements; storage identity survives.
     std::vector<OwnedArray<float>> many;
     many.push_back(std::move(c));
     for (int i = 0; i < 64; ++i) many.push_back(add_f32(fa, fa));
-    PXIR_CHECK(many[0].data() == storage);
-    PXIR_CHECK(many[0][0] == 2.0f && many[0][2] == 6.0f);
+    LUME_CHECK(many[0].data() == storage);
+    LUME_CHECK(many[0][0] == 2.0f && many[0][2] == 6.0f);
 }
 
 }  // namespace
@@ -171,5 +171,5 @@ int main() {
     i32_wrap();
     copies_are_deep();
     moves_transfer_ownership();
-    return pxir_test::finish("owned_array");
+    return lume_test::finish("owned_array");
 }

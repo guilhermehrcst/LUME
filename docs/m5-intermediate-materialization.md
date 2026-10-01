@@ -1,6 +1,6 @@
-# PXIR M5: Intermediate Materialization Baseline
+# Lume M5: Intermediate Materialization Baseline
 
-M5 is observational. It changes nothing in `src/` or `include/`: the canonical M4 executor is measured as-is. The question is what it costs when a PXIR value must exist in memory *between* two dependent operations. PXIR's two-add chain is compared with native fused and two-pass loops and with an interpreter-free OwnedArray replica, so that arithmetic, interpretation and materialization can be separated.
+M5 is observational. It changes nothing in `src/` or `include/`: the canonical M4 executor is measured as-is. The question is what it costs when a Lume value must exist in memory *between* two dependent operations. Lume's two-add chain is compared with native fused and two-pass loops and with an interpreter-free OwnedArray replica, so that arithmetic, interpretation and materialization can be separated.
 
 Every number is from one machine (glibc 2.39, GCC 13.3.0, Clang 18.1.3, libstdc++ 13, baseline x86-64 without `-march`). None of it is a general performance claim.
 
@@ -10,11 +10,11 @@ For `D = A + B; E = D + C`, how much does materializing D cost, in time, modelle
 
 ## 2. M4 baseline
 
-Canonical `main` is `4c958a6149cfc9addc9a1ccfe749f4fa423187ee` (M0–M4). For a single `C = A + B`, M4 runs at about native speed: at N = 1M, native ≈ PXIR ≈ 0.47 ms, with a model of 12 B/element. Re-measured here as `pxir_single_add_control`, M4 gives 471 µs at N = 1M (GCC default), and the M1–M4 checksum is reproduced exactly (D at N = 1M: `0xf09ed3431c02ceea`).
+Canonical `main` is `4c958a6149cfc9addc9a1ccfe749f4fa423187ee` (M0–M4). For a single `C = A + B`, M4 runs at about native speed: at N = 1M, native ≈ Lume ≈ 0.47 ms, with a model of 12 B/element. Re-measured here as `pxir_single_add_control`, M4 gives 471 µs at N = 1M (GCC default), and the M1–M4 checksum is reproduced exactly (D at N = 1M: `0xf09ed3431c02ceea`).
 
 ## 3. Workloads (f32, seed 42, A then B then C from one `mt19937_64` stream)
 
-| Name | PXIR program | Output semantics under M2 |
+| Name | Lume program | Output semantics under M2 |
 | --- | --- | --- |
 | Final-only chain (primary) | `D = A + B; E = D + C; output E` | E moved (its final use) |
 | Intermediate-output chain | `D = A + B; output D; E = D + C; output E` | D **copied** (it is read later), then E moved |
@@ -27,8 +27,8 @@ N ∈ {1, 256, 4,096, 65,536, 1,048,576, 4,194,304}.
 
 | Id | Hypothesis | Outcome |
 | --- | --- | --- |
-| H1 | PXIR final-only chain ÷ native fused ≈ 24/16 = 1.50 | **Supported in steady state (T1):** 1.54 at 1M and 1.52 at 4M. **Not under default glibc:** 4.32 at 1M and 5.34 at 4M, dominated by page faults (§14, §17). |
-| H2 | PXIR chain ≈ owned two-pass replica, so interpretation is small | **Supported.** T1 1M: 952 µs vs 946 µs. Default 1M: 2,687 vs 2,784 µs, with the same 2,016 faults per call. |
+| H1 | Lume final-only chain ÷ native fused ≈ 24/16 = 1.50 | **Supported in steady state (T1):** 1.54 at 1M and 1.52 at 4M. **Not under default glibc:** 4.32 at 1M and 5.34 at 4M, dominated by page faults (§14, §17). |
+| H2 | Lume chain ≈ owned two-pass replica, so interpretation is small | **Supported.** T1 1M: 952 µs vs 946 µs. Default 1M: 2,687 vs 2,784 µs, with the same 2,016 faults per call. |
 | H3 | Native two-pass ÷ native fused ≈ 1.5 at large N | **Supported:** 1.51–1.55 at 1M and 1.65–1.71 at 4M. It does not hold cache-resident (1.14 at N = 4,096). |
 | H4 | The intermediate-output chain costs extra, corresponding to D's deep copy | **Supported.** T1 1M: +298 µs over the final-only chain (≈ 8 B/element; M1's isolated output copy was about 300 µs). With D output *after* use (moved), the cost is +1 µs. |
 | Faults | Under forced mmap: about 1, 2 and 3 result-sized fault sets | **Supported.** T2 1M: owned fused 1,025, chain 2,050, chain + D 3,075 per call. |
@@ -37,17 +37,17 @@ N ∈ {1, 256, 4,096, 65,536, 1,048,576, 4,194,304}.
 
 - **Final output only:** `e[i] = (a[i] + b[i]) + c[i]`, a single pass: read A, B and C, write E.
 - **Both outputs:** `d = a[i] + b[i]; d_out[i] = d; e[i] = d + c[i]`: read A, B and C, write D and E. The evidence shows `d` stays in a register (§20).
-- **Evaluation order** is `(A + B) + C` everywhere: explicit parentheses, no `-ffast-math`. A dedicated test checks that PXIR gives `(1 + 2⁻²⁴) + 2⁻²⁴ = 1`, while `1 + (2⁻²⁴ + 2⁻²⁴)` would be `1 + 2⁻²³`.
+- **Evaluation order** is `(A + B) + C` everywhere: explicit parentheses, no `-ffast-math`. A dedicated test checks that Lume gives `(1 + 2⁻²⁴) + 2⁻²⁴ = 1`, while `1 + (2⁻²⁴ + 2⁻²⁴)` would be `1 + 2⁻²³`.
 
 ## 6. Data-movement model (minimum user-level payload, B/element)
 
 | Path | Reads | Writes | Total |
 | --- | --- | --- | ---: |
-| PXIR single add / native add | A, B | C | 12 |
+| Lume single add / native add | A, B | C | 12 |
 | Native fused, owned fused | A, B, C | E | 16 |
 | Native dual output | A, B, C | D, E | 20 |
-| Native two-pass, owned two-pass, **PXIR final-only chain** | A, B (pass 1); D, C (pass 2) | D, E | **24** |
-| **PXIR intermediate-output chain** | as above, plus D (copy) | D, D-copy, E | **32** |
+| Native two-pass, owned two-pass, **Lume final-only chain** | A, B (pass 1); D, C (pass 2) | D, E | **24** |
+| **Lume intermediate-output chain** | as above, plus D (copy) | D, D-copy, E | **32** |
 
 - **Materializing D:** in the model this costs 8 B/element (write D, read D).
 - **Copying D for output:** another 8 B/element (read D, write the copy).
@@ -56,7 +56,7 @@ N ∈ {1, 256, 4,096, 65,536, 1,048,576, 4,194,304}.
 
 ## 7. Benchmark design
 
-The benchmark is `benchmarks/intermediate_materialization.cpp` (`pxir_bench_intermediate_materialization`).
+The benchmark is `benchmarks/intermediate_materialization.cpp` (`lume_bench_intermediate_materialization`).
 - **Harness:** the M1 harness, **copied** so that `executor_breakdown.cpp` stays unchanged: 5 warmup and 51 measured samples; the median is reported; K = 1000 repetitions per interval for N < 4096 and K = 1 otherwise; results are kept until the interval ends and checked against the oracle outside the timed region; minor faults are read with `getrusage`.
 - **Order:** forward and reverse component order, interleaved.
 
@@ -80,7 +80,7 @@ The benchmark is `benchmarks/intermediate_materialization.cpp` (`pxir_bench_inte
 - **Oracle:** the independent oracle computes D = A + B and E = D + C with its own loop; E is never computed through the executor.
 - **Benchmark checks:** every timed result is checked exactly (bitwise for non-NaN values, any NaN matching any NaN) outside the timed region, including both outputs of the two-output programs. There is no `MISMATCH` in any of the 27 raw files.
 - **Checksums:** identical in GCC and Clang at every N (for example N = 1M: D `0xf09ed3431c02ceea`, E `0x166ecc1712346145`).
-- **New test** `pxir_chain_test`:
+- **New test** `lume_chain_test`:
   - all three chain shapes at N ∈ {1, 3, 4, 5, 7, 8, 9, 15, 16, 17, 31, 33, 4099}, with inputs checked unchanged;
   - the evaluation-order case;
   - f32 special values, including −0 + −0 + −0 = −0, and NaN/∞;
@@ -104,7 +104,7 @@ Both loops are vectorized by both compilers (each: 2 loads, 1 `addps`, 1 store),
 | 1,048,576 | 1.51 | 1.55 | 1.53 | 1.51 |
 | 4,194,304 | 1.70 | 1.71 | 1.65 | 1.69 |
 
-## 11. PXIR final-only chain
+## 11. Lume final-only chain
 
 | N | Default: chain / fused | Default: chain / two-pass | Faults/call | T1: chain / fused | T1: chain / two-pass |
 |---:|---:|---:|---:|---:|---:|
@@ -113,13 +113,13 @@ Both loops are vectorized by both compilers (each: 2 loads, 1 `addps`, 1 store),
 | 1,048,576 | **4.32** | 2.85 | **2,016** | **1.54** | **1.01** |
 | 4,194,304 | **5.34** | 3.15 | **8,160** | **1.52** | 0.92 |
 
-Execution evidence that each PXIR add runs separately and materializes D:
+Execution evidence that each Lume add runs separately and materializes D:
 - the executor code is unchanged M4 (`add_buffers`, one `OwnedArray` per `add`, vectorized per M4 §20–21);
 - under T2 the chain takes exactly twice the single-output faults (2,050 vs 1,025 at 1M), i.e. two first-written result allocations;
 - strace shows two 4,198,400-byte allocations per call (§18);
 - the output is exact, and E depends on D (mutation 1).
 
-## 12. PXIR intermediate-output chain
+## 12. Lume intermediate-output chain
 
 | N = 1M | Default | T1 |
 | --- | ---: | ---: |
@@ -129,7 +129,7 @@ Execution evidence that each PXIR add runs separately and materializes D:
 | Native dual output (20 B model) | 816 µs | 818 µs |
 
 - **Cost of copying D:** in T1, the D copy adds 298 µs (≈ 8 B/element at about 28 GB/s). When D's output comes after its use, M2's move applies and the extra cost is ≈ 1 µs.
-- **Against the dual-output bound:** PXIR chain + D is 2.03× fused in T1 (model 32/16 = 2.0), and 1.53× native dual output (model 32/20 = 1.6).
+- **Against the dual-output bound:** Lume chain + D is 2.03× fused in T1 (model 32/16 = 2.0), and 1.53× native dual output (model 32/20 = 1.6).
 
 ## 13. Fixed executor costs
 
@@ -139,7 +139,7 @@ Execution evidence that each PXIR add runs separately and materializes D:
 
 ## 14. Default allocator results (GCC, 6 forward runs; medians)
 
-| N | Native fused | Two-pass | Dual | Owned fused | Owned 2-pass | PXIR single | **PXIR chain** | PXIR chain + D | After-use |
+| N | Native fused | Two-pass | Dual | Owned fused | Owned 2-pass | Lume single | **Lume chain** | Lume chain + D | After-use |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1 ‡ | 1.3 ns | 4.1 ns | 3.2 ns | 10.6 ns | 21.4 ns | 175 ns | 257 ns | 306 ns | 280 ns |
 | 256 ‡ | 43 ns | 69 ns | 131 ns | 255 ns † | 615 ns † | 270 ns | 348 ns | 464 ns | 418 ns |
@@ -154,7 +154,7 @@ Execution evidence that each PXIR add runs separately and materializes D:
 
 ## 15. T1 (`trim_threshold=1 GiB`, `mmap_threshold=32 MiB`; 3 runs)
 
-| N | Native fused | Two-pass | Owned 2-pass | PXIR chain | Chain/fused | PXIR chain + D | Chain+D/fused |
+| N | Native fused | Two-pass | Owned 2-pass | Lume chain | Chain/fused | Lume chain + D | Chain+D/fused |
 |---:|---:|---:|---:|---:|---:|---:|---:|
 | 65,536 | 14.0 µs | 22.3 µs | 27.1 µs | 19.7 µs | 1.41 | 37.7 µs | 2.69 |
 | 1,048,576 | 617.5 µs | 942.4 µs | 945.7 µs | **952.3 µs** | **1.54** | 1,250.6 µs | 2.03 |
@@ -164,7 +164,7 @@ No build faults under T1. At N ≥ 1M, the chain's cost relative to the fused lo
 
 ## 16. T2 (`mmap_threshold=128 KiB`; 2 runs)
 
-| N | Owned fused | Owned 2-pass | PXIR chain | PXIR chain + D | After-use |
+| N | Owned fused | Owned 2-pass | Lume chain | Lume chain + D | After-use |
 |---:|---:|---:|---:|---:|---:|
 | 65,536 | 77.4 µs (65) | 148.5 µs (130) | 176.2 µs (130) | 256.9 µs (195) | 148.3 µs (130) |
 | 1,048,576 | 1,567 µs (1,025) | 2,803 µs (2,050) | 2,881 µs (2,050) | 4,469 µs (3,075) | 2,793 µs (2,050) |
@@ -174,7 +174,7 @@ The number in parentheses is minor faults per call. Each first-written result al
 
 ## 17. Page faults
 
-| N | Configuration | Owned fused | PXIR chain | PXIR chain + D |
+| N | Configuration | Owned fused | Lume chain | Lume chain + D |
 |---:|---|---:|---:|---:|
 | 1M | Default (benchmark) | 0 | **2,016** | **3,040** |
 | 1M | T1 | 0 | 0 | 0 |
@@ -229,7 +229,7 @@ Supplementary probes ([`dual_output_probe.cpp`](data/m5/dual_output_probe.cpp), 
 - the ordering of stores and loads (storing E first does not change it);
 - the relative address offsets between `d_out`, `c` and `e`, which account for ≤ 25% at most.
 
-The remaining cause (for example two interleaved store streams in L1/L2 on this virtualized CPU) could not be identified without hardware performance counters. The effect does not touch the PXIR measurements, but the native dual-output bound is only meaningful at N ≥ 1M.
+The remaining cause (for example two interleaved store streams in L1/L2 on this virtualized CPU) could not be identified without hardware performance counters. The effect does not touch the Lume measurements, but the native dual-output bound is only meaningful at N ≥ 1M.
 
 ## 22. Small N (10 runs × 201 iterations; paired within each run; batched K = 1000)
 
@@ -256,11 +256,11 @@ At N = 1, one extra operation plus one extra input adds about 76 ns, of which ab
 **MEASURED**
 
 - **Steady state (T1):**
-  - the PXIR final-only chain is 1.54× native fused at 1M and 1.52× at 4M (model 1.50);
+  - the Lume final-only chain is 1.54× native fused at 1M and 1.52× at 4M (model 1.50);
   - it equals native two-pass (1.01× at 1M) and the interpreter-free owned replica (952 vs 946 µs);
-  - PXIR chain + D is 2.03× fused (model 2.00).
+  - Lume chain + D is 2.03× fused (model 2.00).
 - **Default glibc:**
-  - the PXIR chain is 4.32× fused at 1M and 5.34× at 4M, with 2,016 / 8,160 faults per call;
+  - the Lume chain is 4.32× fused at 1M and 5.34× at 4M, with 2,016 / 8,160 faults per call;
   - the owned replica shows the same faults and time, so the cost is not interpretation;
   - strace shows the +4 / +4 / −8 MiB `brk` pattern on every call.
 - **T2:** 1, 2 and 3 first-written result fault sets per call for fused, chain and chain + D.
@@ -290,7 +290,7 @@ At N = 1, one extra operation plus one extra input adds about 76 ns, of which ab
 ## 25. Research conclusion
 
 **How much does intermediate materialization cost?** On this machine, for `D = A + B; E = D + C` at N ≥ 1M:
-- **In steady state**, materializing D costs about **0.5× a fused loop's time** (1.52–1.54× fused against the 1.50 byte model). The PXIR executor adds nothing measurable beyond a native two-pass loop that materializes D the same way.
+- **In steady state**, materializing D costs about **0.5× a fused loop's time** (1.52–1.54× fused against the 1.50 byte model). The Lume executor adds nothing measurable beyond a native two-pass loop that materializes D the same way.
 - **Under the default glibc allocator**, the dominant cost is **not** the 8 B/element of D's traffic. It is the allocator trim/re-fault cycle that D's separate allocation triggers when D and E are freed together: 2,016 extra faults per call, about 65% of the chain's time at 1M. Removing D's traffic alone (fusion) would also remove D's allocation. But the fault cost is a lifetime and allocator interaction that could be tested separately from the bytes.
 
 This matches interpretation-matrix **outcome A in steady state**, with a large allocator-lifetime component under default glibc that must be separated before a fusion experiment can be attributed cleanly.

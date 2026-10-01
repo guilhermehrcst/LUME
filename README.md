@@ -1,10 +1,12 @@
-# PXIR
+# Lume
 
 **Experimental intermediate representation research for memory-efficient software and AI systems.**
 
-> Status: early research. PXIR currently makes no production or universal performance claims.
+> Status: early research. Lume currently makes no production or universal performance claims.
 
-PXIR is a public systems-research project exploring whether software, structured data, and computational intent can be represented with less memory, less redundant data movement, and lower processing overhead while preserving correctness.
+> Formerly named PXIR. The code, namespaces, CMake targets and options were renamed to Lume; the tag `pre-lume-rename` marks the last commit under the old name. See [docs/data/README.md](docs/data/README.md) for what was deliberately left unchanged.
+
+Lume is a public systems-research project exploring whether software, structured data, and computational intent can be represented with less memory, less redundant data movement, and lower processing overhead while preserving correctness.
 
 The project starts from measurable fundamentals rather than from a finished compiler design.
 
@@ -14,7 +16,7 @@ Can we represent software, data, and computation more efficiently in memory, sto
 
 ## Method
 
-PXIR follows one loop:
+Lume follows one loop:
 
 **Understand -> Implement -> Measure -> Explain -> Publish**
 
@@ -41,14 +43,14 @@ The first phase studies memory representation directly:
 - serialization;
 - zero-copy and data movement.
 
-Only after those experiments will PXIR move toward compact IR design, SIMD, GPU execution, CUDA backends, and AI-oriented representations.
+Only after those experiments will Lume move toward compact IR design, SIMD, GPU execution, CUDA backends, and AI-oriented representations.
 
 ## Languages
 
 | Role | Language |
 | --- | --- |
 | Low-level learning experiments | C |
-| PXIR core and future runtime | C++20 |
+| Lume core and future runtime | C++20 |
 | Benchmarks, datasets, analysis and tooling | Python 3 |
 | NVIDIA GPU backend | CUDA C++ |
 
@@ -62,17 +64,17 @@ See [`experiments/001-data-types`](experiments/001-data-types/README.md).
 
 ## M0: minimal executable IR
 
-M0 is the first executable PXIR foundation. It represents `C = A + B` over `f32[N]` in a compact IR, verifies it, executes it on a scalar CPU reference executor, and checks the result against an independent native baseline.
+M0 is the first executable Lume foundation. It represents `C = A + B` over `f32[N]` in a compact IR, verifies it, executes it on a scalar CPU reference executor, and checks the result against an independent native baseline.
 
 ```cpp
-pxir::Program program;
-auto a = program.input(pxir::f32, 1024);
-auto b = program.input(pxir::f32, 1024);
+lume::Program program;
+auto a = program.input(lume::f32, 1024);
+auto b = program.input(lume::f32, 1024);
 auto c = program.add(a, b);
 program.output(c);
 ```
 
-Debug dump (for humans only; this is not a PXIR language):
+Debug dump (for humans only; this is not a Lume language):
 
 ```text
 %0 = input f32[1024]
@@ -82,13 +84,13 @@ output %2
 ```
 
 - **Supports:** `f32`/`i32` types, `input`/`add`/`output`, a mandatory verifier (only a `VerifiedProgram` can execute), a CPU scalar reference executor, positive and negative correctness tests, and a baseline benchmark.
-- **Does not support:** a textual PXIR language or parser, LLVM, CUDA, SIMD, optimization passes, JIT, a tensor compiler, or AI workloads.
+- **Does not support:** a textual Lume language or parser, LLVM, CUDA, SIMD, optimization passes, JIT, a tensor compiler, or AI workloads.
 
 M0 makes no performance claim. See [`docs/m0-core-ir.md`](docs/m0-core-ir.md) for the design, the verifier invariants, the correctness policy, and the baseline measurements.
 
 ## M1: executor cost breakdown
 
-M1 is observational and changes nothing about execution. It measures where the M0 reference executor spends its time on `C = A + B` for N from 1 to 4,194,304, using `pxir_bench_executor_breakdown`.
+M1 is observational and changes nothing about execution. It measures where the M0 reference executor spends its time on `C = A + B` for N from 1 to 4,194,304, using `lume_bench_executor_breakdown`.
 
 On the measurement machine (glibc 2.39), most of the large-N cost comes from re-faulting heap pages that the allocator returns to the OS between calls, rather than from the IR abstraction. The measured input validation and executor setup together cost about 0.12 µs per call. Interpretation and dispatch were not measured on their own: they are inferred to be small only because a replica with no interpreter matches the full executor within this experiment's noise. The single-machine methodology, the raw data, and what remains unknown are in [`docs/m1-executor-cost-breakdown.md`](docs/m1-executor-cost-breakdown.md).
 
@@ -135,7 +137,7 @@ M4 changes the public `Buffer` API: `as_f32`/`as_i32` are replaced by `f32_view`
 M5 is observational: the runtime is unchanged and no fusion was implemented. It measures `D = A + B; E = D + C` through the canonical executor against native fused (`e[i] = (a[i] + b[i]) + c[i]`) and two-pass loops, and against an interpreter-free replica.
 
 Measured on one machine at N = 1,048,576, relative to the native fused loop:
-- **Steady state (glibc trim/mmap disabled):** the PXIR chain costs about the same as a native two-pass loop and is 1.54× the fused loop, close to the 24/16 B/element model.
+- **Steady state (glibc trim/mmap disabled):** the Lume chain costs about the same as a native two-pass loop and is 1.54× the fused loop, close to the 24/16 B/element model.
 - **Default glibc:** the chain is 4.3× the fused loop. Most of that comes from the allocator trimming and re-faulting the two result buffers (2,016 minor faults per call), not from the intermediate's extra bytes.
 - **Outputting D before its later use** (a required copy) adds about 0.3 ms; outputting it after its last use (a move) adds almost nothing.
 
@@ -181,15 +183,15 @@ ctest --test-dir build -C Release --output-on-failure
 Examples:
 
 ```bash
-./build/experiments/001-data-types/pxir_exp_001 u32 1000000
-./build/benchmarks/pxir_bench_vector_add            # [elements] [seed] [warmup] [iterations]
-ctest --test-dir build -L correctness              # PXIR correctness tests only
+./build/experiments/001-data-types/lume_exp_001 u32 1000000
+./build/benchmarks/lume_bench_vector_add            # [elements] [seed] [warmup] [iterations]
+ctest --test-dir build -L correctness              # Lume correctness tests only
 ```
 
 Sanitizers and strict warnings (GCC/Clang):
 
 ```bash
-cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Debug -DPXIR_SANITIZE=address,undefined -DPXIR_WARNINGS_AS_ERRORS=ON
+cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Debug -DLUME_SANITIZE=address,undefined -DLUME_WARNINGS_AS_ERRORS=ON
 cmake --build build-san && ctest --test-dir build-san --output-on-failure
 ```
 

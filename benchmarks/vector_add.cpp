@@ -1,10 +1,10 @@
-// PXIR M0 baseline benchmark: C = A + B over f32[N].
+// Lume M0 baseline benchmark: C = A + B over f32[N].
 //
-// Compares a native scalar C++ loop (the oracle) against PXIR construction,
+// Compares a native scalar C++ loop (the oracle) against Lume construction,
 // verification, and scalar reference execution. It establishes a baseline;
 // it makes no performance claim. Output is one key=value per line.
 //
-// usage: pxir_bench_vector_add [elements] [seed] [warmup] [iterations]
+// usage: lume_bench_vector_add [elements] [seed] [warmup] [iterations]
 
 #include <algorithm>
 #include <chrono>
@@ -20,14 +20,14 @@
 #include <string>
 #include <vector>
 
-#include "pxir/ir/dump.hpp"
-#include "pxir/ir/program.hpp"
-#include "pxir/runtime/cpu_reference.hpp"
-#include "pxir/verify/verifier.hpp"
-#include "pxir_oracle/oracle.hpp"
+#include "lume/ir/dump.hpp"
+#include "lume/ir/program.hpp"
+#include "lume/runtime/cpu_reference.hpp"
+#include "lume/verify/verifier.hpp"
+#include "lume_oracle/oracle.hpp"
 
-#ifndef PXIR_BUILD_CONFIG
-#define PXIR_BUILD_CONFIG "unknown"
+#ifndef LUME_BUILD_CONFIG
+#define LUME_BUILD_CONFIG "unknown"
 #endif
 
 namespace {
@@ -87,10 +87,10 @@ std::string compiler_id() {
 #endif
 }
 
-pxir::Program build_program(std::uint32_t n) {
-    pxir::Program program;
-    const pxir::ValueId a = program.input(pxir::f32, n);
-    const pxir::ValueId b = program.input(pxir::f32, n);
+lume::Program build_program(std::uint32_t n) {
+    lume::Program program;
+    const lume::ValueId a = program.input(lume::f32, n);
+    const lume::ValueId b = program.input(lume::f32, n);
     program.output(program.add(a, b));
     return program;
 }
@@ -123,21 +123,21 @@ int main(int argc, char** argv) {
 
     // Identical inputs for both paths: A then B from one seeded stream.
     std::mt19937_64 engine(opt.seed);
-    const std::vector<float> a = pxir_oracle::generate_f32(engine, n);
-    const std::vector<float> b = pxir_oracle::generate_f32(engine, n);
-    const std::vector<pxir::Buffer> inputs{pxir::Buffer(a), pxir::Buffer(b)};
+    const std::vector<float> a = lume_oracle::generate_f32(engine, n);
+    const std::vector<float> b = lume_oracle::generate_f32(engine, n);
+    const std::vector<lume::Buffer> inputs{lume::Buffer(a), lume::Buffer(b)};
 
-    // ---- PXIR construction and verification --------------------------------
+    // ---- Lume construction and verification --------------------------------
     std::vector<std::int64_t> construction_ns;
     std::vector<std::int64_t> verification_ns;
-    std::optional<pxir::VerifiedProgram> verified;
+    std::optional<lume::VerifiedProgram> verified;
     for (std::uint32_t i = 0; i < opt.warmup + opt.iterations; ++i) {
         auto start = Clock::now();
-        pxir::Program program = build_program(opt.elements);
+        lume::Program program = build_program(opt.elements);
         const std::int64_t built = elapsed_ns(start);
 
         start = Clock::now();
-        pxir::VerifyResult result = pxir::verify(std::move(program));
+        lume::VerifyResult result = lume::verify(std::move(program));
         const std::int64_t checked = elapsed_ns(start);
 
         if (!result.ok()) {
@@ -157,20 +157,20 @@ int main(int argc, char** argv) {
     std::vector<std::int64_t> native_ns;
     for (std::uint32_t i = 0; i < opt.warmup + opt.iterations; ++i) {
         const auto start = Clock::now();
-        pxir_oracle::native_add(a, b, native_c);
+        lume_oracle::native_add(a, b, native_c);
         const std::int64_t t = elapsed_ns(start);
         if (i >= opt.warmup) native_ns.push_back(t);
     }
 
-    // ---- PXIR reference execution -------------------------------------------
+    // ---- Lume reference execution -------------------------------------------
     // Timed region: input validation, interpretation, result allocation, add
     // loop, and output copy.
-    std::vector<std::int64_t> pxir_ns;
+    std::vector<std::int64_t> lume_ns;
     bool all_equal = true;
-    std::uint64_t pxir_checksum = 0;
+    std::uint64_t lume_checksum = 0;
     for (std::uint32_t i = 0; i < opt.warmup + opt.iterations; ++i) {
         const auto start = Clock::now();
-        pxir::ExecutionResult result = pxir::execute_cpu_reference(*verified, inputs);
+        lume::ExecutionResult result = lume::execute_cpu_reference(*verified, inputs);
         const std::int64_t t = elapsed_ns(start);
         if (!result.ok()) {
             std::fprintf(stderr, "execution error: %s\n", result.error->message.c_str());
@@ -179,16 +179,16 @@ int main(int argc, char** argv) {
         }
         // Every run, warmup included, is checked against the oracle outside the timed region.
         const std::span<const float> c = *result.outputs.at(0).f32_view();
-        all_equal = all_equal && pxir_oracle::exactly_equal(c, native_c);
-        pxir_checksum = pxir_oracle::fnv1a(c);
-        if (i >= opt.warmup) pxir_ns.push_back(t);
+        all_equal = all_equal && lume_oracle::exactly_equal(c, native_c);
+        lume_checksum = lume_oracle::fnv1a(c);
+        if (i >= opt.warmup) lume_ns.push_back(t);
     }
 
-    const pxir::Program& program = verified->program();
-    const pxir::ProgramStorage& storage = program.storage();
-    const pxir::StorageFootprint footprint = pxir::storage_footprint(program);
+    const lume::Program& program = verified->program();
+    const lume::ProgramStorage& storage = program.storage();
+    const lume::StorageFootprint footprint = lume::storage_footprint(program);
 
-    std::printf("pxir_benchmark=vector_add\n");
+    std::printf("lume_benchmark=vector_add\n");
     std::printf("workload=C=A+B\n");
     std::printf("dtype=f32\n");
     std::printf("elements=%zu\n", n);
@@ -198,30 +198,30 @@ int main(int argc, char** argv) {
     std::printf("iterations=%u\n", static_cast<unsigned>(opt.iterations));
     std::printf("statistic=median_of_iterations\n");
     std::printf("compiler=%s\n", compiler_id().c_str());
-    std::printf("build_config=%s\n", PXIR_BUILD_CONFIG);
+    std::printf("build_config=%s\n", LUME_BUILD_CONFIG);
 
-    std::istringstream dump(pxir::to_debug_string(program));
+    std::istringstream dump(lume::to_debug_string(program));
     for (std::string line; std::getline(dump, line);) std::printf("ir=%s\n", line.c_str());
     std::printf("ir_operations=%zu\n", storage.operations.size());
     std::printf("ir_values=%zu\n", storage.values.size());
     std::printf("ir_types=%zu\n", storage.types.size());
-    std::printf("sizeof_ValueId=%zu\n", sizeof(pxir::ValueId));
-    std::printf("sizeof_TypeId=%zu\n", sizeof(pxir::TypeId));
-    std::printf("sizeof_OperationId=%zu\n", sizeof(pxir::OperationId));
-    std::printf("sizeof_Type=%zu\n", sizeof(pxir::Type));
-    std::printf("sizeof_Value=%zu\n", sizeof(pxir::Value));
-    std::printf("sizeof_Operation=%zu\n", sizeof(pxir::Operation));
-    std::printf("sizeof_Program=%zu\n", sizeof(pxir::Program));
+    std::printf("sizeof_ValueId=%zu\n", sizeof(lume::ValueId));
+    std::printf("sizeof_TypeId=%zu\n", sizeof(lume::TypeId));
+    std::printf("sizeof_OperationId=%zu\n", sizeof(lume::OperationId));
+    std::printf("sizeof_Type=%zu\n", sizeof(lume::Type));
+    std::printf("sizeof_Value=%zu\n", sizeof(lume::Value));
+    std::printf("sizeof_Operation=%zu\n", sizeof(lume::Operation));
+    std::printf("sizeof_Program=%zu\n", sizeof(lume::Program));
     std::printf("ir_storage_used_bytes=%zu\n", footprint.used_bytes);
     std::printf("ir_storage_reserved_bytes=%zu\n", footprint.reserved_bytes);
 
     print_stats("construction", summarize(construction_ns));
     print_stats("verification", summarize(verification_ns));
     print_stats("native", summarize(native_ns));
-    print_stats("pxir_execution", summarize(pxir_ns));
+    print_stats("lume_execution", summarize(lume_ns));
 
-    std::printf("native_checksum_fnv1a=0x%016" PRIx64 "\n", pxir_oracle::fnv1a(native_c));
-    std::printf("pxir_checksum_fnv1a=0x%016" PRIx64 "\n", pxir_checksum);
+    std::printf("native_checksum_fnv1a=0x%016" PRIx64 "\n", lume_oracle::fnv1a(native_c));
+    std::printf("lume_checksum_fnv1a=0x%016" PRIx64 "\n", lume_checksum);
     std::printf("correctness=%s\n", all_equal ? "exact" : "MISMATCH");
     return all_equal ? 0 : 1;
 }

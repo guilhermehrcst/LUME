@@ -6,63 +6,63 @@
 #include <string.h>
 
 typedef enum {
-    PXIR_U8,
-    PXIR_U16,
-    PXIR_U32,
-    PXIR_U64
-} pxir_integer_type;
+    LUME_U8,
+    LUME_U16,
+    LUME_U32,
+    LUME_U64
+} lume_integer_type;
 
-static int parse_type(const char *name, pxir_integer_type *out) {
-    if (strcmp(name, "u8") == 0) { *out = PXIR_U8; return 1; }
-    if (strcmp(name, "u16") == 0) { *out = PXIR_U16; return 1; }
-    if (strcmp(name, "u32") == 0) { *out = PXIR_U32; return 1; }
-    if (strcmp(name, "u64") == 0) { *out = PXIR_U64; return 1; }
+static int parse_type(const char *name, lume_integer_type *out) {
+    if (strcmp(name, "u8") == 0) { *out = LUME_U8; return 1; }
+    if (strcmp(name, "u16") == 0) { *out = LUME_U16; return 1; }
+    if (strcmp(name, "u32") == 0) { *out = LUME_U32; return 1; }
+    if (strcmp(name, "u64") == 0) { *out = LUME_U64; return 1; }
     return 0;
 }
 
-static const char *type_name(pxir_integer_type type) {
+static const char *type_name(lume_integer_type type) {
     switch (type) {
-        case PXIR_U8: return "uint8_t";
-        case PXIR_U16: return "uint16_t";
-        case PXIR_U32: return "uint32_t";
-        case PXIR_U64: return "uint64_t";
+        case LUME_U8: return "uint8_t";
+        case LUME_U16: return "uint16_t";
+        case LUME_U32: return "uint32_t";
+        case LUME_U64: return "uint64_t";
     }
     return "unknown";
 }
 
-static size_t type_size(pxir_integer_type type) {
+static size_t type_size(lume_integer_type type) {
     switch (type) {
-        case PXIR_U8: return sizeof(uint8_t);
-        case PXIR_U16: return sizeof(uint16_t);
-        case PXIR_U32: return sizeof(uint32_t);
-        case PXIR_U64: return sizeof(uint64_t);
+        case LUME_U8: return sizeof(uint8_t);
+        case LUME_U16: return sizeof(uint16_t);
+        case LUME_U32: return sizeof(uint32_t);
+        case LUME_U64: return sizeof(uint64_t);
     }
     return 0;
 }
 
-static uint64_t touch_and_checksum(void *memory, pxir_integer_type type, size_t count) {
+static uint64_t touch_and_checksum(void *memory, lume_integer_type type, size_t count) {
     uint64_t checksum = 0;
 
     switch (type) {
-        case PXIR_U8: {
+        case LUME_U8: {
             volatile uint8_t *values = memory;
             for (size_t i = 0; i < count; ++i) values[i] = (uint8_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
             break;
         }
-        case PXIR_U16: {
+        case LUME_U16: {
             volatile uint16_t *values = memory;
             for (size_t i = 0; i < count; ++i) values[i] = (uint16_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
             break;
         }
-        case PXIR_U32: {
+        case LUME_U32: {
             volatile uint32_t *values = memory;
             for (size_t i = 0; i < count; ++i) values[i] = (uint32_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
             break;
         }
-        case PXIR_U64: {
+        case LUME_U64: {
             volatile uint64_t *values = memory;
             for (size_t i = 0; i < count; ++i) values[i] = (uint64_t)(i % 251u);
             for (size_t i = 0; i < count; ++i) checksum += values[i];
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
         return 2;
     }
 
-    pxir_integer_type type;
+    lume_integer_type type;
     size_t count;
 
     if (!parse_type(argv[1], &type)) {
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
 
     const uint64_t checksum = touch_and_checksum(memory, type, count);
 
-    printf("pxir_experiment=001\n");
+    printf("lume_experiment=001\n");
     printf("type=%s\n", type_name(type));
     printf("count=%zu\n", count);
     printf("bytes_per_element=%zu\n", bytes_per_element);

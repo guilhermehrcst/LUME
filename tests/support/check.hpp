@@ -1,10 +1,10 @@
 #pragma once
 
-// Minimal assertion support for PXIR tests; no external framework.
+// Minimal assertion support for Lume tests; no external framework.
 
 #include <cstdio>
 
-namespace pxir_test {
+namespace lume_test {
 
 inline int& failure_count() {
     static int count = 0;
@@ -25,6 +25,6 @@ inline int finish(const char* suite) {
     return failures == 0 ? 0 : 1;
 }
 
-}  // namespace pxir_test
+}  // namespace lume_test
 
-#define PXIR_CHECK(expr) ::pxir_test::check(static_cast<bool>(expr), #expr, __FILE__, __LINE__)
+#define LUME_CHECK(expr) ::lume_test::check(static_cast<bool>(expr), #expr, __FILE__, __LINE__)

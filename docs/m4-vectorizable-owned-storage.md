@@ -1,6 +1,6 @@
-# PXIR M4: Vectorizable Single-Write Owned Storage
+# Lume M4: Vectorizable Single-Write Owned Storage
 
-M4 asks whether PXIR can own result storage that is **not value-initialized**, write every result element **exactly once** through a **plain indexed loop**, and keep compiler auto-vectorization. That is the combination M3 could not achieve with `std::vector`.
+M4 asks whether Lume can own result storage that is **not value-initialized**, write every result element **exactly once** through a **plain indexed loop**, and keep compiler auto-vectorization. That is the combination M3 could not achieve with `std::vector`.
 
 The experiment ran in two phases:
 - **Phase A:** the storage primitive in isolation, with a go/no-go gate.
@@ -44,7 +44,7 @@ M3 (`reserve` + `emplace_back`) removed the zero-fill, but neither compiler vect
 
 ## 5. Phase A design
 
-The primitive is `pxir::OwnedArray<T>` ([`include/pxir/runtime/owned_array.hpp`](../include/pxir/runtime/owned_array.hpp)):
+The primitive is `lume::OwnedArray<T>` ([`include/lume/runtime/owned_array.hpp`](../include/lume/runtime/owned_array.hpp)):
 - a contiguous, owning, fixed-size array restricted to `float` and `std::int32_t`;
 - storage is a `std::unique_ptr<T[]>` plus a `std::size_t`;
 - `OwnedArray<T>::for_overwrite(n)` calls `std::make_unique_for_overwrite<T[]>(n)`. Where that library feature is missing (`__cpp_lib_smart_ptr_for_overwrite` undefined), it falls back to its specified equivalent, `std::unique_ptr<T[]>(new T[n])`. The fallback was tested separately under ASan+UBSan (§12).
@@ -139,8 +139,8 @@ This is an explicit, **breaking** public API change:
 ## 12. Correctness
 
 - **New tests:**
-  - `pxir_owned_array_test` (Phase A kernel): f32 and i32 at N ∈ {1, 3, 4, 5, 7, 8, 9, 15, 16, 17, 31, 33, 4099}; f32 special values (±0, ±∞, NaN, max, denormals, ties-to-even) at the start, middle and tail; i32 wrap boundaries; deep copies, copy assignment and self-assignment; moves and vector growth.
-  - `pxir_buffer_storage_test` (Phase B): the integrated executor at every edge length for f32 and i32; copies of all four storage kinds; wrong-type views; moves; output ownership.
+  - `lume_owned_array_test` (Phase A kernel): f32 and i32 at N ∈ {1, 3, 4, 5, 7, 8, 9, 15, 16, 17, 31, 33, 4099}; f32 special values (±0, ±∞, NaN, max, denormals, ties-to-even) at the start, middle and tail; i32 wrap boundaries; deep copies, copy assignment and self-assignment; moves and vector growth.
+  - `lume_buffer_storage_test` (Phase B): the integrated executor at every edge length for f32 and i32; copies of all four storage kinds; wrong-type views; moves; output ownership.
   - The existing M0–M2 tests cover chained computation, output-twice, output before a later use, input passthrough and i32 wrap-around through the executor.
 - **Results:** all 17 tests pass (GCC Release `-Werror`, GCC ASan+UBSan, Clang Release `-Werror`). Valgrind Memcheck: 0 errors in all 7 runtime tests. The forced `new T[n]` fallback path passes `owned_array` and `buffer_storage` under ASan+UBSan.
 - **Mutation 1** (temporary, not committed): the executor loops were changed to `i + 1 < size`, leaving the last element unwritten. It was killed by 5 tests: `execution`, `output_move`, `buffer_storage`, `vector_add` smoke and `executor_breakdown` smoke. Memcheck reported the unwritten element being read (17 errors).
@@ -164,7 +164,7 @@ This uses the M1/M2 harness and statistics unchanged (see [`m1-executor-cost-bre
 - **`pxir_execution_total`** follows this tree's executor; its model is 12 B/element.
 
 **A/B:**
-- **A** = canonical `main` `9514215` (separate worktree); **B** = M4. Both use CMake Release `-O3 -DNDEBUG` with `-DPXIR_WARNINGS_AS_ERRORS=ON`, on the same machine and in one session.
+- **A** = canonical `main` `9514215` (separate worktree); **B** = M4. Both use CMake Release `-O3 -DNDEBUG` with `-DLUME_WARNINGS_AS_ERRORS=ON`, on the same machine and in one session.
 - Strictly alternating runs:
   - default allocator: 6 pairs (N ∈ {1, 256, 4,096, 65,536, 1M, 4M});
   - T1: 3 pairs;
@@ -195,7 +195,7 @@ Raw data is in [`docs/data/m4/`](data/m4/) (`A_*` = M2, `B_*` = M4).
 Other runs agree:
 - **Clang A/B** (2 pairs): M4/M2 = 0.91 (4,096), 0.62 (65,536), 0.74 (1M), 0.74 (4M). M4/native is 0.96 at 1M.
 - **Reverse-order pair** (M2 / M4): 1M 649.6 / 470.4 µs; 4M 2,545.6 / 1,851.1 µs.
-- **`pxir_bench_vector_add`** (3 pairs): M2 0.62–0.63 ms, M4 0.45–0.47 ms, with the same checksum.
+- **`lume_bench_vector_add`** (3 pairs): M2 0.62–0.63 ms, M4 0.45–0.47 ms, with the same checksum.
 
 ### Canonical N = 1,048,576 (GCC, default allocator; B-tree components, medians of 6)
 
@@ -357,6 +357,6 @@ The API change removes `as_f32`/`as_i32` in favor of span views. It is judged ac
 Recommended M5 experiment: **establish a multi-operation baseline, e.g. `E = (A + B) + C` with and without output of the intermediate, and measure the cost of materializing intermediate values.**
 
 - **What to measure:** traffic, time and faults against a native single-pass loop, with the same harness.
-- **Why this one:** with M4, a single add already runs at native speed, so single-operation executor overhead is no longer the question. The next PXIR-relevant cost is data movement between operations. Every intermediate currently makes a full N-sized round trip through memory.
+- **Why this one:** with M4, a single add already runs at native speed, so single-operation executor overhead is no longer the question. The next Lume-relevant cost is data movement between operations. Every intermediate currently makes a full N-sized round trip through memory.
 - **What it prepares:** measuring this first, per the project rule of establishing a baseline before optimizing, would size any later fusion experiment.
 - **Status:** not implemented.

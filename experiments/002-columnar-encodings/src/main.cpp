@@ -2,7 +2,7 @@
 // deterministic event-log workload. See README.md for the pre-registered
 // hypothesis, thresholds and method.
 //
-// Usage: pxir_exp_002 [rows=N] [seed=S] [rounds=R]
+// Usage: lume_exp_002 [rows=N] [seed=S] [rounds=R]
 
 #include <algorithm>
 #include <array>
@@ -17,11 +17,11 @@
 #include "columnar.hpp"
 #include "workload.hpp"
 
-#ifndef PXIR_BUILD_CONFIG
-#define PXIR_BUILD_CONFIG "unknown"
+#ifndef LUME_BUILD_CONFIG
+#define LUME_BUILD_CONFIG "unknown"
 #endif
-#ifndef PXIR_GIT_SHA
-#define PXIR_GIT_SHA "unknown"
+#ifndef LUME_GIT_SHA
+#define LUME_GIT_SHA "unknown"
 #endif
 
 using namespace exp002;
@@ -144,7 +144,7 @@ double ms_since(Clock::time_point a) { return std::chrono::duration<double, std:
 int main(int argc, char** argv) {
     Options opt;
     if (!parse_options(argc, argv, opt)) {
-        std::fprintf(stderr, "usage: pxir_exp_002 [rows=N>0] [seed=S] [rounds=1..1000]\n");
+        std::fprintf(stderr, "usage: lume_exp_002 [rows=N>0] [seed=S] [rounds=1..1000]\n");
         return 2;
     }
 
@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
 #endif
     std::printf("environment cpu=\"%s\" ram_kb=\"%s\" compiler=\"%s\" build_config=%s commit=%s\n",
                 read_first_match("/proc/cpuinfo", "model name").c_str(),
-                read_first_match("/proc/meminfo", "MemTotal").c_str(), compiler, PXIR_BUILD_CONFIG, PXIR_GIT_SHA);
+                read_first_match("/proc/meminfo", "MemTotal").c_str(), compiler, LUME_BUILD_CONFIG, LUME_GIT_SHA);
     std::printf("params rows=%zu seed=%llu rounds=%d\n", opt.rows, static_cast<unsigned long long>(opt.seed), opt.rounds);
 
     auto t0 = Clock::now();

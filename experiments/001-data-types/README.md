@@ -6,7 +6,7 @@ How much representational memory is required to store the same sequence of value
 
 ## Why this experiment exists
 
-PXIR begins with the smallest useful baseline. Before discussing compression, IR design, caches, or GPUs, we need a precise understanding of the relationship between value range and representation width.
+Lume begins with the smallest useful baseline. Before discussing compression, IR design, caches, or GPUs, we need a precise understanding of the relationship between value range and representation width.
 
 ## Hypothesis
 
@@ -39,10 +39,10 @@ cmake --build build --config Release
 On Unix-like systems:
 
 ```bash
-./build/experiments/001-data-types/pxir_exp_001 u8 1000000
-./build/experiments/001-data-types/pxir_exp_001 u16 1000000
-./build/experiments/001-data-types/pxir_exp_001 u32 1000000
-./build/experiments/001-data-types/pxir_exp_001 u64 1000000
+./build/experiments/001-data-types/lume_exp_001 u8 1000000
+./build/experiments/001-data-types/lume_exp_001 u16 1000000
+./build/experiments/001-data-types/lume_exp_001 u32 1000000
+./build/experiments/001-data-types/lume_exp_001 u64 1000000
 ```
 
 The executable allocates the requested typed array, writes every element through volatile accesses so the pages are actually touched, reads the values back into a checksum, and prints the requested representation size.
@@ -52,13 +52,13 @@ The executable allocates the requested typed array, writes every element through
 Linux example:
 
 ```bash
-/usr/bin/time -v ./build/experiments/001-data-types/pxir_exp_001 u32 1000000
+/usr/bin/time -v ./build/experiments/001-data-types/lume_exp_001 u32 1000000
 ```
 
 macOS example:
 
 ```bash
-/usr/bin/time -l ./build/experiments/001-data-types/pxir_exp_001 u32 1000000
+/usr/bin/time -l ./build/experiments/001-data-types/lume_exp_001 u32 1000000
 ```
 
 Record the environment before comparing RSS results. Process overhead means RSS will not equal requested bytes exactly.
@@ -69,4 +69,4 @@ The program rejects zero, negative, non-numeric counts, unknown types, integer-o
 
 ## Expected conclusion
 
-This experiment should establish a baseline, not a novel result. Its purpose is to make later PXIR memory claims precise and reproducible.
+This experiment should establish a baseline, not a novel result. Its purpose is to make later Lume memory claims precise and reproducible.

@@ -1,9 +1,9 @@
-#include "pxir/ir/program.hpp"
+#include "lume/ir/program.hpp"
 
 #include <stdexcept>
 #include <utility>
 
-namespace pxir {
+namespace lume {
 
 namespace {
 
@@ -49,14 +49,14 @@ TypeId Program::intern(Type type) {
     for (std::size_t i = 0; i < storage_.types.size(); ++i) {
         if (storage_.types[i] == type) return TypeId{static_cast<std::uint32_t>(i)};
     }
-    if (storage_.types.size() >= max_table_size) throw std::length_error("pxir: type table full");
+    if (storage_.types.size() >= max_table_size) throw std::length_error("lume: type table full");
     storage_.types.push_back(type);
     return TypeId{static_cast<std::uint32_t>(storage_.types.size() - 1)};
 }
 
 ValueId Program::append(Opcode opcode, std::array<ValueId, 2> operands, bool produces_value, TypeId result_type) {
     if (storage_.operations.size() >= max_table_size || storage_.values.size() >= max_table_size) {
-        throw std::length_error("pxir: program table full");
+        throw std::length_error("lume: program table full");
     }
 
     const OperationId op{static_cast<std::uint32_t>(storage_.operations.size())};
@@ -84,4 +84,4 @@ StorageFootprint storage_footprint(const Program& program) noexcept {
     };
 }
 
-}  // namespace pxir
+}  // namespace lume
