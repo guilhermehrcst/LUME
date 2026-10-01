@@ -4,7 +4,7 @@
 
 > Status: early research. Lume currently makes no production or universal performance claims.
 
-> Formerly named PXIR. The code, namespaces, CMake targets and options were renamed to Lume; the tag `pre-lume-rename` marks the last commit under the old name. See [docs/data/README.md](docs/data/README.md) for what was deliberately left unchanged.
+> Formerly named PXIR. The code, namespaces, CMake targets and options were renamed to Lume; commit `b2354749f8331557300e746ae6edc5a01284dc4f` is the last one under the old name. See [docs/data/README.md](docs/data/README.md) for what was deliberately left unchanged.
 
 Lume is a public systems-research project exploring whether software, structured data, and computational intent can be represented with less memory, less redundant data movement, and lower processing overhead while preserving correctness.
 

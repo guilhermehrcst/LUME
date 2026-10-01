@@ -16,4 +16,4 @@ What that means when you read them:
 - To reproduce a number with the current code, map `pxir_` to `lume_` in the key
   name. Nothing else changed.
 
-The last commit under the old name is tagged `pre-lume-rename`.
+The last commit under the old name is `b2354749f8331557300e746ae6edc5a01284dc4f`.
