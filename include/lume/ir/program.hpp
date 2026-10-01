@@ -6,10 +6,10 @@
 #include <string_view>
 #include <vector>
 
-#include "pxir/ir/ids.hpp"
-#include "pxir/ir/types.hpp"
+#include "lume/ir/ids.hpp"
+#include "lume/ir/types.hpp"
 
-namespace pxir {
+namespace lume {
 
 // Zero is deliberately not a valid opcode.
 enum class Opcode : std::uint8_t {
@@ -49,11 +49,11 @@ struct ProgramStorage {
     std::vector<Operation> operations;
 };
 
-// A straight-line PXIR program and its builder API.
+// A straight-line Lume program and its builder API.
 //
 // The builder records exactly what it is asked to record and never rejects
 // input; the verifier is the sole authority on validity. Only a
-// VerifiedProgram (see pxir/verify/verifier.hpp) can be executed.
+// VerifiedProgram (see lume/verify/verifier.hpp) can be executed.
 class Program {
 public:
     Program() = default;
@@ -92,4 +92,4 @@ struct StorageFootprint {
 
 [[nodiscard]] StorageFootprint storage_footprint(const Program& program) noexcept;
 
-}  // namespace pxir
+}  // namespace lume

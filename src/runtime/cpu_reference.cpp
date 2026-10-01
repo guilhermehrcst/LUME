@@ -1,4 +1,4 @@
-#include "pxir/runtime/cpu_reference.hpp"
+#include "lume/runtime/cpu_reference.hpp"
 
 #include <cstddef>
 #include <optional>
@@ -10,7 +10,7 @@
 
 #include "input_validation.hpp"
 
-namespace pxir {
+namespace lume {
 
 namespace detail {
 
@@ -42,7 +42,7 @@ namespace {
 // Transferring an owned Buffer into ExecutionResult::outputs relies on Buffer
 // being nothrow move constructible; vector growth in `outputs` also relies on
 // it to move rather than copy existing elements. After a move the source is
-// valid but its value is unspecified: PXIR never inspects or reuses it, and
+// valid but its value is unspecified: Lume never inspects or reuses it, and
 // the executor immediately resets the owned slot and clears bound[id].
 static_assert(std::is_nothrow_move_constructible_v<Buffer>);
 
@@ -269,4 +269,4 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
     return result;
 }
 
-}  // namespace pxir
+}  // namespace lume

@@ -1,8 +1,8 @@
-# PXIR M1: Executor Cost Breakdown
+# Lume M1: Executor Cost Breakdown
 
-M1 is observational. It changes nothing about how PXIR executes. It measures where the M0 scalar reference executor spends its time on `C = A + B`, so that later milestones optimize measured costs instead of guessed ones.
+M1 is observational. It changes nothing about how Lume executes. It measures where the M0 scalar reference executor spends its time on `C = A + B`, so that later milestones optimize measured costs instead of guessed ones.
 
-Every number here comes from one machine (described below). None of it is a general performance claim about PXIR.
+Every number here comes from one machine (described below). None of it is a general performance claim about Lume.
 
 ## 1. Research question
 
@@ -15,14 +15,14 @@ Secondary questions:
 3. What does creating the result buffer cost?
 4. What does the scalar add loop cost?
 5. What does copying the output cost?
-6. How much of the native-vs-PXIR gap do these explain?
+6. How much of the native-vs-Lume gap do these explain?
 7. Which costs scale with N, and which stay constant?
 
 ## 2. Canonical M0 baseline
 
-M0 main is `381159e`. With `pxir_bench_vector_add` at N = 1,048,576, seed 42, 5 warmup and 51 iterations, native is about 0.44–0.49 ms and PXIR execution about 3.2–3.8 ms. In an interleaved A/B of main against this branch, the 6-run medians were 3.45 ms (main) and 3.48 ms (branch). Run-to-run spread for a single build was about ±10%.
+M0 main is `381159e`. With `lume_bench_vector_add` at N = 1,048,576, seed 42, 5 warmup and 51 iterations, native is about 0.44–0.49 ms and Lume execution about 3.2–3.8 ms. In an interleaved A/B of main against this branch, the 6-run medians were 3.45 ms (main) and 3.48 ms (branch). Run-to-run spread for a single build was about ±10%.
 
-The two paths do different work, so the ~7× ratio was not a result about PXIR. Explaining it is the purpose of M1.
+The two paths do different work, so the ~7× ratio was not a result about Lume. Explaining it is the purpose of M1.
 
 ## 3. Hypotheses (stated before measuring)
 
@@ -35,7 +35,7 @@ The two paths do different work, so the ~7× ratio was not a result about PXIR. 
 
 ## 4. Experimental methodology
 
-Harness: `benchmarks/executor_breakdown.cpp`, which builds `pxir_bench_executor_breakdown`. It has no external dependencies. Timing uses `std::chrono::steady_clock`.
+Harness: `benchmarks/executor_breakdown.cpp`, which builds `lume_bench_executor_breakdown`. It has no external dependencies. Timing uses `std::chrono::steady_clock`.
 
 - **Sample.** One sample is one steady_clock interval around **K** back-to-back repetitions. The per-op time is the interval divided by K. For each (N, component) there are 5 warmup samples and 51 measured samples, and the reported statistic is the median; min and max are recorded too. The mean is never used.
 - **Batching.** K = 1000 for operations that don't depend on N (validation, setup, message replica), and for every component when N < 4096. Otherwise K = 1, so large buffers see the allocator the way a single executor call does.
@@ -49,7 +49,7 @@ Harness: `benchmarks/executor_breakdown.cpp`, which builds `pxir_bench_executor_
   - Evidence that the work actually happens: the timings scale with N as expected, and page-fault counts move with the allocator configuration.
 - **Page faults.** Minor page faults come from `getrusage(RUSAGE_SELF).ru_minflt`, read just outside each interval, and are reported as the median per op.
 - **Order.** Components run in a fixed order (forward). One full run used reverse order to expose order effects (§12).
-- **Real code where possible.** `input_validation` times the executor's actual validation code. M1 extracted it, unchanged, into the internal `pxir::detail::validate_inputs` (`src/runtime/input_validation.hpp`, not a public header). The other components are isolated equivalents of executor stages.
+- **Real code where possible.** `input_validation` times the executor's actual validation code. M1 extracted it, unchanged, into the internal `lume::detail::validate_inputs` (`src/runtime/input_validation.hpp`, not a public header). The other components are isolated equivalents of executor stages.
 - **No instrumentation.** No timers were added to the executor, so there is no instrumentation overhead to report. `pxir_execution_total` is the unmodified executor.
 - **Allocator experiments.** These change only glibc's malloc tunables, through the environment, never code:
   - T1: `GLIBC_TUNABLES=glibc.malloc.trim_threshold=1073741824:glibc.malloc.mmap_threshold=33554432` (never trim, never mmap).
@@ -61,12 +61,12 @@ Reproduce (Linux, glibc):
 ```bash
 git rev-parse HEAD
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build
-./build/benchmarks/pxir_bench_executor_breakdown                      # forward, sizes 1..4194304
-./build/benchmarks/pxir_bench_executor_breakdown order=reverse
+./build/benchmarks/lume_bench_executor_breakdown                      # forward, sizes 1..4194304
+./build/benchmarks/lume_bench_executor_breakdown order=reverse
 GLIBC_TUNABLES=glibc.malloc.trim_threshold=1073741824:glibc.malloc.mmap_threshold=33554432 \
-  ./build/benchmarks/pxir_bench_executor_breakdown sizes=65536,1048576,4194304
+  ./build/benchmarks/lume_bench_executor_breakdown sizes=65536,1048576,4194304
 GLIBC_TUNABLES=glibc.malloc.mmap_threshold=131072 \
-  ./build/benchmarks/pxir_bench_executor_breakdown sizes=65536,1048576,4194304
+  ./build/benchmarks/lume_bench_executor_breakdown sizes=65536,1048576,4194304
 ```
 
 The raw outputs of every run cited here are in [`docs/data/m1/`](data/m1/).
@@ -96,7 +96,7 @@ The executor stages below were confirmed by reading `src/runtime/cpu_reference.c
 
 | Component | What is timed | Executor stage it corresponds to |
 | --- | --- | --- |
-| `native_add_preallocated` | `pxir_oracle::native_add(a, b, c)`, with C allocated and first touched once, untimed | None; this is the baseline |
+| `native_add_preallocated` | `lume_oracle::native_add(a, b, c)`, with C allocated and first touched once, untimed | None; this is the baseline |
 | `add_loop_preallocated` | The executor's loop form (`c[i] = a[i] + b[i]` over `std::vector`), reading the `Buffer` inputs, C preallocated | The loop inside `add_buffers` |
 | `input_validation` | `detail::validate_inputs(storage, inputs)`, the real code | Phase 1: count inputs, then per input a type and length check **plus construction of a `where` diagnostic string** |
 | `validation_message_replica` | Building the two `where` strings the same way validation does | Part of `input_validation` |
@@ -281,9 +281,9 @@ Per element, counting user-level bytes only. Write-allocate (RFO) reads, hardwar
 
 - **Measured:** every warm streaming component (native, add, create, copy) at N ≥ 1M runs at **26–29 GB/s** of model bytes. The fault-free executor (T1) at N = 1M moves 25.2 MB in 962 µs, which is **26.2 GB/s**, the same rate. Its measured 2.07× ratio to native matches the model's 24/12 = 2.0×.
 - **Inferred:** with faults removed, the executor is about 2× native because it moves about 2× the bytes, not because the IR adds per-element work. With default glibc, each call additionally faults and zeroes about 8 MiB of fresh pages, which accounts for most of the remaining gap (§9).
-- **Not known:** actual DRAM or L3 traffic, since no hardware counters were available in the container; how much the 12 B/element native model is inflated by RFO; whether huge pages would change the per-fault cost (THP is `madvise` and PXIR doesn't madvise).
+- **Not known:** actual DRAM or L3 traffic, since no hardware counters were available in the container; how much the 12 B/element native model is inflated by RFO; whether huge pages would change the per-fault cost (THP is `madvise` and Lume doesn't madvise).
 
-## 12. Interpretation: the native vs PXIR gap at N = 1M
+## 12. Interpretation: the native vs Lume gap at N = 1M
 
 The measured gap is 3,466 − 468 ≈ 3,000 µs:
 

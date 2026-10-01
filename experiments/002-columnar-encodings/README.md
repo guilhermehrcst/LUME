@@ -81,9 +81,9 @@ Every byte a layout needs to be read back is counted: dictionaries, offsets, per
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target pxir_exp_002 pxir_exp_002_roundtrip
+cmake --build build --target lume_exp_002 lume_exp_002_roundtrip
 ctest --test-dir build -R exp002
-./build/experiments/002-columnar-encodings/pxir_exp_002 rows=1000000 seed=42 rounds=15
+./build/experiments/002-columnar-encodings/lume_exp_002 rows=1000000 seed=42 rounds=15
 ```
 
 ## 8. Results

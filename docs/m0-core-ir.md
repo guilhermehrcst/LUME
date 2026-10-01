@@ -1,4 +1,4 @@
-# PXIR M0: Minimal Executable IR
+# Lume M0: Minimal Executable IR
 
 ## Goal
 
@@ -18,33 +18,33 @@ C++ builder API  ->  Program (core IR)  ->  verify()  ->  VerifiedProgram  ->  e
 - A verifier that is mandatory: only a `VerifiedProgram` can be executed.
 - A scalar CPU reference executor.
 - Correctness tests, negative tests, and a baseline benchmark.
-- A human-readable debug dump (`pxir::to_debug_string`).
+- A human-readable debug dump (`lume::to_debug_string`).
 
 ## Not supported
 
-Textual PXIR language or parser, LLVM, CUDA, SIMD intrinsics, optimization passes, JIT, tensor ranks or dynamic shapes, type inference, AI workloads, and a `pxir-inspect` CLI. There is no input format to inspect yet, so M0 ships only the in-memory dump function.
+Textual Lume language or parser, LLVM, CUDA, SIMD intrinsics, optimization passes, JIT, tensor ranks or dynamic shapes, type inference, AI workloads, and a `lume-inspect` CLI. There is no input format to inspect yet, so M0 ships only the in-memory dump function.
 
 ## Example
 
 ```cpp
-#include "pxir/ir/dump.hpp"
-#include "pxir/runtime/cpu_reference.hpp"
-#include "pxir/verify/verifier.hpp"
+#include "lume/ir/dump.hpp"
+#include "lume/runtime/cpu_reference.hpp"
+#include "lume/verify/verifier.hpp"
 
-pxir::Program program;
-auto a = program.input(pxir::f32, 1024);
-auto b = program.input(pxir::f32, 1024);
+lume::Program program;
+auto a = program.input(lume::f32, 1024);
+auto b = program.input(lume::f32, 1024);
 auto c = program.add(a, b);
 program.output(c);
 
-std::string text = pxir::to_debug_string(program);
+std::string text = lume::to_debug_string(program);
 
-pxir::VerifyResult verified = pxir::verify(std::move(program));
+lume::VerifyResult verified = lume::verify(std::move(program));
 if (!verified.ok()) { /* inspect verified.diagnostics */ }
 
-std::vector<pxir::Buffer> inputs{pxir::Buffer(std::vector<float>(1024, 1.0f)),
-                                 pxir::Buffer(std::vector<float>(1024, 2.0f))};
-pxir::ExecutionResult result = pxir::execute_cpu_reference(*verified.program, inputs);
+std::vector<lume::Buffer> inputs{lume::Buffer(std::vector<float>(1024, 1.0f)),
+                                 lume::Buffer(std::vector<float>(1024, 2.0f))};
+lume::ExecutionResult result = lume::execute_cpu_reference(*verified.program, inputs);
 // result.outputs[0].f32_view() -> 1024 x 3.0f  (M0-M3 API: as_f32())
 ```
 
@@ -121,13 +121,13 @@ Execution before verification cannot be represented. `VerifiedProgram` has a pri
 
 1. It checks that the number of buffers equals the number of `input` operations. Then it checks each buffer's scalar type and length against its input's IR type, before any computation. Any mismatch returns an error with no outputs (fail closed).
 2. It interprets operations in order. Inputs are borrowed without copying. Each `add` allocates a result buffer and runs a plain scalar loop (`c[i] = a[i] + b[i]`; for `i32`, the add goes through `uint32_t` to avoid signed-overflow UB). Each `output` copies its value into the result.
-3. The kernel re-checks operand scalar type and length. A disagreement there would mean a PXIR bug, so it returns `internal_invariant_violation` instead of reading out of bounds.
+3. The kernel re-checks operand scalar type and length. A disagreement there would mean a Lume bug, so it returns `internal_invariant_violation` instead of reading out of bounds.
 
 The executor is not optimized, and it contains no hand-written SIMD. The compiler may auto-vectorize its loops and the native baseline alike under the default Release flags.
 
 ## Correctness oracle
 
-`oracle/include/pxir_oracle/oracle.hpp` is structurally independent of the code under test. It includes no PXIR header, and the `pxir_oracle` CMake target does not link `pxir`. It provides:
+`oracle/include/lume_oracle/oracle.hpp` is structurally independent of the code under test. It includes no Lume header, and the `lume_oracle` CMake target does not link `lume`. It provides:
 
 - **Deterministic inputs:** `std::mt19937_64` (whose sequence is fixed by the C++ standard; the standard distributions are not) mapped to exactly representable floats in `[-1, 1)` with 2^-23 spacing. A then B come from one seeded stream.
 - **Native baseline:** a plain loop, written separately from the executor.
@@ -135,16 +135,16 @@ The executor is not optimized, and it contains no hand-written SIMD. The compile
 
 ## Benchmark
 
-`benchmarks/vector_add.cpp` builds `pxir_bench_vector_add [elements] [seed] [warmup] [iterations]`. The defaults are `1048576 42 5 51`. It records the workload, element count, dtype, seed, generator, warmup and iteration counts, compiler, and build config. It also records the IR dump, table counts, `sizeof` of the key structures, and IR storage bytes. For construction, verification, native execution and PXIR execution it reports the median, min and max. It checks every execution against the oracle and prints FNV-1a checksums. It exits non-zero on any mismatch.
+`benchmarks/vector_add.cpp` builds `lume_bench_vector_add [elements] [seed] [warmup] [iterations]`. The defaults are `1048576 42 5 51`. It records the workload, element count, dtype, seed, generator, warmup and iteration counts, compiler, and build config. It also records the IR dump, table counts, `sizeof` of the key structures, and IR storage bytes. For construction, verification, native execution and Lume execution it reports the median, min and max. It checks every execution against the oracle and prints FNV-1a checksums. It exits non-zero on any mismatch.
 
-The PXIR timed region covers input validation, interpretation, allocation of the result buffer, the add loop, and the output copy. The native timed region covers only the add loop into a preallocated buffer. The comparison is therefore **not like for like**. It measures what the reference executor costs today.
+The Lume timed region covers input validation, interpretation, allocation of the result buffer, the add loop, and the output copy. The native timed region covers only the add loop into a preallocated buffer. The comparison is therefore **not like for like**. It measures what the reference executor costs today.
 
 To reproduce, record `git rev-parse HEAD`, then:
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
-./build/benchmarks/pxir_bench_vector_add
+./build/benchmarks/lume_bench_vector_add
 ```
 
 ### Baseline observation
@@ -156,12 +156,12 @@ Environment: Linux 6.18 container on a 4-vCPU Intel Xeon @ 2.10 GHz (shared clou
 | Construction | 120 ns |
 | Verification | 153 ns |
 | Native add loop | 473,706 ns |
-| PXIR reference execution | 3,384,409 ns |
+| Lume reference execution | 3,384,409 ns |
 | Correctness | `exact`, checksum `0xf09ed3431c02ceea` |
 
-Clang 18.1.3 produced the same checksum and similar medians (native 464,211 ns, PXIR 3,337,261 ns). A second GCC run reproduced every non-timing field exactly.
+Clang 18.1.3 produced the same checksum and similar medians (native 464,211 ns, Lume 3,337,261 ns). A second GCC run reproduced every non-timing field exactly.
 
-This is one run on a shared virtual machine. It is not a performance claim. The roughly 7x gap is expected, since the PXIR path does two extra 4 MiB allocate-and-write passes (a zero-initialized result and an output copy) that the native loop does not. That explanation is a hypothesis: M0 has not measured how the gap splits between those costs.
+This is one run on a shared virtual machine. It is not a performance claim. The roughly 7x gap is expected, since the Lume path does two extra 4 MiB allocate-and-write passes (a zero-initialized result and an output copy) that the native loop does not. That explanation is a hypothesis: M0 has not measured how the gap splits between those costs.
 
 ## Known limitations
 

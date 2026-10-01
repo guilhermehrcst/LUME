@@ -42,7 +42,7 @@ jobs:
         run: >
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
           -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-          -DPXIR_SANITIZE=address,undefined -DPXIR_WARNINGS_AS_ERRORS=ON
+          -DLUME_SANITIZE=address,undefined -DLUME_WARNINGS_AS_ERRORS=ON
 
       - name: Build
         run: cmake --build build

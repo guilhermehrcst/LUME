@@ -1,8 +1,8 @@
-#include "pxir/ir/dump.hpp"
+#include "lume/ir/dump.hpp"
 
 #include <string>
 
-namespace pxir {
+namespace lume {
 
 namespace {
 
@@ -61,4 +61,4 @@ std::string to_debug_string(const Program& program) {
     return out;
 }
 
-}  // namespace pxir
+}  // namespace lume

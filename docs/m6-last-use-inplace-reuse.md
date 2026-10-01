@@ -1,4 +1,4 @@
-# PXIR M6: Last-Use In-Place Result Reuse
+# Lume M6: Last-Use In-Place Result Reuse
 
 **Status:** runtime optimization experiment. Branch `pxir/m6-last-use-inplace-reuse-v01`, base `main` = `bd338bae72c63677b533ed0c6e9cea1986358412` (M0–M5). Recommendation: **MERGE CANDIDATE**, conditional on green cross-platform CI (§25).
 
@@ -6,13 +6,13 @@ Labels: **MEASURED** was observed here; **INFERRED** is reasoning from measureme
 
 ## 1. Research question
 
-Can PXIR reuse executor-owned storage at an operand's last use, so the second result allocation disappears, while keeping two computational passes and the 24 B/element user-level payload of `D = A + B; E = D + C`?
+Can Lume reuse executor-owned storage at an operand's last use, so the second result allocation disappears, while keeping two computational passes and the 24 B/element user-level payload of `D = A + B; E = D + C`?
 
 M6 is **not** fusion. There are still two loops. The second pass is `d[i] = d[i] + c[i]`, not `e[i] = (a[i] + b[i]) + c[i]`.
 
 ## 2. M5 motivation
 
-M5 (T1, N = 1M) put the PXIR chain at 0.95 ms, equal to a native two-pass loop (0.94 ms). Under default glibc the same chain cost 2.69 ms with 2,016 minor faults per call, because two result-sized buffers are allocated and freed together and glibc trims and re-faults them. M6 removes one of the two allocations and nothing else, to separate *allocation/lifetime* from *materialization traffic*.
+M5 (T1, N = 1M) put the Lume chain at 0.95 ms, equal to a native two-pass loop (0.94 ms). Under default glibc the same chain cost 2.69 ms with 2,016 minor faults per call, because two result-sized buffers are allocated and freed together and glibc trims and re-faults them. M6 removes one of the two allocations and nothing else, to separate *allocation/lifetime* from *materialization traffic*.
 
 ## 3. Hypotheses and outcome
 
@@ -66,7 +66,7 @@ The buffer is never moved before it is read, no stale `bound` pointer survives, 
 - `add_buffers_in_place(Buffer& destination, const Buffer& lhs, const Buffer& rhs)`: destination identity is by address (`&lhs == &destination`), scalar type and length are checked first, no allocation.
 - Executor: eligibility, then the transition in §5.
 
-Files changed: `src/runtime/cpu_reference.cpp`, `include/pxir/runtime/buffer.hpp` (a friend declaration; §8), `include/pxir/runtime/cpu_reference.hpp` (comment), tests.
+Files changed: `src/runtime/cpu_reference.cpp`, `include/lume/runtime/buffer.hpp` (a friend declaration; §8), `include/lume/runtime/cpu_reference.hpp` (comment), tests.
 
 ## 8. Mutable access design
 
@@ -114,7 +114,7 @@ An earlier version of the test crashed (segfault) under mutation 1 because it in
 
 ## 12. Benchmark methodology
 
-Primary evidence is the **unmodified M5 benchmark** (`pxir_bench_intermediate_materialization`, byte-identical source in both trees) built from two clean trees: A = canonical M5 `bd338ba`, B = M6. Its PXIR components follow each tree's runtime.
+Primary evidence is the **unmodified M5 benchmark** (`lume_bench_intermediate_materialization`, byte-identical source in both trees) built from two clean trees: A = canonical M5 `bd338ba`, B = M6. Its Lume components follow each tree's runtime.
 
 - Harness: `steady_clock`, 5 warmup, 51 iterations, median; K = 1000 batching below N = 4,096; faults from `getrusage`; results checked outside the timed region.
 - Order: for every run, A then B (interleaved). GCC default: 6 runs, plus 3 reverse-order; T1: 3; T2: 2; Clang default: 3, T1: 2; small N (N = 1, 256): 10 paired runs per compiler.

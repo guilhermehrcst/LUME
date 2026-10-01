@@ -1,10 +1,10 @@
-# PXIR Research Charter
+# Lume Research Charter
 
 ## Central question
 
 Can software, structured data, and computational intent be represented significantly more efficiently in memory, storage, movement, and processing while preserving the semantics required by the workload?
 
-PXIR treats this as a research question, not as an assumption.
+Lume treats this as a research question, not as an assumption.
 
 ## Initial hypotheses
 
@@ -26,7 +26,7 @@ A future compact semantic representation of code may reduce token footprint for 
 
 ## What would falsify a hypothesis?
 
-A PXIR idea fails for a workload when the measured trade-off is not worthwhile. Examples include:
+A Lume idea fails for a workload when the measured trade-off is not worthwhile. Examples include:
 
 - memory savings that cause unacceptable CPU overhead;
 - smaller encodings whose decode cost dominates the workload;
@@ -54,7 +54,7 @@ Later phases may investigate compact IRs, compiler transformations, SIMD, hetero
 
 ## Non-goals at this stage
 
-PXIR is not currently:
+Lume is not currently:
 
 - a replacement for CUDA;
 - a production compiler;
@@ -66,7 +66,7 @@ PXIR is not currently:
 ## Language strategy
 
 - **C** for experiments where direct visibility into memory is the point.
-- **C++20** for the future PXIR core, IR, runtime, and performance-critical code.
+- **C++20** for the future Lume core, IR, runtime, and performance-critical code.
 - **Python 3** for benchmark orchestration, dataset generation, analysis, and future bindings.
 - **CUDA C++** for a future NVIDIA GPU backend after CPU-side fundamentals are established.
 

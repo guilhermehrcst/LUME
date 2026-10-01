@@ -7,16 +7,16 @@
 #include <string_view>
 #include <vector>
 
-#include "pxir/runtime/buffer.hpp"
-#include "pxir/verify/verifier.hpp"
+#include "lume/runtime/buffer.hpp"
+#include "lume/verify/verifier.hpp"
 
-namespace pxir {
+namespace lume {
 
 enum class ExecutionErrorCode : std::uint8_t {
     input_count_mismatch,          // number of buffers != number of input operations
     input_scalar_mismatch,         // buffer scalar type != input value type
     input_length_mismatch,         // buffer length != input value length
-    internal_invariant_violation,  // verified IR reached an impossible state (a PXIR bug)
+    internal_invariant_violation,  // verified IR reached an impossible state (a Lume bug)
 };
 
 [[nodiscard]] std::string_view to_string(ExecutionErrorCode code) noexcept;
@@ -50,4 +50,4 @@ struct ExecutionResult {
 // mode; i32 add wraps modulo 2^32.
 [[nodiscard]] ExecutionResult execute_cpu_reference(const VerifiedProgram& program, std::span<const Buffer> inputs);
 
-}  // namespace pxir
+}  // namespace lume

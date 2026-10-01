@@ -5,7 +5,7 @@
 #include <limits>
 #include <type_traits>
 
-namespace pxir {
+namespace lume {
 
 namespace detail {
 
@@ -49,4 +49,4 @@ static_assert(std::is_trivially_copyable_v<ValueId>);
 static_assert(!std::is_convertible_v<ValueId, OperationId>);
 static_assert(!std::is_convertible_v<std::uint32_t, ValueId>);
 
-}  // namespace pxir
+}  // namespace lume

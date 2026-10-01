@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace pxir {
+namespace lume {
 
 // A contiguous, owning, fixed-size array of f32 or i32 whose elements are NOT
 // value-initialized on creation.
@@ -22,7 +22,7 @@ namespace pxir {
 template <class T>
 class OwnedArray {
     static_assert(std::is_same_v<T, float> || std::is_same_v<T, std::int32_t>,
-                  "OwnedArray is restricted to PXIR's scalar representations");
+                  "OwnedArray is restricted to Lume's scalar representations");
     static_assert(std::is_trivially_default_constructible_v<T>);
     static_assert(std::is_trivially_destructible_v<T>);
     static_assert(std::is_trivially_copyable_v<T>);
@@ -92,4 +92,4 @@ static_assert(std::is_nothrow_move_constructible_v<OwnedArray<float>>);
 static_assert(std::is_nothrow_move_assignable_v<OwnedArray<float>>);
 static_assert(std::is_copy_constructible_v<OwnedArray<float>>);
 
-}  // namespace pxir
+}  // namespace lume

@@ -1,17 +1,17 @@
 #pragma once
 
-// Internal to the pxir library (not installed under include/). Exposed to the
+// Internal to the lume library (not installed under include/). Exposed to the
 // executor-breakdown benchmark so it can time the executor's real input
 // validation instead of a copy of it.
 
 #include <optional>
 #include <span>
 
-#include "pxir/ir/program.hpp"
-#include "pxir/runtime/buffer.hpp"
-#include "pxir/runtime/cpu_reference.hpp"
+#include "lume/ir/program.hpp"
+#include "lume/runtime/buffer.hpp"
+#include "lume/runtime/cpu_reference.hpp"
 
-namespace pxir::detail {
+namespace lume::detail {
 
 // Phase 1 of execute_cpu_reference: checks the buffer count, then each
 // buffer's scalar type and length against its input operation's IR type.
@@ -20,4 +20,4 @@ namespace pxir::detail {
 [[nodiscard]] std::optional<ExecutionError> validate_inputs(const ProgramStorage& storage,
                                                             std::span<const Buffer> inputs);
 
-}  // namespace pxir::detail
+}  // namespace lume::detail

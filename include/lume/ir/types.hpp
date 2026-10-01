@@ -6,7 +6,7 @@
 #include <optional>
 #include <string_view>
 
-namespace pxir {
+namespace lume {
 
 // Element types supported by M0. Zero is deliberately not a valid enumerator,
 // so zero-initialized storage is detectably invalid.
@@ -19,7 +19,7 @@ inline constexpr ScalarType f32 = ScalarType::f32;
 inline constexpr ScalarType i32 = ScalarType::i32;
 
 static_assert(std::numeric_limits<float>::is_iec559 && sizeof(float) == 4,
-              "PXIR f32 requires IEEE-754 binary32 float");
+              "Lume f32 requires IEEE-754 binary32 float");
 
 [[nodiscard]] constexpr bool is_known(ScalarType scalar) noexcept {
     return scalar == ScalarType::f32 || scalar == ScalarType::i32;
@@ -60,4 +60,4 @@ struct Type {
     return static_cast<std::size_t>(type.length) * element;
 }
 
-}  // namespace pxir
+}  // namespace lume

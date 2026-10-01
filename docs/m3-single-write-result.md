@@ -1,6 +1,6 @@
-# PXIR M3: Single-Write Result Construction
+# Lume M3: Single-Write Result Construction
 
-> **Archival status: negative research result. The M3 runtime is NOT part of canonical PXIR.**
+> **Archival status: negative research result. The M3 runtime is NOT part of canonical Lume.**
 >
 > - M3 was executed in experimental commit `2888c0af5a3ced1357cc8383765a27001f13eeba` (branch `pxir/m3-single-write-result-v01`).
 > - The implementation built add results with standard C++20 `reserve(n)` + `emplace_back`.
@@ -31,7 +31,7 @@ Every number is from one machine (glibc 2.39, GCC 13.3.0, Clang 18.1.3, libstdc+
 
 ## 1. Research question
 
-Can PXIR construct an add result exactly once, without first zero-initializing its N elements, while remaining standard-conforming C++20 and keeping all semantics?
+Can Lume construct an add result exactly once, without first zero-initializing its N elements, while remaining standard-conforming C++20 and keeping all semantics?
 
 Secondary questions:
 
@@ -46,7 +46,7 @@ Secondary questions:
 
 ## 2. M2 baseline
 
-Canonical M2 is `main` at `594a223b97ef8b1eea668f0bc142e1e08a33f39c`. At N = 1,048,576, M2 measured native 0.45 ms and PXIR 0.60 ms (1.31× native), with 0 faults. The model was 16 B/element: 4 for value-initialization, 12 for the add, and 0 N-scaled bytes for the output move. `result_buffer_create` measured about 149 µs, close to the M2 − native gap.
+Canonical M2 is `main` at `594a223b97ef8b1eea668f0bc142e1e08a33f39c`. At N = 1,048,576, M2 measured native 0.45 ms and Lume 0.60 ms (1.31× native), with 0 faults. The model was 16 B/element: 4 for value-initialization, 12 for the add, and 0 N-scaled bytes for the output move. `result_buffer_create` measured about 149 µs, close to the M2 − native gap.
 
 The baseline used in this document is the A build, re-measured on the same machine in the same session (§8).
 
@@ -63,7 +63,7 @@ The baseline used in this document is the A build, re-measured on the same machi
 
 ## 4. C++ safety constraint
 
-Performance obtained through undefined behavior is not valid PXIR evidence. M3 therefore does **not** write through `data()` beyond `size()`, touch implementation internals (`_M_finish` or similar), placement-new into reserved storage, or use a custom allocator or raw buffer. The only standard operations used are `reserve` and `emplace_back`, each of which constructs one element at `end()` and grows `size()` by one.
+Performance obtained through undefined behavior is not valid Lume evidence. M3 therefore does **not** write through `data()` beyond `size()`, touch implementation internals (`_M_finish` or similar), placement-new into reserved storage, or use a custom allocator or raw buffer. The only standard operations used are `reserve` and `emplace_back`, each of which constructs one element at `end()` and grows `size()` by one.
 
 ## 5. Implementation
 
@@ -108,14 +108,14 @@ This uses the M1/M2 harness and statistics unchanged (see [`m1-executor-cost-bre
 
 ## 8. A/B methodology
 
-- **A** is canonical M2 `main` (`594a223`), built in a separate git worktree. **B** is the experimental M3 tree (commit `2888c0a`, branch `pxir/m3-single-write-result-v01`). Both use GCC 13.3.0, CMake Release (`-O3 -DNDEBUG`), `-DPXIR_WARNINGS_AS_ERRORS=ON`, the same machine, and one session.
+- **A** is canonical M2 `main` (`594a223`), built in a separate git worktree. **B** is the experimental M3 tree (commit `2888c0a`, branch `pxir/m3-single-write-result-v01`). Both use GCC 13.3.0, CMake Release (`-O3 -DNDEBUG`), `-DLUME_WARNINGS_AS_ERRORS=ON`, the same machine, and one session.
 - Runs strictly alternate A and B:
   - default allocator: 6 pairs, N ∈ {1, 256, 4,096, 65,536, 1M, 4M};
   - T1: 3 pairs;
   - T2: 1 pair;
   - reverse component order: 1 pair;
   - dedicated small-N: 10 pairs at N ∈ {1, 256}, 201 iterations;
-  - `pxir_bench_vector_add`: 3 pairs;
+  - `lume_bench_vector_add`: 3 pairs;
   - Clang 18.1.3 A/B: 2 pairs, both trees built with Clang;
   - no-vectorize control: 2 pairs, both trees built with `-fno-tree-vectorize`.
 - The environment matches M1 §5: 4-vCPU Xeon at 2.10 GHz in a Docker VM, reported L3 260 MiB, Linux 6.18, 4 KiB pages, glibc 2.39.
@@ -138,7 +138,7 @@ Raw outputs are in [`docs/data/m3/`](data/m3/) (`A_*` = M2, `B_*` = M3), togethe
 ‡ These are measured on the batched K = 1000 path; see §15 for the dedicated small-N A/B.
 
 - **Reverse-order pair** (M2 / M3): N = 65,536: 14.4 / 59.9 µs; N = 1M: 641 / 1,097 µs; N = 4M: 2,630 / 5,136 µs.
-- **`pxir_bench_vector_add`** (3 pairs): M2 0.63–0.67 ms and M3 1.09–1.10 ms, with the same checksum.
+- **`lume_bench_vector_add`** (3 pairs): M2 0.63–0.67 ms and M3 1.09–1.10 ms, with the same checksum.
 - **Clang A/B** (2 pairs, both built with Clang), M3/M2: 1.35 (N = 1), 1.67 (256), 3.63 (4,096), 3.19 (65,536), 1.21 (1M), 1.24 (4M).
 
 ### Canonical N = 1,048,576 (GCC, default allocator; B-tree components, medians of 6 runs)
@@ -254,13 +254,13 @@ At N = 256 the components show the cause directly: `add_construct_reserved` 225 
 ## 16. Correctness
 
 - **Oracle:** every benchmark output in `docs/data/m3/` is free of `MISMATCH`. Checksums are identical between M2-GCC, M3-GCC and M3-Clang at every N (N = 1M: `0xf09ed3431c02ceea`, the same as M0, M1 and M2).
-- **New tests** (`tests/execution/single_write_test.cpp`, suite `pxir_single_write_test`, in the experimental commit only), each checking result length and bit patterns against the oracle:
+- **New tests** (`tests/execution/single_write_test.cpp`, suite `lume_single_write_test`, in the experimental commit only), each checking result length and bit patterns against the oracle:
   - **A/B:** f32 at N ∈ {1, 3, 4, 5, 7, 8, 9, 15, 16, 17, 31, 33, 4099}.
   - **C:** ±0, ±∞, NaN, max, denormals and a ties-to-even case at the start, middle and tail of a 17-element vector; −0 + −0 keeps its sign.
   - **D:** i32 `MAX+1`, `MIN+(−1)`, `MAX+MAX`, `MIN+MIN`, `0+MIN`, `MAX+MIN`, and random data at N ∈ {1, 5, 9, 17, 4099}.
   - **E:** the chained add `D = (A + B) + A`.
   - **F:** the M2 output rules on single-write results (copy before a later use, then move; inputs unchanged).
-- **Mutation test** (temporary, not committed): both loops changed to `i + 1 < a->size()`, omitting the last element. It was killed by 5 tests: `pxir_single_write_test` (length and oracle), `pxir_execution_test`, `pxir_output_move_test`, `pxir_bench_vector_add_smoke` (no `correctness=exact`) and `pxir_bench_executor_breakdown_smoke` (`MISMATCH`). All 16 tests pass after the restore.
+- **Mutation test** (temporary, not committed): both loops changed to `i + 1 < a->size()`, omitting the last element. It was killed by 5 tests: `lume_single_write_test` (length and oracle), `lume_execution_test`, `lume_output_move_test`, `lume_bench_vector_add_smoke` (no `correctness=exact`) and `lume_bench_executor_breakdown_smoke` (`MISMATCH`). All 16 tests pass after the restore.
 
 ## 17. Threats to validity
 
@@ -306,7 +306,7 @@ At N = 256 the components show the cause directly: `add_construct_reserved` 225 
 
 **RESEARCH RESULT ONLY — DO NOT MERGE.**
 
-M3 is correct, standard-conforming C++20, green under ASan+UBSan and portable. But it regresses the canonical executor by 1.6–1.7× at large N and by up to 4.5× at mid N (GCC), and it regresses under Clang too. The payload saving is real in the model, but on this toolchain the cost of `emplace_back`'s per-element construction outweighs it. Replacing M2 with M3 would make the canonical PXIR executor slower. M2 should remain canonical. This branch documents the negative result and the limitation it exposes.
+M3 is correct, standard-conforming C++20, green under ASan+UBSan and portable. But it regresses the canonical executor by 1.6–1.7× at large N and by up to 4.5× at mid N (GCC), and it regresses under Clang too. The payload saving is real in the model, but on this toolchain the cost of `emplace_back`'s per-element construction outweighs it. Replacing M2 with M3 would make the canonical Lume executor slower. M2 should remain canonical. This branch documents the negative result and the limitation it exposes.
 
 ## 20. Next experiment
 

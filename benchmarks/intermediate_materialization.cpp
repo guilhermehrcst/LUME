@@ -1,13 +1,13 @@
-// PXIR M5: intermediate materialization baseline.
+// Lume M5: intermediate materialization baseline.
 //
-// Observational only; nothing here changes how PXIR executes. For the chain
+// Observational only; nothing here changes how Lume executes. For the chain
 //   D = A + B; E = D + C
 // it times the unmodified M4 executor, native fused and two-pass loops, and
 // OwnedArray replicas of the executor's data path, so that interpretation,
 // arithmetic and intermediate materialization can be separated. See
 // docs/m5-intermediate-materialization.md.
 //
-// usage: pxir_bench_intermediate_materialization [sizes=1,256,...] [seed=42]
+// usage: lume_bench_intermediate_materialization [sizes=1,256,...] [seed=42]
 //                                                [warmup=5] [iterations=51]
 //                                                [order=forward|reverse]
 //
@@ -36,18 +36,18 @@
 
 #if defined(__unix__) || defined(__APPLE__)
 #include <sys/resource.h>
-#define PXIR_HAVE_GETRUSAGE 1
+#define LUME_HAVE_GETRUSAGE 1
 #endif
 
 #include "input_validation.hpp"
-#include "pxir/ir/program.hpp"
-#include "pxir/runtime/cpu_reference.hpp"
-#include "pxir/runtime/owned_array.hpp"
-#include "pxir/verify/verifier.hpp"
-#include "pxir_oracle/oracle.hpp"
+#include "lume/ir/program.hpp"
+#include "lume/runtime/cpu_reference.hpp"
+#include "lume/runtime/owned_array.hpp"
+#include "lume/verify/verifier.hpp"
+#include "lume_oracle/oracle.hpp"
 
-#ifndef PXIR_BUILD_CONFIG
-#define PXIR_BUILD_CONFIG "unknown"
+#ifndef LUME_BUILD_CONFIG
+#define LUME_BUILD_CONFIG "unknown"
 #endif
 
 namespace {
@@ -55,7 +55,7 @@ namespace {
 using Clock = std::chrono::steady_clock;
 
 std::int64_t minor_faults() {
-#ifdef PXIR_HAVE_GETRUSAGE
+#ifdef LUME_HAVE_GETRUSAGE
     rusage usage{};
     if (getrusage(RUSAGE_SELF, &usage) == 0) return static_cast<std::int64_t>(usage.ru_minflt);
 #endif
@@ -207,34 +207,34 @@ void native_fused_dual(std::span<const float> a, std::span<const float> b, std::
 
 // ---- OwnedArray kernels (M4 storage, the executor's add loop shape) ----
 
-void owned_add(std::span<const float> x, std::span<const float> y, pxir::OwnedArray<float>& out) {
+void owned_add(std::span<const float> x, std::span<const float> y, lume::OwnedArray<float>& out) {
     for (std::size_t i = 0; i < x.size(); ++i) out[i] = x[i] + y[i];
 }
 
 void owned_fused(std::span<const float> a, std::span<const float> b, std::span<const float> c,
-                 pxir::OwnedArray<float>& e) {
+                 lume::OwnedArray<float>& e) {
     for (std::size_t i = 0; i < a.size(); ++i) e[i] = (a[i] + b[i]) + c[i];
 }
 
-// ---- The PXIR programs under test ----
+// ---- The Lume programs under test ----
 
 enum class Chain { single_add, final_only, intermediate_output, output_after_use };
 
-pxir::VerifiedProgram build(Chain kind, std::uint32_t n) {
-    pxir::Program p;
-    const auto a = p.input(pxir::f32, n);
-    const auto b = p.input(pxir::f32, n);
+lume::VerifiedProgram build(Chain kind, std::uint32_t n) {
+    lume::Program p;
+    const auto a = p.input(lume::f32, n);
+    const auto b = p.input(lume::f32, n);
     if (kind == Chain::single_add) {
         p.output(p.add(a, b));  // D = A + B; output D
     } else {
-        const auto c = p.input(pxir::f32, n);
+        const auto c = p.input(lume::f32, n);
         const auto d = p.add(a, b);
         if (kind == Chain::intermediate_output) p.output(d);  // copy: D is read below
         const auto e = p.add(d, c);
         if (kind == Chain::output_after_use) p.output(d);  // move: last use of D
         p.output(e);
     }
-    pxir::VerifyResult r = pxir::verify(std::move(p));
+    lume::VerifyResult r = lume::verify(std::move(p));
     if (!r.ok()) std::abort();
     return std::move(*r.program);
 }
@@ -244,29 +244,29 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
 
     // Deterministic inputs: A, B, C from one stream (seed 42 by default).
     std::mt19937_64 engine(cfg.seed);
-    const std::vector<float> a = pxir_oracle::generate_f32(engine, n);
-    const std::vector<float> b = pxir_oracle::generate_f32(engine, n);
-    const std::vector<float> c = pxir_oracle::generate_f32(engine, n);
+    const std::vector<float> a = lume_oracle::generate_f32(engine, n);
+    const std::vector<float> b = lume_oracle::generate_f32(engine, n);
+    const std::vector<float> c = lume_oracle::generate_f32(engine, n);
 
     // Independent oracle: D = A + B, then E = D + C, with the oracle's own loop.
     std::vector<float> expected_d(n);
     std::vector<float> expected_e(n);
-    pxir_oracle::native_add(a, b, expected_d);
-    pxir_oracle::native_add(expected_d, c, expected_e);
+    lume_oracle::native_add(a, b, expected_d);
+    lume_oracle::native_add(expected_d, c, expected_e);
 
-    const std::vector<pxir::Buffer> inputs{pxir::Buffer(a), pxir::Buffer(b), pxir::Buffer(c)};
-    const std::span<const pxir::Buffer> inputs_ab(inputs.data(), 2);
-    const pxir::VerifiedProgram single = build(Chain::single_add, n_u32);
-    const pxir::VerifiedProgram final_only = build(Chain::final_only, n_u32);
-    const pxir::VerifiedProgram with_d = build(Chain::intermediate_output, n_u32);
-    const pxir::VerifiedProgram after_use = build(Chain::output_after_use, n_u32);
+    const std::vector<lume::Buffer> inputs{lume::Buffer(a), lume::Buffer(b), lume::Buffer(c)};
+    const std::span<const lume::Buffer> inputs_ab(inputs.data(), 2);
+    const lume::VerifiedProgram single = build(Chain::single_add, n_u32);
+    const lume::VerifiedProgram final_only = build(Chain::final_only, n_u32);
+    const lume::VerifiedProgram with_d = build(Chain::intermediate_output, n_u32);
+    const lume::VerifiedProgram after_use = build(Chain::output_after_use, n_u32);
 
     const std::size_t kb = batch_for(n_u32);
     std::vector<std::vector<float>> dv(kb);
     std::vector<std::vector<float>> ev(kb);
-    std::vector<pxir::OwnedArray<float>> da(kb);
-    std::vector<pxir::OwnedArray<float>> ea(kb);
-    std::vector<pxir::ExecutionResult> results;
+    std::vector<lume::OwnedArray<float>> da(kb);
+    std::vector<lume::OwnedArray<float>> ea(kb);
+    std::vector<lume::ExecutionResult> results;
     results.reserve(kb);
 
     bool preallocated = false;
@@ -281,24 +281,24 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
     const auto reset = [&] {
         for (auto& v : dv) std::vector<float>().swap(v);
         for (auto& v : ev) std::vector<float>().swap(v);
-        for (auto& x : da) x = pxir::OwnedArray<float>();
-        for (auto& x : ea) x = pxir::OwnedArray<float>();
+        for (auto& x : da) x = lume::OwnedArray<float>();
+        for (auto& x : ea) x = lume::OwnedArray<float>();
         results.clear();
         preallocated = false;
     };
     const auto release_owned = [&] {
-        for (auto& x : da) x = pxir::OwnedArray<float>();
-        for (auto& x : ea) x = pxir::OwnedArray<float>();
+        for (auto& x : da) x = lume::OwnedArray<float>();
+        for (auto& x : ea) x = lume::OwnedArray<float>();
     };
     const auto check_vec = [&](const std::vector<std::vector<float>>& h, const std::vector<float>& want) {
         for (std::size_t k = 0; k < kb; ++k) {
-            if (!pxir_oracle::exactly_equal(h[k], want)) return false;
+            if (!lume_oracle::exactly_equal(h[k], want)) return false;
         }
         return true;
     };
-    const auto check_owned = [&](const std::vector<pxir::OwnedArray<float>>& h, const std::vector<float>& want) {
+    const auto check_owned = [&](const std::vector<lume::OwnedArray<float>>& h, const std::vector<float>& want) {
         for (std::size_t k = 0; k < kb; ++k) {
-            if (!pxir_oracle::exactly_equal(h[k].view(), want)) return false;
+            if (!lume_oracle::exactly_equal(h[k].view(), want)) return false;
         }
         return true;
     };
@@ -309,15 +309,15 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
             if (!r.ok() || r.outputs.size() != want.size()) return false;
             for (std::size_t o = 0; o < want.size(); ++o) {
                 const auto view = r.outputs[o].f32_view();
-                if (!view || !pxir_oracle::exactly_equal(*view, *want[o])) return false;
+                if (!view || !lume_oracle::exactly_equal(*view, *want[o])) return false;
             }
         }
         return true;
     };
-    const auto run_pxir = [&](const pxir::VerifiedProgram& vp, std::span<const pxir::Buffer> in) {
+    const auto run_lume = [&](const lume::VerifiedProgram& vp, std::span<const lume::Buffer> in) {
         return measure(
             cfg, kb, [&] { results.clear(); },
-            [&](std::size_t) { results.push_back(pxir::execute_cpu_reference(vp, in)); },
+            [&](std::size_t) { results.push_back(lume::execute_cpu_reference(vp, in)); },
             [&] {
                 if (&vp == &single) return check_results({&expected_d});
                 if (&vp == &final_only) return check_results({&expected_e});
@@ -356,7 +356,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
              return measure(
                  cfg, kb, release_owned,
                  [&](std::size_t k) {
-                     auto e = pxir::OwnedArray<float>::for_overwrite(n);
+                     auto e = lume::OwnedArray<float>::for_overwrite(n);
                      owned_fused(a, b, c, e);
                      ea[k] = std::move(e);
                  },
@@ -370,9 +370,9 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
                      // The executor's data path without interpretation: allocate
                      // D, D = A + B, allocate E, E = D + C. D and E both stay
                      // alive until the interval ends.
-                     auto d = pxir::OwnedArray<float>::for_overwrite(n);
+                     auto d = lume::OwnedArray<float>::for_overwrite(n);
                      owned_add(a, b, d);
-                     auto e = pxir::OwnedArray<float>::for_overwrite(n);
+                     auto e = lume::OwnedArray<float>::for_overwrite(n);
                      owned_add(d.view(), c, e);
                      da[k] = std::move(d);
                      ea[k] = std::move(e);
@@ -385,14 +385,14 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
              return measure(
                  cfg, fixed_batch, [&] { errors = 0; },
                  [&](std::size_t) {
-                     if (pxir::detail::validate_inputs(final_only.program().storage(), inputs)) ++errors;
+                     if (lume::detail::validate_inputs(final_only.program().storage(), inputs)) ++errors;
                  },
                  [&] { return errors == 0; });
          }},
-        {"pxir_single_add_control", kb, 12, [&] { return run_pxir(single, inputs_ab); }},
-        {"pxir_chain_final_only", kb, 24, [&] { return run_pxir(final_only, inputs); }},
-        {"pxir_chain_intermediate_output", kb, 32, [&] { return run_pxir(with_d, inputs); }},
-        {"pxir_chain_output_after_use", kb, 24, [&] { return run_pxir(after_use, inputs); }},
+        {"lume_single_add_control", kb, 12, [&] { return run_lume(single, inputs_ab); }},
+        {"lume_chain_final_only", kb, 24, [&] { return run_lume(final_only, inputs); }},
+        {"lume_chain_intermediate_output", kb, 32, [&] { return run_lume(with_d, inputs); }},
+        {"lume_chain_output_after_use", kb, 24, [&] { return run_lume(after_use, inputs); }},
     };
     if (cfg.reverse) std::reverse(entries.begin(), entries.end());
 
@@ -406,7 +406,7 @@ bool run_size(const Config& cfg, std::uint32_t n_u32) {
         print_summary(n, e.name, e.batch, e.model_bytes_per_element, *s);
     }
     std::printf("n=%zu checksum_d_fnv1a=0x%016" PRIx64 " checksum_e_fnv1a=0x%016" PRIx64 "\n", n,
-                pxir_oracle::fnv1a(expected_d), pxir_oracle::fnv1a(expected_e));
+                lume_oracle::fnv1a(expected_d), lume_oracle::fnv1a(expected_e));
     return true;
 }
 
@@ -420,11 +420,11 @@ int main(int argc, char** argv) {
                      argv[0]);
         return 2;
     }
-    std::printf("pxir_benchmark=intermediate_materialization\n");
+    std::printf("lume_benchmark=intermediate_materialization\n");
     std::printf("workload=D=A+B;E=D+C dtype=f32 seed=%" PRIu64 " warmup=%u iterations=%u order=%s\n", cfg.seed,
                 static_cast<unsigned>(cfg.warmup), static_cast<unsigned>(cfg.iterations),
                 cfg.reverse ? "reverse" : "forward");
-    std::printf("compiler=%s\nbuild_config=%s\n", compiler_id().c_str(), PXIR_BUILD_CONFIG);
+    std::printf("compiler=%s\nbuild_config=%s\n", compiler_id().c_str(), LUME_BUILD_CONFIG);
     std::printf("statistic=median_per_op_over_samples page_faults=%s\n",
                 minor_faults() < 0 ? "unavailable" : "getrusage_ru_minflt");
     for (const std::uint32_t n : cfg.sizes) {
