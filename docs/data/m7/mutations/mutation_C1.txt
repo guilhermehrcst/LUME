@@ -1,0 +1,12 @@
+mutation C1 (applied to src/runtime/cpu_reference.cpp, built in a separate tree, reverted afterwards; build OK)
+tests/execution/fusion_test.cpp:248: check failed: r.result.ok() && r.result.outputs.size() == 2
+tests/execution/fusion_test.cpp:288: check failed: r.result.ok() && r.result.outputs.size() == 2
+tests/execution/fusion_test.cpp:311: check failed: r.result.ok() && r.result.outputs.size() == 2
+fusion: f32 pairs fused (FLT_EVAL_METHOD), i32 pairs fused
+fusion: FAIL (3 failures)
+lume_fusion_test exit=1
+19/23 Test #19: lume_inplace_reuse_test .........................***Failed    0.00 sec
+20/23 Test #20: lume_fusion_test ................................***Failed    0.01 sec
+91% tests passed, 2 tests failed out of 23
+	 19 - lume_inplace_reuse_test (Failed)
+	 20 - lume_fusion_test (Failed)

@@ -1,0 +1,27 @@
+mutation A (applied to src/runtime/cpu_reference.cpp, built in a separate tree, reverted afterwards; build OK)
+tests/execution/fusion_test.cpp:172: check failed: is(r.result.outputs[0], sum(sum(d.a, d.b), d.c))
+tests/execution/fusion_test.cpp:189: check failed: is(r.result.outputs[0], sum(d.c, sum(d.a, d.b)))
+tests/execution/fusion_test.cpp:355: check failed: is(r.result.outputs[0], expected_e)
+tests/execution/fusion_test.cpp:356: check failed: is(r.result.outputs[1], sum(expected_e, d.g))
+tests/execution/fusion_test.cpp:381: check failed: is(r.result.outputs[0], expected_out)
+tests/execution/fusion_test.cpp:381: check failed: is(r.result.outputs[0], expected_out)
+tests/execution/fusion_test.cpp:404: check failed: is(r.result.outputs[0], expected_e)
+tests/execution/fusion_test.cpp:405: check failed: lume_oracle::fnv1a(*r.result.outputs[0].f32_view()) == checksum
+tests/execution/fusion_test.cpp:404: check failed: is(r.result.outputs[0], expected_e)
+tests/execution/fusion_test.cpp:405: check failed: lume_oracle::fnv1a(*r.result.outputs[0].f32_view()) == checksum
+tests/execution/fusion_test.cpp:404: check failed: is(r.result.outputs[0], expected_e)
+tests/execution/fusion_test.cpp:405: check failed: lume_oracle::fnv1a(*r.result.outputs[0].f32_view()) == checksum
+tests/execution/fusion_test.cpp:404: check failed: is(r.result.outputs[0], expected_e)
+tests/execution/fusion_test.cpp:405: check failed: lume_oracle::fnv1a(*r.result.outputs[0].f32_view()) == checksum
+tests/execution/fusion_test.cpp:431: check failed: is(r.result.outputs[0], F{1.0f, 1.0f + 0x1p-23f})
+tests/execution/fusion_test.cpp:431: check failed: is(r.result.outputs[0], F{1.0f, 1.0f + 0x1p-23f})
+tests/execution/fusion_test.cpp:484: check failed: is(r.result.outputs[0], t_is_rhs ? sum(c, sum(a, b)) : sum(sum(a, b), c))
+tests/execution/fusion_test.cpp:484: check failed: is(r.result.outputs[0], t_is_rhs ? sum(c, sum(a, b)) : sum(sum(a, b), c))
+fusion: f32 pairs fused (FLT_EVAL_METHOD), i32 pairs fused
+fusion: FAIL (18 failures)
+lume_fusion_test exit=1
+18/23 Test #18: lume_chain_test .................................***Failed    0.00 sec
+20/23 Test #20: lume_fusion_test ................................***Failed    0.01 sec
+91% tests passed, 2 tests failed out of 23
+	 18 - lume_chain_test (Failed)
+	 20 - lume_fusion_test (Failed)

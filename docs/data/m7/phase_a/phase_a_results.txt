@@ -1,0 +1,9 @@
+== g++ -O3 -Werror run
+rounding_sensitive n=4099 left_grouping_sensitive=615 right_grouping_sensitive=639
+phase_a: PASS (67 checks, 0 failures)
+== clang++ -O3 -Werror run
+rounding_sensitive n=4099 left_grouping_sensitive=615 right_grouping_sensitive=639
+phase_a: PASS (67 checks, 0 failures)
+== g++ -O1 ASan+UBSan run
+rounding_sensitive n=4099 left_grouping_sensitive=615 right_grouping_sensitive=639
+phase_a: PASS (67 checks, 0 failures)

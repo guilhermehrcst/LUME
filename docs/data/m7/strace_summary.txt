@@ -1,0 +1,23 @@
+strace -e brk,mmap,munmap,madvise of m7_probe.cpp: 10 calls, N = 1,048,576. A = canonical main (M6 runtime), B = M7.
+A 4,194,304-byte buffer appears as a 4,198,400-byte mapping. mmap_4MiB includes 6 input mappings made before the calls (three generated vectors and their Buffer copies), so per call: (mmap_4MiB - 6) / 10.
+
+final        default A: brk=4  mmap=29 munmap=8  madvise=0 mmap_4MiB=7  munmap_4MiB=7  faults/call=205.2
+                     B: brk=4  mmap=29 munmap=8  madvise=0 mmap_4MiB=7  munmap_4MiB=7  faults/call=205.2   syscall counts identical; brk delta sequence identical (3 deltas)
+final        t2      A: brk=3  mmap=38 munmap=17 madvise=0 mmap_4MiB=16 munmap_4MiB=16 faults/call=1025.4
+                     B: brk=3  mmap=38 munmap=17 madvise=0 mmap_4MiB=16 munmap_4MiB=16 faults/call=1025.5   syscall counts identical; brk delta sequence identical (2 deltas)
+right        default A: brk=4  mmap=29 munmap=8  madvise=0 mmap_4MiB=7  munmap_4MiB=7  faults/call=205.2
+                     B: brk=4  mmap=29 munmap=8  madvise=0 mmap_4MiB=7  munmap_4MiB=7  faults/call=205.3   syscall counts identical; brk delta sequence identical (3 deltas)
+right        t2      A: brk=3  mmap=38 munmap=17 madvise=0 mmap_4MiB=16 munmap_4MiB=16 faults/call=1025.4
+                     B: brk=3  mmap=38 munmap=17 madvise=0 mmap_4MiB=16 munmap_4MiB=16 faults/call=1025.3   syscall counts identical; brk delta sequence identical (2 deltas)
+intermediate default A: brk=30 mmap=30 munmap=9  madvise=0 mmap_4MiB=8  munmap_4MiB=8  faults/call=2023.0
+                     B: brk=30 mmap=30 munmap=9  madvise=0 mmap_4MiB=8  munmap_4MiB=8  faults/call=2022.9   syscall counts identical; brk delta sequence identical (29 deltas)
+intermediate t2      A: brk=3  mmap=48 munmap=27 madvise=0 mmap_4MiB=26 munmap_4MiB=26 faults/call=2050.4
+                     B: brk=3  mmap=48 munmap=27 madvise=0 mmap_4MiB=26 munmap_4MiB=26 faults/call=2050.4   syscall counts identical; brk delta sequence identical (2 deltas)
+after_use    default A: brk=30 mmap=30 munmap=9  madvise=0 mmap_4MiB=8  munmap_4MiB=8  faults/call=2023.0
+                     B: brk=30 mmap=30 munmap=9  madvise=0 mmap_4MiB=8  munmap_4MiB=8  faults/call=2023.0   syscall counts identical; brk delta sequence identical (29 deltas)
+after_use    t2      A: brk=3  mmap=48 munmap=27 madvise=0 mmap_4MiB=26 munmap_4MiB=26 faults/call=2050.4
+                     B: brk=3  mmap=48 munmap=27 madvise=0 mmap_4MiB=26 munmap_4MiB=26 faults/call=2050.4   syscall counts identical; brk delta sequence identical (2 deltas)
+single       default A: brk=4  mmap=29 munmap=8  madvise=0 mmap_4MiB=7  munmap_4MiB=7  faults/call=205.3
+                     B: brk=4  mmap=29 munmap=8  madvise=0 mmap_4MiB=7  munmap_4MiB=7  faults/call=205.3   syscall counts identical; brk delta sequence identical (3 deltas)
+single       t2      A: brk=3  mmap=38 munmap=17 madvise=0 mmap_4MiB=16 munmap_4MiB=16 faults/call=1025.4
+                     B: brk=3  mmap=38 munmap=17 madvise=0 mmap_4MiB=16 munmap_4MiB=16 faults/call=1025.4   syscall counts identical; brk delta sequence identical (2 deltas)

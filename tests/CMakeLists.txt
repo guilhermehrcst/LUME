@@ -16,3 +16,7 @@ lume_add_test(lume_owned_array_test execution/owned_array_test.cpp)
 lume_add_test(lume_buffer_storage_test execution/buffer_storage_test.cpp)
 lume_add_test(lume_chain_test execution/chain_test.cpp)
 lume_add_test(lume_inplace_reuse_test execution/inplace_reuse_test.cpp)
+lume_add_test(lume_fusion_test execution/fusion_test.cpp)
+# M7 tests observe which add pairs were fused through the library's internal
+# fusion_observer.hpp (not public API).
+target_include_directories(lume_fusion_test PRIVATE ${PROJECT_SOURCE_DIR}/src/runtime)

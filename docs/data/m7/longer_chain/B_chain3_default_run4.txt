@@ -1,0 +1,3 @@
+--- begin loop
+--- end loop
+mode=chain3 n=1048576 iters=51 minor_faults_in_loop=2053 per_call=40.3 median_ns=915477 native_single_loop_ns=755286
