@@ -23,9 +23,9 @@ M5 measured two costs inside the intermediate `D` of `D = A + B; E = D + C`: its
 - M6: computing E in D's storage removed the second result allocation and, under default glibc, its trim/re-fault cycle (2,016 → 0 faults per call at N = 1M). The chain still writes D and reads it back.
 - So after M6 the only known remaining difference between the Lume chain and the native fused loop is the materialized intermediate.
 
-## 3. Pre-registered hypotheses
+## 3. Pre-specified hypotheses
 
-From the M7 specification, fixed before any M7 measurement:
+These hypotheses and thresholds were fixed in the M7 execution specification before implementation and measurement. Unlike Experiment 002, M7 did not commit a standalone preregistration before data collection, so this section records pre-specified hypotheses rather than claiming a Git-verifiable preregistration:
 
 | # | Hypothesis | Outcome |
 | --- | --- | --- |
@@ -370,7 +370,7 @@ Faults per call are equal in A and B. Pairwise fusion removes one intermediate p
 - The 24 → 16 B/element model overstated the gain (0.667 predicted, 0.81 measured) because M6's in-place second pass already cost less than a full 12 B/element pass.
 
 **FALSIFIED**
-- "M7/M6 ≈ 16/24 = 0.667" as a prediction of time: measured 0.78–0.82. (The pre-registered plausible band 0.67–0.85 contains the result.)
+- "M7/M6 ≈ 16/24 = 0.667" as a prediction of time: measured 0.78–0.82. (The pre-specified plausible band 0.67–0.85 contains the result.)
 - "The detector adds measurable small-N overhead": not observed.
 
 **NOT YET KNOWN**
