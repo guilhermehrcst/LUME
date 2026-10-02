@@ -1,0 +1,101 @@
+M7 integrated fused kernel codegen (src/runtime/cpu_reference.cpp, -O3 -DNDEBUG, no -march, no fast-math).
+Probe: identical source except __attribute__((noinline)) on add_add, so each instantiation has its own symbol; the shipped build inlines it.
+
+===== disasm_integrated_probe_g++.txt
+  add_add<i32>: movups=2 movdqu=6 addps=0 paddd=6 movss=0 addss=0 calls=1
+  add_add<f32>: movups=8 movdqu=0 addps=6 paddd=0 movss=2 addss=2 calls=1
+  add_add<i32>.cold: movups=0 movdqu=0 addps=0 paddd=0 movss=0 addss=0 calls=1
+  add_add<f32>.cold: movups=0 movdqu=0 addps=0 paddd=0 movss=0 addss=0 calls=1
+===== disasm_integrated_probe_clang++.txt
+  add_add<f32>: movups=16 movdqu=0 addps=8 paddd=0 movss=4 addss=4 calls=1
+  add_add<i32>: movups=0 movdqu=16 addps=0 paddd=8 movss=0 addss=0 calls=1
+
+== g++: call targets (relocations) inside add_add instantiations
+      2 __cxa_throw_bad_array_new_length-0x4
+      2 operator new[](unsigned long)-0x4
+== clang++: call targets (relocations) inside add_add instantiations
+      2 operator new[](unsigned long)-0x4
+
+== g++ add_add<float>: main vector loops (one block per consumer side)
+     2b0:	movups (%r14,%rax,1),%xmm0
+     2b5:	movups (%r12,%rax,1),%xmm4
+     2ba:	movups 0x0(%rbp,%rax,1),%xmm5
+     2bf:	addps  %xmm4,%xmm0
+     2c2:	addps  %xmm5,%xmm0
+     2c5:	movups %xmm0,(%rdx,%rax,1)
+     2f3:	addps  %xmm1,%xmm0
+     2fc:	addps  %xmm1,%xmm0
+     360:	movups (%r14,%rax,1),%xmm0
+     365:	movups (%r12,%rax,1),%xmm2
+     36a:	movups 0x0(%rbp,%rax,1),%xmm3
+     36f:	addps  %xmm2,%xmm0
+     372:	addps  %xmm3,%xmm0
+     375:	movups %xmm0,(%rdx,%rax,1)
+
+== g++ add_add<int>: main vector loops (one block per consumer side)
+     140:	movdqu (%r12,%rax,1),%xmm0
+     146:	movdqu (%r14,%rax,1),%xmm4
+     14c:	movdqu 0x0(%rbp,%rax,1),%xmm5
+     152:	paddd  %xmm4,%xmm0
+     156:	paddd  %xmm5,%xmm0
+     15a:	movups %xmm0,(%rdx,%rax,1)
+     188:	paddd  %xmm1,%xmm0
+     192:	paddd  %xmm1,%xmm0
+     1f0:	movdqu (%r12,%rax,1),%xmm0
+     1f6:	movdqu (%r14,%rax,1),%xmm2
+     1fc:	movdqu 0x0(%rbp,%rax,1),%xmm3
+     202:	paddd  %xmm2,%xmm0
+     206:	paddd  %xmm3,%xmm0
+     20a:	movups %xmm0,(%rdx,%rax,1)
+
+== clang++ add_add<float>: main vector loops (one block per consumer side)
+    5ef0:	movups (%r12,%rdx,4),%xmm0
+    5ef5:	movups 0x10(%r12,%rdx,4),%xmm1
+    5efb:	movups (%r14,%rdx,4),%xmm2
+    5f00:	addps  %xmm0,%xmm2
+    5f03:	movups 0x10(%r14,%rdx,4),%xmm0
+    5f09:	addps  %xmm1,%xmm0
+    5f0c:	movups (%rbx,%rdx,4),%xmm1
+    5f10:	addps  %xmm2,%xmm1
+    5f13:	movups 0x10(%rbx,%rdx,4),%xmm2
+    5f18:	addps  %xmm0,%xmm2
+    5f1b:	movups %xmm1,(%rax,%rdx,4)
+    5f1f:	movups %xmm2,0x10(%rax,%rdx,4)
+    5f70:	movups (%r12,%rdx,4),%xmm0
+    5f75:	movups 0x10(%r12,%rdx,4),%xmm1
+    5f7b:	movups (%r14,%rdx,4),%xmm2
+    5f80:	addps  %xmm0,%xmm2
+    5f83:	movups 0x10(%r14,%rdx,4),%xmm0
+    5f89:	addps  %xmm1,%xmm0
+    5f8c:	movups (%rbx,%rdx,4),%xmm1
+    5f90:	addps  %xmm2,%xmm1
+    5f93:	movups 0x10(%rbx,%rdx,4),%xmm2
+    5f98:	addps  %xmm0,%xmm2
+    5f9b:	movups %xmm1,(%rax,%rdx,4)
+    5f9f:	movups %xmm2,0x10(%rax,%rdx,4)
+
+== clang++ add_add<int>: main vector loops (one block per consumer side)
+    6080:	movdqu (%r12,%rdx,4),%xmm0
+    6086:	movdqu 0x10(%r12,%rdx,4),%xmm1
+    608d:	movdqu (%r14,%rdx,4),%xmm2
+    6093:	paddd  %xmm0,%xmm2
+    6097:	movdqu 0x10(%r14,%rdx,4),%xmm0
+    609e:	paddd  %xmm1,%xmm0
+    60a2:	movdqu (%rbx,%rdx,4),%xmm1
+    60a7:	paddd  %xmm2,%xmm1
+    60ab:	movdqu 0x10(%rbx,%rdx,4),%xmm2
+    60b1:	paddd  %xmm0,%xmm2
+    60b5:	movdqu %xmm1,(%rax,%rdx,4)
+    60ba:	movdqu %xmm2,0x10(%rax,%rdx,4)
+    6110:	movdqu (%r12,%rdx,4),%xmm0
+    6116:	movdqu 0x10(%r12,%rdx,4),%xmm1
+    611d:	movdqu (%r14,%rdx,4),%xmm2
+    6123:	paddd  %xmm0,%xmm2
+    6127:	movdqu 0x10(%r14,%rdx,4),%xmm0
+    612e:	paddd  %xmm1,%xmm0
+    6132:	movdqu (%rbx,%rdx,4),%xmm1
+    6137:	paddd  %xmm2,%xmm1
+    613b:	movdqu 0x10(%rbx,%rdx,4),%xmm2
+    6141:	paddd  %xmm0,%xmm2
+    6145:	movdqu %xmm1,(%rax,%rdx,4)
+    614a:	movdqu %xmm2,0x10(%rax,%rdx,4)

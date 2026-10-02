@@ -1,0 +1,6 @@
+FAIL f32 specials n=16
+FAIL rounding sentinel left n=2
+FAIL rounding sentinel vs oracle n=2
+FAIL f32 rounding-sensitive random n=4099
+rounding_sensitive n=4099 left_grouping_sensitive=615 right_grouping_sensitive=639
+phase_a: FAIL (67 checks, 4 failures)

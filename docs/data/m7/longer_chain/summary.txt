@@ -1,0 +1,6 @@
+Supplementary longer-chain A/B (m7_probe.cpp), N = 1,048,576, 51 calls per run, 10 interleaved pairs.
+A = canonical main (M6 runtime), B = M7. native = one loop, same left-to-right grouping, preallocated output (measured in the same process).
+default chain3: M6 1170 us, M7 988 us, paired M7/M6 0.854 (M7 faster in 8/10); native single loop 806 us; M6/native 1.44, M7/native 1.26; faults/call (51 calls, includes first-call faults) A=40.3 B=40.3
+default chain4: M6 1518 us, M7 1357 us, paired M7/M6 0.859 (M7 faster in 9/10); native single loop 971 us; M6/native 1.54, M7/native 1.39; faults/call (51 calls, includes first-call faults) A=40.3 B=40.3
+t1      chain3: M6 1157 us, M7 971 us, paired M7/M6 0.850 (M7 faster in 10/10); native single loop 785 us; M6/native 1.45, M7/native 1.24; faults/call (51 calls, includes first-call faults) A=20.1 B=20.1
+t1      chain4: M6 1369 us, M7 1244 us, paired M7/M6 0.899 (M7 faster in 8/10); native single loop 914 us; M6/native 1.51, M7/native 1.35; faults/call (51 calls, includes first-call faults) A=20.2 B=20.1

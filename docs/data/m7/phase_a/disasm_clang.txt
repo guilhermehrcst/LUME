@@ -1,0 +1,273 @@
+0000000000002310 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)>:
+    2310:	test   %r8,%r8
+    2313:	je     242a <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x11a>
+    2319:	cmp    $0x8,%r8
+    231d:	jae    23a2 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x92>
+    2323:	xor    %eax,%eax
+    2325:	mov    %rax,%r9
+    2328:	test   $0x1,%r8b
+    232c:	je     2349 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x39>
+    232e:	movss  (%rdi,%rax,4),%xmm0
+    2333:	addss  (%rsi,%rax,4),%xmm0
+    2338:	addss  (%rdx,%rax,4),%xmm0
+    233d:	movss  %xmm0,(%rcx,%rax,4)
+    2342:	mov    %rax,%r9
+    2345:	or     $0x1,%r9
+    2349:	lea    -0x1(%r8),%r10
+    234d:	cmp    %r10,%rax
+    2350:	je     242a <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x11a>
+    2356:	cs nopw 0x0(%rax,%rax,1)
+    2360:	movss  (%rdi,%r9,4),%xmm0
+    2366:	addss  (%rsi,%r9,4),%xmm0
+    236c:	addss  (%rdx,%r9,4),%xmm0
+    2372:	movss  %xmm0,(%rcx,%r9,4)
+    2378:	movss  0x4(%rdi,%r9,4),%xmm0
+    237f:	addss  0x4(%rsi,%r9,4),%xmm0
+    2386:	addss  0x4(%rdx,%r9,4),%xmm0
+    238d:	movss  %xmm0,0x4(%rcx,%r9,4)
+    2394:	add    $0x2,%r9
+    2398:	cmp    %r9,%r8
+    239b:	jne    2360 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x50>
+    239d:	jmp    242a <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x11a>
+    23a2:	mov    %rcx,%r9
+    23a5:	sub    %rdi,%r9
+    23a8:	xor    %eax,%eax
+    23aa:	cmp    $0x20,%r9
+    23ae:	jb     2325 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    23b4:	mov    %rcx,%r9
+    23b7:	sub    %rsi,%r9
+    23ba:	cmp    $0x20,%r9
+    23be:	jb     2325 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    23c4:	mov    %rcx,%r9
+    23c7:	sub    %rdx,%r9
+    23ca:	cmp    $0x20,%r9
+    23ce:	jb     2325 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    23d4:	mov    %r8,%rax
+    23d7:	and    $0xfffffffffffffff8,%rax
+    23db:	xor    %r9d,%r9d
+    23de:	xchg   %ax,%ax
+    23e0:	movups (%rdi,%r9,4),%xmm0
+    23e5:	movups 0x10(%rdi,%r9,4),%xmm1
+    23eb:	movups (%rsi,%r9,4),%xmm2
+    23f0:	addps  %xmm0,%xmm2
+    23f3:	movups 0x10(%rsi,%r9,4),%xmm0
+    23f9:	addps  %xmm1,%xmm0
+    23fc:	movups (%rdx,%r9,4),%xmm1
+    2401:	addps  %xmm2,%xmm1
+    2404:	movups 0x10(%rdx,%r9,4),%xmm2
+    240a:	addps  %xmm0,%xmm2
+    240d:	movups %xmm1,(%rcx,%r9,4)
+    2412:	movups %xmm2,0x10(%rcx,%r9,4)
+    2418:	add    $0x8,%r9
+    241c:	cmp    %r9,%rax
+    241f:	jne    23e0 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0xd0>
+    2421:	cmp    %r8,%rax
+    2424:	jne    2325 <(anonymous namespace)::fused_left_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    242a:	ret
+    242b:	nopl   0x0(%rax,%rax,1)
+
+0000000000002430 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)>:
+    2430:	test   %r8,%r8
+    2433:	je     254a <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x11a>
+    2439:	cmp    $0x8,%r8
+    243d:	jae    24c2 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x92>
+    2443:	xor    %eax,%eax
+    2445:	mov    %rax,%r9
+    2448:	test   $0x1,%r8b
+    244c:	je     2469 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x39>
+    244e:	movss  (%rdi,%rax,4),%xmm0
+    2453:	addss  (%rsi,%rax,4),%xmm0
+    2458:	addss  (%rdx,%rax,4),%xmm0
+    245d:	movss  %xmm0,(%rcx,%rax,4)
+    2462:	mov    %rax,%r9
+    2465:	or     $0x1,%r9
+    2469:	lea    -0x1(%r8),%r10
+    246d:	cmp    %r10,%rax
+    2470:	je     254a <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x11a>
+    2476:	cs nopw 0x0(%rax,%rax,1)
+    2480:	movss  (%rdi,%r9,4),%xmm0
+    2486:	addss  (%rsi,%r9,4),%xmm0
+    248c:	addss  (%rdx,%r9,4),%xmm0
+    2492:	movss  %xmm0,(%rcx,%r9,4)
+    2498:	movss  0x4(%rdi,%r9,4),%xmm0
+    249f:	addss  0x4(%rsi,%r9,4),%xmm0
+    24a6:	addss  0x4(%rdx,%r9,4),%xmm0
+    24ad:	movss  %xmm0,0x4(%rcx,%r9,4)
+    24b4:	add    $0x2,%r9
+    24b8:	cmp    %r9,%r8
+    24bb:	jne    2480 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x50>
+    24bd:	jmp    254a <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x11a>
+    24c2:	mov    %rcx,%r9
+    24c5:	sub    %rdi,%r9
+    24c8:	xor    %eax,%eax
+    24ca:	cmp    $0x20,%r9
+    24ce:	jb     2445 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    24d4:	mov    %rcx,%r9
+    24d7:	sub    %rsi,%r9
+    24da:	cmp    $0x20,%r9
+    24de:	jb     2445 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    24e4:	mov    %rcx,%r9
+    24e7:	sub    %rdx,%r9
+    24ea:	cmp    $0x20,%r9
+    24ee:	jb     2445 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    24f4:	mov    %r8,%rax
+    24f7:	and    $0xfffffffffffffff8,%rax
+    24fb:	xor    %r9d,%r9d
+    24fe:	xchg   %ax,%ax
+    2500:	movups (%rdi,%r9,4),%xmm0
+    2505:	movups 0x10(%rdi,%r9,4),%xmm1
+    250b:	movups (%rsi,%r9,4),%xmm2
+    2510:	addps  %xmm0,%xmm2
+    2513:	movups 0x10(%rsi,%r9,4),%xmm0
+    2519:	addps  %xmm1,%xmm0
+    251c:	movups (%rdx,%r9,4),%xmm1
+    2521:	addps  %xmm2,%xmm1
+    2524:	movups 0x10(%rdx,%r9,4),%xmm2
+    252a:	addps  %xmm0,%xmm2
+    252d:	movups %xmm1,(%rcx,%r9,4)
+    2532:	movups %xmm2,0x10(%rcx,%r9,4)
+    2538:	add    $0x8,%r9
+    253c:	cmp    %r9,%rax
+    253f:	jne    2500 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0xd0>
+    2541:	cmp    %r8,%rax
+    2544:	jne    2445 <(anonymous namespace)::fused_right_f32(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float, 18446744073709551615ul>)+0x15>
+    254a:	ret
+    254b:	nopl   0x0(%rax,%rax,1)
+
+0000000000002550 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)>:
+    2550:	test   %r8,%r8
+    2553:	je     2656 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x106>
+    2559:	cmp    $0xc,%r8
+    255d:	jae    25c2 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x72>
+    255f:	xor    %eax,%eax
+    2561:	mov    %rax,%r9
+    2564:	test   $0x1,%r8b
+    2568:	je     2581 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x31>
+    256a:	mov    (%rsi,%rax,4),%r9d
+    256e:	add    (%rdi,%rax,4),%r9d
+    2572:	add    (%rdx,%rax,4),%r9d
+    2576:	mov    %r9d,(%rcx,%rax,4)
+    257a:	mov    %rax,%r9
+    257d:	or     $0x1,%r9
+    2581:	lea    -0x1(%r8),%r10
+    2585:	cmp    %r10,%rax
+    2588:	je     2656 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x106>
+    258e:	xchg   %ax,%ax
+    2590:	mov    (%rsi,%r9,4),%eax
+    2594:	add    (%rdi,%r9,4),%eax
+    2598:	add    (%rdx,%r9,4),%eax
+    259c:	mov    %eax,(%rcx,%r9,4)
+    25a0:	mov    0x4(%rsi,%r9,4),%eax
+    25a5:	add    0x4(%rdi,%r9,4),%eax
+    25aa:	add    0x4(%rdx,%r9,4),%eax
+    25af:	mov    %eax,0x4(%rcx,%r9,4)
+    25b4:	add    $0x2,%r9
+    25b8:	cmp    %r9,%r8
+    25bb:	jne    2590 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x40>
+    25bd:	jmp    2656 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x106>
+    25c2:	mov    %rcx,%r9
+    25c5:	sub    %rdi,%r9
+    25c8:	xor    %eax,%eax
+    25ca:	cmp    $0x20,%r9
+    25ce:	jb     2561 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    25d0:	mov    %rcx,%r9
+    25d3:	sub    %rsi,%r9
+    25d6:	cmp    $0x20,%r9
+    25da:	jb     2561 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    25dc:	mov    %rcx,%r9
+    25df:	sub    %rdx,%r9
+    25e2:	cmp    $0x20,%r9
+    25e6:	jb     2561 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    25ec:	mov    %r8,%rax
+    25ef:	and    $0xfffffffffffffff8,%rax
+    25f3:	xor    %r9d,%r9d
+    25f6:	cs nopw 0x0(%rax,%rax,1)
+    2600:	movdqu (%rdi,%r9,4),%xmm0
+    2606:	movdqu 0x10(%rdi,%r9,4),%xmm1
+    260d:	movdqu (%rsi,%r9,4),%xmm2
+    2613:	paddd  %xmm0,%xmm2
+    2617:	movdqu 0x10(%rsi,%r9,4),%xmm0
+    261e:	paddd  %xmm1,%xmm0
+    2622:	movdqu (%rdx,%r9,4),%xmm1
+    2628:	paddd  %xmm2,%xmm1
+    262c:	movdqu 0x10(%rdx,%r9,4),%xmm2
+    2633:	paddd  %xmm0,%xmm2
+    2637:	movdqu %xmm1,(%rcx,%r9,4)
+    263d:	movdqu %xmm2,0x10(%rcx,%r9,4)
+    2644:	add    $0x8,%r9
+    2648:	cmp    %r9,%rax
+    264b:	jne    2600 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0xb0>
+    264d:	cmp    %r8,%rax
+    2650:	jne    2561 <(anonymous namespace)::fused_left_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    2656:	ret
+    2657:	nopw   0x0(%rax,%rax,1)
+
+0000000000002ba0 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)>:
+    2ba0:	test   %r8,%r8
+    2ba3:	je     2ca6 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x106>
+    2ba9:	cmp    $0xc,%r8
+    2bad:	jae    2c12 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x72>
+    2baf:	xor    %eax,%eax
+    2bb1:	mov    %rax,%r9
+    2bb4:	test   $0x1,%r8b
+    2bb8:	je     2bd1 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x31>
+    2bba:	mov    (%rsi,%rax,4),%r9d
+    2bbe:	add    (%rdi,%rax,4),%r9d
+    2bc2:	add    (%rdx,%rax,4),%r9d
+    2bc6:	mov    %r9d,(%rcx,%rax,4)
+    2bca:	mov    %rax,%r9
+    2bcd:	or     $0x1,%r9
+    2bd1:	lea    -0x1(%r8),%r10
+    2bd5:	cmp    %r10,%rax
+    2bd8:	je     2ca6 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x106>
+    2bde:	xchg   %ax,%ax
+    2be0:	mov    (%rsi,%r9,4),%eax
+    2be4:	add    (%rdi,%r9,4),%eax
+    2be8:	add    (%rdx,%r9,4),%eax
+    2bec:	mov    %eax,(%rcx,%r9,4)
+    2bf0:	mov    0x4(%rsi,%r9,4),%eax
+    2bf5:	add    0x4(%rdi,%r9,4),%eax
+    2bfa:	add    0x4(%rdx,%r9,4),%eax
+    2bff:	mov    %eax,0x4(%rcx,%r9,4)
+    2c04:	add    $0x2,%r9
+    2c08:	cmp    %r9,%r8
+    2c0b:	jne    2be0 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x40>
+    2c0d:	jmp    2ca6 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x106>
+    2c12:	mov    %rcx,%r9
+    2c15:	sub    %rdi,%r9
+    2c18:	xor    %eax,%eax
+    2c1a:	cmp    $0x20,%r9
+    2c1e:	jb     2bb1 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    2c20:	mov    %rcx,%r9
+    2c23:	sub    %rsi,%r9
+    2c26:	cmp    $0x20,%r9
+    2c2a:	jb     2bb1 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    2c2c:	mov    %rcx,%r9
+    2c2f:	sub    %rdx,%r9
+    2c32:	cmp    $0x20,%r9
+    2c36:	jb     2bb1 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    2c3c:	mov    %r8,%rax
+    2c3f:	and    $0xfffffffffffffff8,%rax
+    2c43:	xor    %r9d,%r9d
+    2c46:	cs nopw 0x0(%rax,%rax,1)
+    2c50:	movdqu (%rdi,%r9,4),%xmm0
+    2c56:	movdqu 0x10(%rdi,%r9,4),%xmm1
+    2c5d:	movdqu (%rsi,%r9,4),%xmm2
+    2c63:	paddd  %xmm0,%xmm2
+    2c67:	movdqu 0x10(%rsi,%r9,4),%xmm0
+    2c6e:	paddd  %xmm1,%xmm0
+    2c72:	movdqu (%rdx,%r9,4),%xmm1
+    2c78:	paddd  %xmm2,%xmm1
+    2c7c:	movdqu 0x10(%rdx,%r9,4),%xmm2
+    2c83:	paddd  %xmm0,%xmm2
+    2c87:	movdqu %xmm1,(%rcx,%r9,4)
+    2c8d:	movdqu %xmm2,0x10(%rcx,%r9,4)
+    2c94:	add    $0x8,%r9
+    2c98:	cmp    %r9,%rax
+    2c9b:	jne    2c50 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0xb0>
+    2c9d:	cmp    %r8,%rax
+    2ca0:	jne    2bb1 <(anonymous namespace)::fused_right_i32(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int, 18446744073709551615ul>)+0x11>
+    2ca6:	ret
+
+Disassembly of section .text._ZNSt23mersenne_twister_engineImLm64ELm312ELm156ELm31ELm13043109905998158313ELm29ELm6148914691236517205ELm17ELm8202884508482404352ELm37ELm18444473444759240704ELm43ELm6364136223846793005EEclEv:
+

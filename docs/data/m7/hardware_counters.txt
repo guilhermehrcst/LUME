@@ -1,0 +1,7 @@
+Hardware counters: probe of perf_event_open (no privilege changes, no kernel modules). perf_event_paranoid=2; perf binary: not installed
+cycles: perf_event_open failed: No such file or directory
+instructions: perf_event_open failed: No such file or directory
+cache-references: perf_event_open failed: No such file or directory
+cache-misses: perf_event_open failed: No such file or directory
+page-faults (software): available
+ENOENT for PERF_TYPE_HARDWARE: the virtual machine exposes no PMU. No hardware-counter evidence is available for M7.

@@ -1,0 +1,220 @@
+## gcc_default_run: 20 pairs
+n=65536
+  native_fused_preallocated        paired B/A (identical code: noise floor) 0.911 [IQR 0.793-1.218] below1=12/20 p=0.5
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.031 [IQR 0.853-1.161] below1=9/20 p=0.82
+  lume_single_add_control          paired B/A 1.008 [IQR 0.909-1.182] below1=10/20 p=1
+                                   normalized 1.007 [IQR 0.867-1.323] below1=10/20 p=1  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.846 [IQR 0.766-1.018] below1=14/20 p=0.12
+                                   normalized 0.945 [IQR 0.688-1.142] below1=12/20 p=0.5  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 0.997 [IQR 0.871-1.096] below1=10/20 p=1
+                                   normalized 1.002 [IQR 0.858-1.265] below1=10/20 p=1  faults/call A=96.0 B=96.0
+  lume_chain_output_after_use      paired B/A 1.008 [IQR 0.896-1.167] below1=10/20 p=1
+                                   normalized 1.050 [IQR 0.878-1.332] below1=8/20 p=0.5  faults/call A=96.0 B=96.0
+  final-only paired saving A-B: median 2.5 us [IQR -0.2-4.0]
+  final-only A (M6): median 16.7 us; / native fused 1.191; / native two-pass 0.742
+  final-only B (M7): median 13.7 us; / native fused 1.018; / native two-pass 0.594
+n=1048576
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.011 [IQR 0.973-1.069] below1=9/20 p=0.82
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.018 [IQR 0.991-1.049] below1=7/20 p=0.26
+  lume_single_add_control          paired B/A 1.021 [IQR 0.966-1.047] below1=7/20 p=0.26
+                                   normalized 1.004 [IQR 0.932-1.043] below1=10/20 p=1  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.811 [IQR 0.780-0.857] below1=20/20 p=1.9e-06
+                                   normalized 0.820 [IQR 0.761-0.854] below1=20/20 p=1.9e-06  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 1.007 [IQR 0.978-1.114] below1=9/20 p=0.82
+                                   normalized 1.023 [IQR 0.937-1.102] below1=9/20 p=0.82  faults/call A=2016.0 B=2016.0
+  lume_chain_output_after_use      paired B/A 1.023 [IQR 0.926-1.205] below1=8/20 p=0.5
+                                   normalized 1.038 [IQR 0.886-1.138] below1=9/20 p=0.82  faults/call A=2016.0 B=2016.0
+  final-only paired saving A-B: median 152.4 us [IQR 117.2-175.8]
+  final-only A (M6): median 816.7 us; / native fused 1.241; / native two-pass 0.821
+  final-only B (M7): median 666.4 us; / native fused 1.004; / native two-pass 0.674
+n=4194304
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.015 [IQR 0.943-1.085] below1=9/20 p=0.82
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.046 [IQR 0.992-1.122] below1=6/20 p=0.12
+  lume_single_add_control          paired B/A 1.002 [IQR 0.961-1.062] below1=10/20 p=1
+                                   normalized 0.992 [IQR 0.944-1.056] below1=11/20 p=0.82  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.817 [IQR 0.780-0.862] below1=20/20 p=1.9e-06
+                                   normalized 0.801 [IQR 0.762-0.854] below1=20/20 p=1.9e-06  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 1.048 [IQR 0.920-1.142] below1=6/20 p=0.12
+                                   normalized 1.045 [IQR 0.891-1.127] below1=8/20 p=0.5  faults/call A=8160.0 B=8160.0
+  lume_chain_output_after_use      paired B/A 1.063 [IQR 0.952-1.320] below1=6/20 p=0.12
+                                   normalized 1.113 [IQR 0.959-1.326] below1=8/20 p=0.5  faults/call A=8160.0 B=8160.0
+  final-only paired saving A-B: median 574.4 us [IQR 424.7-736.6]
+  final-only A (M6): median 3231.6 us; / native fused 1.246; / native two-pass 0.813
+  final-only B (M7): median 2600.0 us; / native fused 0.995; / native two-pass 0.643
+
+## gcc_t1_run: 20 pairs
+n=65536
+  native_fused_preallocated        paired B/A (identical code: noise floor) 0.943 [IQR 0.845-1.302] below1=11/20 p=0.82
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.029 [IQR 0.891-1.468] below1=9/20 p=0.82
+  lume_single_add_control          paired B/A 1.001 [IQR 0.894-1.231] below1=10/20 p=1
+                                   normalized 1.061 [IQR 0.882-1.160] below1=7/20 p=0.26  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.869 [IQR 0.773-1.086] below1=12/20 p=0.5
+                                   normalized 0.904 [IQR 0.784-1.039] below1=13/20 p=0.26  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 0.960 [IQR 0.838-1.254] below1=13/20 p=0.26
+                                   normalized 0.972 [IQR 0.836-1.203] below1=11/20 p=0.82  faults/call A=0.0 B=0.0
+  lume_chain_output_after_use      paired B/A 0.969 [IQR 0.814-1.336] below1=12/20 p=0.5
+                                   normalized 0.976 [IQR 0.842-1.166] below1=12/20 p=0.5  faults/call A=0.0 B=0.0
+  final-only paired saving A-B: median 1.8 us [IQR -1.1-3.9]
+  final-only A (M6): median 14.3 us; / native fused 1.165; / native two-pass 0.687
+  final-only B (M7): median 13.2 us; / native fused 1.018; / native two-pass 0.604
+n=1048576
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.000 [IQR 0.982-1.077] below1=10/20 p=1
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 0.989 [IQR 0.915-1.045] below1=12/20 p=0.5
+  lume_single_add_control          paired B/A 0.989 [IQR 0.928-1.020] below1=12/20 p=0.5
+                                   normalized 0.991 [IQR 0.905-1.028] below1=12/20 p=0.5  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.815 [IQR 0.768-0.856] below1=20/20 p=1.9e-06
+                                   normalized 0.816 [IQR 0.759-0.859] below1=20/20 p=1.9e-06  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 0.973 [IQR 0.908-1.033] below1=14/20 p=0.12
+                                   normalized 0.964 [IQR 0.899-1.025] below1=14/20 p=0.12  faults/call A=0.0 B=0.0
+  lume_chain_output_after_use      paired B/A 0.976 [IQR 0.943-0.999] below1=15/20 p=0.041
+                                   normalized 0.972 [IQR 0.906-1.005] below1=15/20 p=0.041  faults/call A=0.0 B=0.0
+  final-only paired saving A-B: median 143.3 us [IQR 109.3-188.4]
+  final-only A (M6): median 810.5 us; / native fused 1.230; / native two-pass 0.829
+  final-only B (M7): median 649.0 us; / native fused 1.000; / native two-pass 0.676
+n=4194304
+  native_fused_preallocated        paired B/A (identical code: noise floor) 0.976 [IQR 0.927-1.043] below1=13/20 p=0.26
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.003 [IQR 0.947-1.056] below1=10/20 p=1
+  lume_single_add_control          paired B/A 0.996 [IQR 0.953-1.022] below1=11/20 p=0.82
+                                   normalized 0.995 [IQR 0.947-1.066] below1=10/20 p=1  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.785 [IQR 0.743-0.832] below1=20/20 p=1.9e-06
+                                   normalized 0.795 [IQR 0.739-0.868] below1=20/20 p=1.9e-06  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 0.948 [IQR 0.910-1.009] below1=13/20 p=0.26
+                                   normalized 0.977 [IQR 0.896-1.033] below1=12/20 p=0.5  faults/call A=0.0 B=0.0
+  lume_chain_output_after_use      paired B/A 0.985 [IQR 0.969-1.016] below1=12/20 p=0.5
+                                   normalized 1.002 [IQR 0.933-1.094] below1=10/20 p=1  faults/call A=0.0 B=0.0
+  final-only paired saving A-B: median 709.6 us [IQR 540.0-852.4]
+  final-only A (M6): median 3288.3 us; / native fused 1.246; / native two-pass 0.825
+  final-only B (M7): median 2583.9 us; / native fused 1.007; / native two-pass 0.653
+
+## gcc_t2_run: 10 pairs
+n=65536
+  native_fused_preallocated        paired B/A (identical code: noise floor) 0.852 [IQR 0.717-1.029] below1=7/10 p=0.34
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 0.968 [IQR 0.793-1.135] below1=6/10 p=0.75
+  lume_single_add_control          paired B/A 0.973 [IQR 0.885-1.118] below1=6/10 p=0.75
+                                   normalized 1.126 [IQR 0.991-1.305] below1=3/10 p=0.34  faults/call A=65.0 B=65.0
+  lume_chain_final_only            paired B/A 0.976 [IQR 0.832-1.043] below1=6/10 p=0.75
+                                   normalized 1.075 [IQR 0.924-1.296] below1=4/10 p=0.75  faults/call A=65.0 B=65.0
+  lume_chain_intermediate_output   paired B/A 0.969 [IQR 0.856-1.088] below1=6/10 p=0.75
+                                   normalized 1.045 [IQR 0.956-1.290] below1=4/10 p=0.75  faults/call A=130.0 B=130.0
+  lume_chain_output_after_use      paired B/A 0.950 [IQR 0.828-0.996] below1=8/10 p=0.11
+                                   normalized 1.019 [IQR 0.941-1.162] below1=5/10 p=1  faults/call A=130.0 B=130.0
+  final-only paired saving A-B: median 1.7 us [IQR -3.0-11.8]
+  final-only A (M6): median 70.6 us; / native fused 5.011; / native two-pass 3.357
+  final-only B (M7): median 67.1 us; / native fused 5.307; / native two-pass 3.243
+n=1048576
+  native_fused_preallocated        paired B/A (identical code: noise floor) 0.983 [IQR 0.942-1.063] below1=5/10 p=1
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 0.978 [IQR 0.945-1.044] below1=7/10 p=0.34
+  lume_single_add_control          paired B/A 0.996 [IQR 0.841-1.189] below1=5/10 p=1
+                                   normalized 1.005 [IQR 0.888-1.141] below1=5/10 p=1  faults/call A=1025.0 B=1025.0
+  lume_chain_final_only            paired B/A 0.919 [IQR 0.771-1.030] below1=7/10 p=0.34
+                                   normalized 0.929 [IQR 0.796-1.004] below1=8/10 p=0.11  faults/call A=1025.0 B=1025.0
+  lume_chain_intermediate_output   paired B/A 1.004 [IQR 0.830-1.086] below1=4/10 p=0.75
+                                   normalized 0.966 [IQR 0.866-1.085] below1=6/10 p=0.75  faults/call A=2050.0 B=2050.0
+  lume_chain_output_after_use      paired B/A 0.992 [IQR 0.808-1.075] below1=5/10 p=1
+                                   normalized 0.940 [IQR 0.866-1.081] below1=6/10 p=0.75  faults/call A=2050.0 B=2050.0
+  final-only paired saving A-B: median 141.3 us [IQR -46.4-386.0]
+  final-only A (M6): median 1691.6 us; / native fused 2.528; / native two-pass 1.719
+  final-only B (M7): median 1547.5 us; / native fused 2.305; / native two-pass 1.553
+n=4194304
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.016 [IQR 0.905-1.049] below1=5/10 p=1
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 0.972 [IQR 0.905-1.079] below1=7/10 p=0.34
+  lume_single_add_control          paired B/A 0.950 [IQR 0.855-1.055] below1=7/10 p=0.34
+                                   normalized 0.923 [IQR 0.826-1.115] below1=7/10 p=0.34  faults/call A=4097.0 B=4097.0
+  lume_chain_final_only            paired B/A 0.908 [IQR 0.794-0.935] below1=10/10 p=0.002
+                                   normalized 0.871 [IQR 0.765-1.032] below1=7/10 p=0.34  faults/call A=4097.0 B=4097.0
+  lume_chain_intermediate_output   paired B/A 1.031 [IQR 0.944-1.222] below1=3/10 p=0.34
+                                   normalized 1.060 [IQR 0.909-1.184] below1=4/10 p=0.75  faults/call A=8194.0 B=8194.0
+  lume_chain_output_after_use      paired B/A 1.025 [IQR 0.959-1.120] below1=3/10 p=0.34
+                                   normalized 1.028 [IQR 0.937-1.190] below1=4/10 p=0.75  faults/call A=8194.0 B=8194.0
+  final-only paired saving A-B: median 586.1 us [IQR 405.3-1455.6]
+  final-only A (M6): median 6885.0 us; / native fused 2.585; / native two-pass 1.719
+  final-only B (M7): median 5998.8 us; / native fused 2.257; / native two-pass 1.494
+
+## clang_default_run: 10 pairs
+n=65536
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.006 [IQR 0.746-1.367] below1=5/10 p=1
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 0.956 [IQR 0.827-1.182] below1=6/10 p=0.75
+  lume_single_add_control          paired B/A 1.006 [IQR 0.911-1.193] below1=4/10 p=0.75
+                                   normalized 0.995 [IQR 0.775-1.343] below1=5/10 p=1  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.765 [IQR 0.705-0.906] below1=8/10 p=0.11
+                                   normalized 0.748 [IQR 0.580-1.034] below1=8/10 p=0.11  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 1.013 [IQR 0.807-1.229] below1=4/10 p=0.75
+                                   normalized 0.916 [IQR 0.815-1.292] below1=6/10 p=0.75  faults/call A=96.0 B=96.0
+  lume_chain_output_after_use      paired B/A 1.019 [IQR 0.811-1.234] below1=4/10 p=0.75
+                                   normalized 0.929 [IQR 0.801-1.294] below1=6/10 p=0.75  faults/call A=96.0 B=96.0
+  final-only paired saving A-B: median 3.7 us [IQR 1.4-5.1]
+  final-only A (M6): median 15.7 us; / native fused 1.366; / native two-pass 0.767
+  final-only B (M7): median 11.5 us; / native fused 0.987; / native two-pass 0.574
+n=1048576
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.004 [IQR 0.898-1.025] below1=5/10 p=1
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 0.986 [IQR 0.934-1.012] below1=6/10 p=0.75
+  lume_single_add_control          paired B/A 1.010 [IQR 0.939-1.050] below1=4/10 p=0.75
+                                   normalized 1.031 [IQR 1.004-1.058] below1=2/10 p=0.11  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.815 [IQR 0.772-0.854] below1=10/10 p=0.002
+                                   normalized 0.817 [IQR 0.796-0.879] below1=10/10 p=0.002  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 1.031 [IQR 0.944-1.096] below1=3/10 p=0.34
+                                   normalized 1.041 [IQR 0.976-1.132] below1=3/10 p=0.34  faults/call A=2016.0 B=2016.0
+  lume_chain_output_after_use      paired B/A 1.049 [IQR 0.957-1.210] below1=2/10 p=0.11
+                                   normalized 1.039 [IQR 0.974-1.203] below1=3/10 p=0.34  faults/call A=2016.0 B=2016.0
+  final-only paired saving A-B: median 149.8 us [IQR 109.9-195.7]
+  final-only A (M6): median 807.5 us; / native fused 1.229; / native two-pass 0.820
+  final-only B (M7): median 653.2 us; / native fused 1.005; / native two-pass 0.675
+n=4194304
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.024 [IQR 0.932-1.060] below1=5/10 p=1
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.054 [IQR 0.963-1.137] below1=4/10 p=0.75
+  lume_single_add_control          paired B/A 1.018 [IQR 0.966-1.052] below1=4/10 p=0.75
+                                   normalized 1.014 [IQR 0.953-1.060] below1=4/10 p=0.75  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.813 [IQR 0.769-0.851] below1=10/10 p=0.002
+                                   normalized 0.801 [IQR 0.722-0.872] below1=10/10 p=0.002  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 1.030 [IQR 0.864-1.109] below1=4/10 p=0.75
+                                   normalized 0.964 [IQR 0.922-1.130] below1=6/10 p=0.75  faults/call A=8160.0 B=8160.0
+  lume_chain_output_after_use      paired B/A 1.018 [IQR 0.915-1.156] below1=3/10 p=0.34
+                                   normalized 0.965 [IQR 0.885-1.148] below1=6/10 p=0.75  faults/call A=8160.0 B=8160.0
+  final-only paired saving A-B: median 591.9 us [IQR 466.7-763.0]
+  final-only A (M6): median 3219.1 us; / native fused 1.238; / native two-pass 0.826
+  final-only B (M7): median 2553.3 us; / native fused 0.980; / native two-pass 0.641
+
+## clang_t1_run: 10 pairs
+n=65536
+  native_fused_preallocated        paired B/A (identical code: noise floor) 0.880 [IQR 0.851-1.050] below1=7/10 p=0.34
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 0.971 [IQR 0.875-1.111] below1=6/10 p=0.75
+  lume_single_add_control          paired B/A 0.993 [IQR 0.830-1.184] below1=5/10 p=1
+                                   normalized 1.052 [IQR 0.899-1.168] below1=4/10 p=0.75  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.789 [IQR 0.760-0.933] below1=10/10 p=0.002
+                                   normalized 0.889 [IQR 0.786-0.945] below1=9/10 p=0.021  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 1.035 [IQR 0.904-1.146] below1=3/10 p=0.34
+                                   normalized 1.200 [IQR 0.859-1.263] below1=4/10 p=0.75  faults/call A=0.0 B=0.0
+  lume_chain_output_after_use      paired B/A 1.003 [IQR 0.939-1.233] below1=5/10 p=1
+                                   normalized 1.155 [IQR 0.984-1.283] below1=2/10 p=0.11  faults/call A=0.0 B=0.0
+  final-only paired saving A-B: median 3.1 us [IQR 0.9-3.8]
+  final-only A (M6): median 15.3 us; / native fused 1.287; / native two-pass 0.771
+  final-only B (M7): median 12.1 us; / native fused 1.071; / native two-pass 0.584
+n=1048576
+  native_fused_preallocated        paired B/A (identical code: noise floor) 1.005 [IQR 0.969-1.018] below1=4/10 p=0.75
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.013 [IQR 0.939-1.055] below1=3/10 p=0.34
+  lume_single_add_control          paired B/A 0.996 [IQR 0.949-1.071] below1=5/10 p=1
+                                   normalized 1.014 [IQR 0.966-1.053] below1=4/10 p=0.75  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.779 [IQR 0.757-0.858] below1=10/10 p=0.002
+                                   normalized 0.815 [IQR 0.764-0.843] below1=10/10 p=0.002  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 0.988 [IQR 0.953-1.022] below1=6/10 p=0.75
+                                   normalized 0.976 [IQR 0.953-1.066] below1=6/10 p=0.75  faults/call A=0.0 B=0.0
+  lume_chain_output_after_use      paired B/A 0.959 [IQR 0.937-1.006] below1=7/10 p=0.34
+                                   normalized 0.953 [IQR 0.931-1.028] below1=6/10 p=0.75  faults/call A=0.0 B=0.0
+  final-only paired saving A-B: median 182.9 us [IQR 110.2-203.5]
+  final-only A (M6): median 821.8 us; / native fused 1.268; / native two-pass 0.837
+  final-only B (M7): median 655.8 us; / native fused 1.029; / native two-pass 0.663
+n=4194304
+  native_fused_preallocated        paired B/A (identical code: noise floor) 0.988 [IQR 0.941-1.054] below1=7/10 p=0.34
+  native_two_pass_preallocated     paired B/A (identical code: noise floor) 1.046 [IQR 0.921-1.105] below1=3/10 p=0.34
+  lume_single_add_control          paired B/A 0.996 [IQR 0.923-1.052] below1=5/10 p=1
+                                   normalized 1.012 [IQR 0.958-1.043] below1=3/10 p=0.34  faults/call A=0.0 B=0.0
+  lume_chain_final_only            paired B/A 0.803 [IQR 0.782-0.844] below1=10/10 p=0.002
+                                   normalized 0.814 [IQR 0.799-0.869] below1=10/10 p=0.002  faults/call A=0.0 B=0.0
+  lume_chain_intermediate_output   paired B/A 1.010 [IQR 0.972-1.094] below1=5/10 p=1
+                                   normalized 1.045 [IQR 0.967-1.114] below1=3/10 p=0.34  faults/call A=0.0 B=0.0
+  lume_chain_output_after_use      paired B/A 0.999 [IQR 0.981-1.027] below1=5/10 p=1
+                                   normalized 1.025 [IQR 0.973-1.101] below1=3/10 p=0.34  faults/call A=0.0 B=0.0
+  final-only paired saving A-B: median 599.1 us [IQR 473.4-719.0]
+  final-only A (M6): median 3032.7 us; / native fused 1.222; / native two-pass 0.825
+  final-only B (M7): median 2517.3 us; / native fused 0.992; / native two-pass 0.656
+

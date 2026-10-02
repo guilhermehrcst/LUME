@@ -1,0 +1,11 @@
+NaN-payload audit: bit-level comparison of executor outputs, N = 65,536 per shape,
+inputs: random finite values with ~1/8 NaNs (random sign/payload, quiet and signaling) and ~1/32 infinities.
+A = canonical main (M6 runtime), B = M7.
+A_gcc    vs B_gcc    left  E = D + C: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=980
+A_gcc    vs B_gcc    right E = C + D: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=2764
+A_clang  vs B_clang  left  E = D + C: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=0
+A_clang  vs B_clang  right E = C + D: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=1911
+A_gcc    vs A_clang  left  E = D + C: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=1911
+A_gcc    vs A_clang  right E = C + D: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=1911
+B_gcc    vs B_clang  left  E = D + C: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=2764
+B_gcc    vs B_clang  right E = C + D: non-NaN bit differences=0, NaN-vs-non-NaN=0, both NaN=21683, NaN payload differences=2764

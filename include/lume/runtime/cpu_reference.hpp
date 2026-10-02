@@ -33,8 +33,7 @@ struct ExecutionResult {
     [[nodiscard]] bool ok() const noexcept { return !error.has_value(); }
 };
 
-// Scalar CPU reference executor. Interprets the verified IR operation by
-// operation; correctness is the only goal.
+// Scalar CPU reference executor. Interprets the verified IR in order.
 //
 // `inputs[k]` is bound to the k-th input operation. All inputs are validated
 // against the IR types before any computation. Inputs are borrowed: they are
@@ -42,9 +41,13 @@ struct ExecutionResult {
 // fresh OwnedArray (written exactly once), unless an operand is an
 // executor-owned value whose last use is that add: then the result is computed
 // in that operand's storage and ownership passes to the result value (lhs is
-// preferred over rhs). An output transfers an executor-owned buffer without
-// copying it when that output is the value's last use; otherwise (an output of
-// an input, or of a value read again later) it copies the value.
+// preferred over rhs). Two adjacent adds T = A + B; R = T + C (or C + T) run
+// as one loop, with no buffer for T, when T has no other use and no output
+// and none of A, B and C could be reused as above; T is still computed first,
+// as A + B, and nothing is reassociated. An output transfers an
+// executor-owned buffer without copying it when that output is the value's
+// last use; otherwise (an output of an input, or of a value read again later)
+// it copies the value.
 //
 // Semantics: f32 add is IEEE-754 binary32 addition in the current rounding
 // mode; i32 add wraps modulo 2^32.

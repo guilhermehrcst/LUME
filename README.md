@@ -155,6 +155,18 @@ Measured on one machine, GCC, N = 1,048,576, `D = A + B; E = D + C`:
 
 Details, evidence and the merge conditions are in [`docs/m6-last-use-inplace-reuse.md`](docs/m6-last-use-inplace-reuse.md).
 
+## M7: single-use intermediate fusion
+
+M7 fuses a strictly eligible adjacent `add` → `add` pair whose intermediate has no observable use, eliminating its materialized buffer while keeping one result allocation. For `T = A + B; R = T + C` (or `C + T`) the executor computes `t = a[i] + b[i]` and then `r[i] = t + c[i]` in one loop; `T` stays in the IR but never gets a buffer. The grouping is kept as written (no reassociation). A pair is not fused when `T` is output or read again, when the two adds are not adjacent, when `T` is used twice in the second add, or when M6 could already compute either add in an operand's storage, so the allocation count stays exactly M6's. No IR, verifier or public API change.
+
+Measured on one machine (shared VM), `D = A + B; E = D + C`, paired A/B against M6:
+- N = 1,048,576: 0.82 ms to 0.67 ms under default glibc (0.81x), 0.81 ms to 0.65 ms with trim/mmap disabled (0.82x); about 1.00x the native fused loop, where M6 was about 1.24x. Clang agrees.
+- Allocations, page faults (default, trim disabled, forced mmap) and allocator syscalls are identical to M6, so the saving is not an allocator effect.
+- The naive payload ratio 16/24 = 0.67 was not reached; M6's in-place second pass already cost less than its model.
+- Programs that are not fused are unchanged; no small-N overhead was detected. Chains of 3 or 4 adds fuse only the first pair and remain 1.24 to 1.39x a native single loop.
+
+Details, evidence and the merge conditions are in [`docs/m7-single-use-intermediate-fusion.md`](docs/m7-single-use-intermediate-fusion.md).
+
 ## Experiment 002: columnar encodings for an event-log workload
 
 Experiment 002 is the first test of H1 and H2 on a workload that is not a vector add: an append-only event log held in memory as a plain typed columnar layout (B1), a dictionary-encoded one (B2) and a dictionary + bit-packing + delta one (E1). The hypothesis and thresholds were pre-registered before any measurement, and the layouts are lossless (checked by a round-trip test that was itself mutation-tested).
@@ -206,6 +218,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m4-vectorizable-owned-storage.md`](docs/m4-vectorizable-owned-storage.md): M4 single-write owned storage that keeps auto-vectorization.
 - [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md): M5 intermediate-materialization baseline (observational).
 - [`docs/m6-last-use-inplace-reuse.md`](docs/m6-last-use-inplace-reuse.md): M6 last-use in-place result reuse.
+- [`docs/m7-single-use-intermediate-fusion.md`](docs/m7-single-use-intermediate-fusion.md): M7 single-use intermediate fusion.
 - [`experiments/002-columnar-encodings/README.md`](experiments/002-columnar-encodings/README.md): experiment 002, pre-registered columnar-encoding test (T1 passed, T2 failed).
 
 ## License

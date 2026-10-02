@@ -1,5 +1,6 @@
 #include "lume/runtime/cpu_reference.hpp"
 
+#include <cfloat>
 #include <cstddef>
 #include <optional>
 #include <span>
@@ -8,6 +9,7 @@
 #include <utility>
 #include <variant>
 
+#include "fusion_observer.hpp"
 #include "input_validation.hpp"
 
 namespace lume {
@@ -142,6 +144,58 @@ bool add_buffers_in_place(Buffer& destination, const Buffer& lhs, const Buffer& 
     return false;
 }
 
+// M7 fused kernel for an add pair whose intermediate t is used only by the
+// second add: r[i] = t + c[i], or r[i] = c[i] + t when t is the right operand,
+// with t = a[i] + b[i] a loop-local value. The grouping is (A + B) then the
+// second add, exactly as in the IR; nothing is reassociated. As in
+// add_in_place, the compiler may still commute an individual addition, which
+// can change only the payload of a NaN result.
+template <class T, class Add>
+OwnedArray<T> add_add(std::span<const T> a, std::span<const T> b, std::span<const T> c, bool t_is_rhs, Add add) {
+    auto r = OwnedArray<T>::for_overwrite(a.size());
+    if (t_is_rhs) {
+        for (std::size_t i = 0; i < a.size(); ++i) {
+            const T t = add(a[i], b[i]);
+            r[i] = add(c[i], t);
+        }
+    } else {
+        for (std::size_t i = 0; i < a.size(); ++i) {
+            const T t = add(a[i], b[i]);
+            r[i] = add(t, c[i]);
+        }
+    }
+    return r;
+}
+
+// Fused counterpart of add_buffers: one result buffer, every element written
+// exactly once, no buffer for the intermediate. nullopt (before allocating)
+// when scalar types or lengths disagree.
+std::optional<Buffer> add_add_buffers(const Buffer& a, const Buffer& b, const Buffer& c, bool t_is_rhs) {
+    if (const auto x = a.f32_view()) {
+        const auto y = b.f32_view();
+        const auto z = c.f32_view();
+        if (!y || !z || x->size() != y->size() || x->size() != z->size()) return std::nullopt;
+        return Buffer(add_add<float>(*x, *y, *z, t_is_rhs, [](float u, float v) noexcept { return u + v; }));
+    }
+    if (const auto x = a.i32_view()) {
+        const auto y = b.i32_view();
+        const auto z = c.i32_view();
+        if (!y || !z || x->size() != y->size() || x->size() != z->size()) return std::nullopt;
+        return Buffer(add_add<std::int32_t>(*x, *y, *z, t_is_rhs, wrapping_add));
+    }
+    return std::nullopt;
+}
+
+// A loop-local float intermediate equals the rounded binary32 sum that M6
+// stores in memory only when float expressions carry no excess precision.
+// Where they might (e.g. x87), or where the toolchain does not say, f32 pairs
+// are not fused.
+#if defined(FLT_EVAL_METHOD) && FLT_EVAL_METHOD == 0
+constexpr bool f32_intermediate_is_exact = true;
+#else
+constexpr bool f32_intermediate_is_exact = false;
+#endif
+
 }  // namespace
 
 namespace detail {
@@ -180,6 +234,11 @@ std::optional<ExecutionError> validate_inputs(const ProgramStorage& s, std::span
 }  // namespace detail
 
 ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span<const Buffer> inputs) {
+    return detail::execute_cpu_reference_observed(verified, inputs, nullptr);
+}
+
+ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& verified, std::span<const Buffer> inputs,
+                                                       std::vector<std::uint32_t>* fused) {
     const ProgramStorage& s = verified.program().storage();
 
     // Phase 1: validate every caller buffer against the IR before computing anything.
@@ -205,6 +264,43 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
     }
     const auto lookup = [&](ValueId v) -> const Buffer* { return v.index() < bound.size() ? bound[v.index()] : nullptr; };
 
+    // M6 reuse rule: v can be the destination of the add at `at` iff the
+    // executor owns it and that add is its last use (outputs count as uses,
+    // so a later output blocks reuse). Caller inputs are never owned.
+    const auto reusable = [&](ValueId v, std::size_t at) {
+        return owned[v.index()].has_value() && last_use[v.index()] == OperationId{static_cast<std::uint32_t>(at)};
+    };
+
+    // M7: the add at k (T = A + B) and the add at k + 1 (R = T + C or
+    // R = C + T) run as one loop, and T is never materialized, iff
+    //   1. operation k + 1 exists and is an add (adjacent; no search),
+    //   2. T is exactly one of its operands,
+    //   3. last_use[T] == k + 1 (T is read by nothing else and not output),
+    //   4. neither A nor B is M6-reusable at k,
+    //   5. C is not M6-reusable at k + 1,
+    //   6. T is i32, or f32 without excess precision.
+    // 4 and 5 keep the pair's allocation count equal to M6's, which allocates
+    // T at k and reuses it as R at k + 1; fused, R is allocated instead. C's
+    // ownership can be judged at k: by 4, M6's op k reuses neither A nor B, so
+    // it changes no owned slot other than T's, and by 2, C is not T.
+    // Returns the operand slot (0 or 1) of T in operation k + 1.
+    const auto fusible = [&](std::size_t k) -> std::optional<std::size_t> {
+        if (k + 1 >= s.operations.size()) return std::nullopt;
+        const Operation& first = s.operations[k];
+        const Operation& second = s.operations[k + 1];
+        if (second.opcode != Opcode::add) return std::nullopt;
+        const ValueId t = first.result;
+        if ((second.operands[0] == t) == (second.operands[1] == t)) return std::nullopt;
+        const std::size_t slot = second.operands[0] == t ? 0 : 1;
+        if (last_use[t.index()] != OperationId{static_cast<std::uint32_t>(k + 1)}) return std::nullopt;
+        if (reusable(first.operands[0], k) || reusable(first.operands[1], k)) return std::nullopt;
+        if (reusable(second.operands[1 - slot], k + 1)) return std::nullopt;
+        if constexpr (!f32_intermediate_is_exact) {
+            if (s.types[s.values[t.index()].type.index()].scalar == ScalarType::f32) return std::nullopt;
+        }
+        return slot;
+    };
+
     ExecutionResult result;
     std::size_t next_input = 0;
     for (std::size_t i = 0; i < s.operations.size(); ++i) {
@@ -217,15 +313,28 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
                 const Buffer* lhs = lookup(op.operands[0]);
                 const Buffer* rhs = lookup(op.operands[1]);
                 if (lhs == nullptr || rhs == nullptr) return internal_error("op " + std::to_string(i) + " operand unbound");
-                // An operand is reusable as the destination iff the executor owns
-                // it and this add is its last use (outputs count as uses, so a
-                // later output blocks reuse). Caller inputs are never owned.
-                // Preference: lhs, then rhs.
-                const OperationId here{static_cast<std::uint32_t>(i)};
-                const auto reusable = [&](ValueId v) { return owned[v.index()].has_value() && last_use[v.index()] == here; };
-                const ValueId reuse = reusable(op.operands[0]) ? op.operands[0]
-                                      : reusable(op.operands[1]) ? op.operands[1]
-                                                                 : ValueId{};
+                if (const std::optional<std::size_t> slot = fusible(i)) {
+                    // M7: execute ops i and i + 1 as one loop. Nothing is
+                    // allocated or bound before every operand is checked; T
+                    // stays unbound and unowned, as after M6's reuse of T.
+                    const Operation& second = s.operations[i + 1];
+                    const Buffer* other = lookup(second.operands[1 - *slot]);
+                    if (other == nullptr) return internal_error("op " + std::to_string(i + 1) + " operand unbound");
+                    std::optional<Buffer> sum = add_add_buffers(*lhs, *rhs, *other, *slot == 1);
+                    if (!sum) {
+                        return internal_error("ops " + std::to_string(i) + "-" + std::to_string(i + 1) +
+                                              " operand buffers disagree");
+                    }
+                    owned[second.result.index()] = std::move(sum);
+                    bound[second.result.index()] = &*owned[second.result.index()];
+                    if (fused != nullptr) fused->push_back(static_cast<std::uint32_t>(i));
+                    ++i;  // operation i + 1 has been executed
+                    break;
+                }
+                // M6: reuse an operand's storage when allowed. Preference: lhs, then rhs.
+                const ValueId reuse = reusable(op.operands[0], i) ? op.operands[0]
+                                      : reusable(op.operands[1], i) ? op.operands[1]
+                                                                    : ValueId{};
                 if (reuse.is_valid()) {
                     // Compute inside the operand's storage first; only then
                     // move ownership to the result and unbind the old value.

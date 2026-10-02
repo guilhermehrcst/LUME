@@ -1,0 +1,204 @@
+00000000000000c0 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]>:
+      c0:	movabs $0x1ffffffffffffffe,%rax
+      ca:	push   %r15
+      cc:	push   %r14
+      ce:	push   %r13
+      d0:	push   %r12
+      d2:	push   %rbp
+      d3:	push   %rbx
+      d4:	sub    $0x8,%rsp
+      d8:	cmp    %rdx,%rax
+      db:	jb     e1 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x21>
+      e1:	mov    %rdi,%r13
+      e4:	mov    %rdx,%rbx
+      e7:	mov    %rsi,%r12
+      ea:	mov    %rcx,%r14
+      ed:	lea    0x0(,%rdx,4),%rdi
+      f5:	mov    %r8,%rbp
+      f8:	mov    %r9d,%r15d
+      fb:	call   100 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x40>
+     100:	mov    %rbx,0x8(%r13)
+     104:	mov    %rax,0x0(%r13)
+     108:	mov    %rax,%rdx
+     10b:	test   %r15b,%r15b
+     10e:	jne    1d0 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x110>
+     114:	test   %rbx,%rbx
+     117:	je     1b6 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xf6>
+     11d:	lea    -0x1(%rbx),%rax
+     121:	cmp    $0x2,%rax
+     125:	jbe    220 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x160>
+     12b:	mov    %rbx,%rcx
+     12e:	xor    %eax,%eax
+     130:	shr    $0x2,%rcx
+     134:	shl    $0x4,%rcx
+     138:	nopl   0x0(%rax,%rax,1)
+     140:	movdqu (%r12,%rax,1),%xmm0
+     146:	movdqu (%r14,%rax,1),%xmm4
+     14c:	movdqu 0x0(%rbp,%rax,1),%xmm5
+     152:	paddd  %xmm4,%xmm0
+     156:	paddd  %xmm5,%xmm0
+     15a:	movups %xmm0,(%rdx,%rax,1)
+     15e:	add    $0x10,%rax
+     162:	cmp    %rax,%rcx
+     165:	jne    140 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x80>
+     167:	test   $0x3,%bl
+     16a:	je     1b6 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xf6>
+     16c:	mov    %rbx,%rcx
+     16f:	and    $0xfffffffffffffffc,%rcx
+     173:	sub    %rcx,%rbx
+     176:	cmp    $0x1,%rbx
+     17a:	je     1a7 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xe7>
+     17c:	movq   (%r14,%rcx,4),%xmm1
+     182:	movq   (%r12,%rcx,4),%xmm0
+     188:	paddd  %xmm1,%xmm0
+     18c:	movq   0x0(%rbp,%rcx,4),%xmm1
+     192:	paddd  %xmm1,%xmm0
+     196:	movq   %xmm0,(%rdx,%rcx,4)
+     19b:	test   $0x1,%bl
+     19e:	je     1b6 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xf6>
+     1a0:	and    $0xfffffffffffffffe,%rbx
+     1a4:	add    %rbx,%rcx
+     1a7:	mov    (%r14,%rcx,4),%eax
+     1ab:	add    (%r12,%rcx,4),%eax
+     1af:	add    0x0(%rbp,%rcx,4),%eax
+     1b3:	mov    %eax,(%rdx,%rcx,4)
+     1b6:	add    $0x8,%rsp
+     1ba:	mov    %r13,%rax
+     1bd:	pop    %rbx
+     1be:	pop    %rbp
+     1bf:	pop    %r12
+     1c1:	pop    %r13
+     1c3:	pop    %r14
+     1c5:	pop    %r15
+     1c7:	ret
+     1c8:	nopl   0x0(%rax,%rax,1)
+     1d0:	test   %rbx,%rbx
+     1d3:	je     1b6 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xf6>
+     1d5:	lea    -0x1(%rbx),%rax
+     1d9:	cmp    $0x2,%rax
+     1dd:	jbe    220 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x160>
+     1df:	mov    %rbx,%rcx
+     1e2:	xor    %eax,%eax
+     1e4:	shr    $0x2,%rcx
+     1e8:	shl    $0x4,%rcx
+     1ec:	nopl   0x0(%rax)
+     1f0:	movdqu (%r12,%rax,1),%xmm0
+     1f6:	movdqu (%r14,%rax,1),%xmm2
+     1fc:	movdqu 0x0(%rbp,%rax,1),%xmm3
+     202:	paddd  %xmm2,%xmm0
+     206:	paddd  %xmm3,%xmm0
+     20a:	movups %xmm0,(%rdx,%rax,1)
+     20e:	add    $0x10,%rax
+     212:	cmp    %rcx,%rax
+     215:	jne    1f0 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0x130>
+     217:	jmp    167 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xa7>
+     21c:	nopl   0x0(%rax)
+     220:	xor    %ecx,%ecx
+     222:	jmp    173 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0]+0xb3>
+     227:	nopw   0x0(%rax,%rax,1)
+
+0000000000000230 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]>:
+     230:	movabs $0x1ffffffffffffffe,%rax
+     23a:	push   %r15
+     23c:	push   %r14
+     23e:	push   %r13
+     240:	push   %r12
+     242:	push   %rbp
+     243:	push   %rbx
+     244:	sub    $0x8,%rsp
+     248:	cmp    %rdx,%rax
+     24b:	jb     251 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0x21>
+     251:	mov    %rdi,%r13
+     254:	mov    %rdx,%rbx
+     257:	mov    %rsi,%r12
+     25a:	mov    %rcx,%r14
+     25d:	lea    0x0(,%rdx,4),%rdi
+     265:	mov    %r8,%rbp
+     268:	mov    %r9d,%r15d
+     26b:	call   270 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0x40>
+     270:	mov    %rbx,0x8(%r13)
+     274:	mov    %rax,0x0(%r13)
+     278:	mov    %rax,%rdx
+     27b:	test   %r15b,%r15b
+     27e:	jne    340 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0x110>
+     284:	test   %rbx,%rbx
+     287:	je     326 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0xf6>
+     28d:	lea    -0x1(%rbx),%rax
+     291:	cmp    $0x2,%rax
+     295:	jbe    390 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0x160>
+     29b:	mov    %rbx,%rcx
+     29e:	xor    %eax,%eax
+     2a0:	shr    $0x2,%rcx
+     2a4:	shl    $0x4,%rcx
+     2a8:	nopl   0x0(%rax,%rax,1)
+     2b0:	movups (%r14,%rax,1),%xmm0
+     2b5:	movups (%r12,%rax,1),%xmm4
+     2ba:	movups 0x0(%rbp,%rax,1),%xmm5
+     2bf:	addps  %xmm4,%xmm0
+     2c2:	addps  %xmm5,%xmm0
+     2c5:	movups %xmm0,(%rdx,%rax,1)
+     2c9:	add    $0x10,%rax
+     2cd:	cmp    %rax,%rcx
+     2d0:	jne    2b0 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0x80>
+     2d2:	test   $0x3,%bl
+     2d5:	je     326 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0xf6>
+     2d7:	mov    %rbx,%rax
+     2da:	and    $0xfffffffffffffffc,%rax
+     2de:	sub    %rax,%rbx
+     2e1:	cmp    $0x1,%rbx
+     2e5:	je     30f <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0xdf>
+     2e7:	movq   (%r12,%rax,4),%xmm1
+     2ed:	movq   (%r14,%rax,4),%xmm0
+     2f3:	addps  %xmm1,%xmm0
+     2f6:	movq   0x0(%rbp,%rax,4),%xmm1
+     2fc:	addps  %xmm1,%xmm0
+     2ff:	movlps %xmm0,(%rdx,%rax,4)
+     303:	test   $0x1,%bl
+     306:	je     326 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0xf6>
+     308:	and    $0xfffffffffffffffe,%rbx
+     30c:	add    %rbx,%rax
+     30f:	movss  (%r14,%rax,4),%xmm0
+     315:	addss  (%r12,%rax,4),%xmm0
+     31b:	addss  0x0(%rbp,%rax,4),%xmm0
+     321:	movss  %xmm0,(%rdx,%rax,4)
+     326:	add    $0x8,%rsp
+     32a:	mov    %r13,%rax
+     32d:	pop    %rbx
+     32e:	pop    %rbp
+     32f:	pop    %r12
+     331:	pop    %r13
+     333:	pop    %r14
+     335:	pop    %r15
+     337:	ret
+     338:	nopl   0x0(%rax,%rax,1)
+     340:	test   %rbx,%rbx
+     343:	je     326 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0xf6>
+     345:	lea    -0x1(%rbx),%rax
+     349:	cmp    $0x2,%rax
+     34d:	jbe    390 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0x160>
+     34f:	mov    %rbx,%rcx
+     352:	xor    %eax,%eax
+     354:	shr    $0x2,%rcx
+     358:	shl    $0x4,%rcx
+     35c:	nopl   0x0(%rax)
+     360:	movups (%r14,%rax,1),%xmm0
+     365:	movups (%r12,%rax,1),%xmm2
+     36a:	movups 0x0(%rbp,%rax,1),%xmm3
+     36f:	addps  %xmm2,%xmm0
+     372:	addps  %xmm3,%xmm0
+     375:	movups %xmm0,(%rdx,%rax,1)
+     379:	add    $0x10,%rax
+     37d:	cmp    %rcx,%rax
+     380:	jne    360 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0x130>
+     382:	jmp    2d2 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0xa2>
+     387:	nopw   0x0(%rax,%rax,1)
+     390:	xor    %eax,%eax
+     392:	jmp    2de <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0]+0xae>
+     397:	nopw   0x0(%rax,%rax,1)
+
+0000000000000000 <lume::OwnedArray<int> lume::(anonymous namespace)::add_add<int, int (*)(int, int) noexcept>(std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, std::span<int const, 18446744073709551615ul>, bool, int (*)(int, int) noexcept) [clone .constprop.0] [clone .isra.0] [clone .cold]>:
+   0:	call   5 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0] [clone .cold]>
+
+0000000000000005 <lume::OwnedArray<float> lume::(anonymous namespace)::add_add<float, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}>(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>, bool, lume::(anonymous namespace)::add_add_buffers(lume::Buffer const&, lume::Buffer const&, lume::Buffer const&, bool)::{lambda(float, float)#1}) [clone .isra.0] [clone .cold]>:
+   5:	call   a <lume::(anonymous namespace)::internal_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) [clone .cold]>
+

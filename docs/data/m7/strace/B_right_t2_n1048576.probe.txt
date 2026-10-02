@@ -1,0 +1,3 @@
+--- begin loop
+--- end loop
+mode=right n=1048576 iters=10 minor_faults_in_loop=10253 per_call=1025.3 median_ns=2048026 native_single_loop_ns=0

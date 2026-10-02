@@ -1,0 +1,27 @@
+== GCC 13.3, src/runtime/cpu_reference.cpp as shipped, -O3 -DNDEBUG (fused loops at lines 157 and 162)
+src/runtime/cpu_reference.cpp:157:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:157:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:157:35: optimized: loop vectorized using 8 byte vectors
+src/runtime/cpu_reference.cpp:162:35: optimized:  loop versioned for vectorization because of possible aliasing
+src/runtime/cpu_reference.cpp:162:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:162:35: optimized: loop vectorized using 8 byte vectors
+
+== Clang 18.1, same file, -O3 -DNDEBUG
+src/runtime/cpu_reference.cpp:157:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:162:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+
+== all loop-vectorization remarks for the file (GCC optimized / Clang vectorized)
+src/runtime/cpu_reference.cpp:110:39: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:113:39: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:116:39: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:157:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:162:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:78:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:87:35: optimized: loop vectorized using 16 byte vectors
+src/runtime/cpu_reference.cpp:110:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:113:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:116:13: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:157:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:162:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:78:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+src/runtime/cpu_reference.cpp:87:9: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
