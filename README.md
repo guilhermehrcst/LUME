@@ -1,18 +1,18 @@
 # Lume
 
-**Experimental intermediate representation research for memory-efficient software and AI systems.**
+**Experimental systems research for efficient representation, memory, data movement and adaptive computation.**
 
 > Status: early research. Lume currently makes no production or universal performance claims.
 
 > Formerly named PXIR. The code, namespaces, CMake targets and options were renamed to Lume; commit `b2354749f8331557300e746ae6edc5a01284dc4f` is the last one under the old name. See [docs/data/README.md](docs/data/README.md) for what was deliberately left unchanged.
 
-Lume is a public systems-research project exploring whether software, structured data, and computational intent can be represented with less memory, less redundant data movement, and lower processing overhead while preserving correctness.
+Lume is a public systems-research project exploring whether software, structured data, and computational workloads can be represented and executed with less memory, less redundant data movement, and lower processing overhead while preserving correctness.
 
-The project starts from measurable fundamentals rather than from a finished compiler design.
+The project starts from measurable fundamentals rather than from a finished compiler, runtime, or hardware design. Lume is deliberately built from falsifiable experiments upward: representation first, then memory behavior, data movement, execution planning, heterogeneous backends, and only much later any case for custom hardware.
 
 ## Research question
 
-Can we represent software, data, and computation more efficiently in memory, storage, movement, and processing without losing the semantics required by the workload?
+Can we represent and execute software, data, and computation more efficiently in memory, storage, movement, and processing without losing the semantics required by the workload?
 
 ## Method
 
@@ -29,32 +29,104 @@ Core rules:
 5. Publish negative results and trade-offs too.
 6. Treat CI as a correctness gate, not as a trustworthy performance laboratory.
 
-## Current scope
+## Current state
 
-The first phase studies memory representation directly:
+Lume has already moved beyond its initial memory-only phase. The repository currently contains:
 
-- primitive type width;
-- allocation overhead;
-- alignment and padding;
-- cache locality;
-- Array of Structures vs Structure of Arrays;
-- bit packing;
-- dictionary encoding;
+- a compact typed IR with deterministic contiguous storage;
+- a mandatory verifier that produces immutable `VerifiedProgram` instances before execution;
+- a CPU execution path that has evolved through ownership transfer, single-write storage, last-use reuse and single-use intermediate fusion;
+- independent correctness oracles and negative tests;
+- reproducible benchmarks with raw measurement evidence;
+- representation experiments, including fixed-width data types and lossless columnar encodings;
+- cross-platform CI on Linux, macOS and Windows, plus ASan + UBSan on Ubuntu.
+
+The implementation is still intentionally narrow. Today Lume is CPU-first and supports only a small IR centered on `input`, `add` and `output`. It does **not** yet provide a production compiler, GPU backend, CUDA runtime, Lume Intent implementation, Lume Pixel pipeline, adaptive hardware fabric or custom silicon.
+
+## Research architecture
+
+Lume is evolving as one research platform with a shared core and several research lines. These names describe the direction of the program; they do not imply that every component is implemented today.
+
+### Lume Core
+
+The common foundation:
+
+- typed IR and explicit semantics;
+- verification before execution;
+- cost, lifetime and dependency information;
+- memory and execution planning;
+- reproducible benchmark infrastructure;
+- CPU and future heterogeneous backends.
+
+### Lume Memory
+
+Research into representation and data movement:
+
+- layout and locality;
+- allocation and buffer lifetime;
+- zero-copy and buffer reuse;
+- bit packing and dictionary encoding;
 - serialization;
-- zero-copy and data movement.
+- quantization where semantics allow it;
+- recomputation versus materialization;
+- CPU/GPU transfer and memory locality.
 
-Only after those experiments will Lume move toward compact IR design, SIMD, GPU execution, CUDA backends, and AI-oriented representations.
+### Lume Compute
+
+Research into how verified computation should be scheduled and executed:
+
+- CPU execution;
+- fusion and dataflow;
+- explicit lifetime/use analysis;
+- execution planning;
+- future GPU backends;
+- future SIMD and CUDA experiments;
+- longer-term simulation of adaptive compute fabrics.
+
+The goal is not to copy a CPU or GPU. It is to investigate whether execution can be organized around the location, representation and lifetime of data instead of forcing every workload through a fixed sequence of materializations and transfers.
+
+### Lume Intent
+
+A future research line for translating human intent into a formal, constrained and verifiable plan before execution. Ambiguity and unsafe or contradictory plans should fail explicitly instead of being guessed through.
+
+### Lume Pixel
+
+A future domain-specific research line for efficient image and eventually video representation and processing, including tiles, partial processing, fused pipelines, layout-aware execution and reduced CPU/GPU data movement.
+
+## North-star metric
+
+A central Lume question is:
+
+> **How many bytes must move to produce one useful unit of correct computation?**
+
+A useful conceptual metric is therefore:
+
+**Bytes Moved / Useful Operation**
+
+It is not the only metric. Latency, throughput, peak memory, allocations, passes, cache behavior, transfer cost and energy still matter. Correctness remains the hard gate before any performance claim.
+
+## Current direction
+
+The current implementation naturally forms a sequence:
+
+`copy -> allocation -> materialization -> reuse -> fusion -> dataflow -> placement`
+
+M2 removed an unnecessary output copy. M4 removed unnecessary result initialization while keeping vectorization. M5 isolated intermediate materialization cost. M6 reused storage on last use. M7 eliminated a strictly single-use intermediate through fusion.
+
+The next candidate is **M8: maximal single-use Add-chain fusion**, extending M7 from one adjacent pair to a whole eligible chain while keeping the same conservative correctness and allocation/fault invariants.
+
+In parallel, Lume should make use/lifetime analysis and logical data movement increasingly explicit so later execution planning can be measured instead of inferred. GPU work comes after a CPU-side hypothesis and baseline exist; CUDA is a future backend, not the definition of Lume.
 
 ## Languages
 
 | Role | Language |
 | --- | --- |
 | Low-level learning experiments | C |
-| Lume core and future runtime | C++20 |
+| Lume core and runtime | C++20 |
 | Benchmarks, datasets, analysis and tooling | Python 3 |
 | NVIDIA GPU backend | CUDA C++ |
 
-C exposes the machine. C++ builds the system. Python measures the system. CUDA C++ eventually takes selected workloads to NVIDIA GPUs.
+C exposes the machine. C++ builds the system. Python measures and orchestrates experiments. CUDA C++ is reserved for future NVIDIA GPU work after CPU-side hypotheses and baselines are established.
 
 ## Experiment 001
 
