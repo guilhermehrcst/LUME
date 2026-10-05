@@ -146,4 +146,30 @@ One shared KVM VM (drift of ±10 % for identical code was observed in M7); no PM
 
 ## Part II — Results
 
-*(to be filled in after the data are collected; see `docs/experiments/e1-report.md` and `docs/experiments/e1-results/`)*
+*Written after the data were collected. Part I above is unchanged since the preregistration commit `ded583b`. Full analysis: [`e1-report.md`](e1-report.md); data and code: [`e1-results/`](e1-results/), `experiments/e1-is-planning-necessary/`.*
+
+### Outcome against the preregistered gates (GCC 13.3, 3 replicates, pooled)
+
+| Statistic | Value |
+| --- | ---: |
+| Decision cells | 325 (415 cells in total) |
+| Fixed policy is the lowest-median plan | 324 of 325 |
+| Cells with fixed regret > 1.05 (raw) | 0 |
+| Noise-corroborated opportunity cells (gate A) | 0 (0 %) |
+| Median / p95 / maximum fixed regret (gate B uses p95) | 1.000 / 1.000 / 1.038 |
+| Stable meaningful regime flips (gate C) | 0 (and 0 cell pairs with differing decisive winners) |
+| Twin noise floor (median / p95 / max "regret" of an identical plan) | 1.003 / 1.026 / 1.117 |
+
+Gates A, B and C are all false; the kill condition is strictly met. Clang (separate 3 replicates): max regret 1.009, no flips. Post-hoc fresh-process default allocator regime (supplementary): 65 decision cells, max regret 1.022, no flips.
+
+**Verdict: PLANNER HYPOTHESIS FAILS FOR THIS TESTED SPACE.** The plan space is totally ordered by construction (P7 dominates P6 dominates P5 in passes and allocations); the result is about this space only.
+
+### Deviations from Part I (all disclosed in the report)
+
+1. The arena and its tests were committed together (`8a2e86a`), not as two commits.
+2. A first full run was **superseded** after an instrument defect was found (the allocation hook's cost grew with the number of held results, inflating small-N glibc timings by ~1 µs per call). The hook was fixed (`84706f9`) and the whole matrix rerun with identical rules and thresholds. The first run is kept unedited in `e1-results/superseded_v1_hook_scan/`; its gate outcome was the same.
+3. A **post-hoc supplementary regime** `glibc_default_fresh` (one process per cell) was added after a diagnostic showed the in-matrix `glibc_default` regime is allocator-history dependent. It is reported separately and does not enter the preregistered gates.
+4. The Clang replicate set permitted by §7 was run (3 replicates), reported separately.
+5. Implementation choices that Part I left open: p95 by nearest rank (the linear definition gives the same outcome); bootstrap = 1000 resamples with a fixed seed, lower end = 2.5th percentile; `FIXED_TWIN` regret defined as median(fixed) / min(median(fixed), median(twin)).
+6. Commit messages cite "64,584 samples"; the exact count is 64,575 samples per set (plus one header line per file).
+7. Per-replicate regret, alternative-policy regret and the `ns per fault` / bandwidth tables are post-hoc descriptive additions and are labelled as such.

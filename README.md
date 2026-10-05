@@ -291,6 +291,7 @@ cmake --build build-san && ctest --test-dir build-san --output-on-failure
 - [`docs/m5-intermediate-materialization.md`](docs/m5-intermediate-materialization.md): M5 intermediate-materialization baseline (observational).
 - [`docs/m6-last-use-inplace-reuse.md`](docs/m6-last-use-inplace-reuse.md): M6 last-use in-place result reuse.
 - [`docs/m7-single-use-intermediate-fusion.md`](docs/m7-single-use-intermediate-fusion.md): M7 single-use intermediate fusion.
+- [`docs/experiments/e1-report.md`](docs/experiments/e1-report.md): E1, is execution planning necessary in the current plan space? (preregistration: [`e1-is-planning-necessary.md`](docs/experiments/e1-is-planning-necessary.md))
 - [`experiments/002-columnar-encodings/README.md`](experiments/002-columnar-encodings/README.md): experiment 002, pre-registered columnar-encoding test (T1 passed, T2 failed).
 
 ## License
