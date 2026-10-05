@@ -18,22 +18,23 @@ bool aligned(const void* p) { return reinterpret_cast<std::uintptr_t>(p) % Works
 void routing_and_counting() {
     Workspace ws(1 << 20);
     reset_counters();
-    arm(&ws, 1024);
+    arm(&ws, 4000);
     {
         auto big = std::make_unique<float[]>(1000);      // 4000 B: result-sized
+        auto other = std::make_unique<float[]>(1001);    // 4004 B: a different size is ignored
+        std::vector<float> v(1000);                      // 4000 B through std::allocator: result-sized
         auto small = std::make_unique<float[]>(8);       // 32 B: ignored
-        std::vector<float> v(2000);                      // 8000 B through std::allocator
         LUME_CHECK(ws.owns(big.get()) && aligned(big.get()));
-        LUME_CHECK(!ws.owns(small.get()));
+        LUME_CHECK(!ws.owns(other.get()) && !ws.owns(small.get()));
         LUME_CHECK(ws.owns(v.data()));
         LUME_CHECK(counters().result_allocs == 2);
         LUME_CHECK(counters().arena_allocs == 2);
-        LUME_CHECK(counters().result_alloc_bytes == 4000 + 8000);
-        LUME_CHECK(counters().live_bytes == 12000 && counters().peak_live_bytes == 12000);
+        LUME_CHECK(counters().result_alloc_bytes == 8000);
+        LUME_CHECK(counters().live_bytes == 8000 && counters().peak_live_bytes == 8000);
         LUME_CHECK(ws.live_blocks() == 2);
     }
     LUME_CHECK(ws.live_blocks() == 0);
-    LUME_CHECK(counters().live_bytes == 0 && counters().peak_live_bytes == 12000);
+    LUME_CHECK(counters().live_bytes == 0 && counters().peak_live_bytes == 8000);
     LUME_CHECK(counters().result_frees == 2);
     disarm();
     forget(&ws);
@@ -48,25 +49,25 @@ void disarmed_and_no_workspace() {
         LUME_CHECK(!ws.owns(p.get()));
         LUME_CHECK(counters().result_allocs == 0);
     }
-    arm(nullptr, 1024);  // counting only, malloc serves
+    arm(nullptr, 20000);  // counting only, malloc serves
     {
         auto p = std::make_unique<float[]>(5000);
         LUME_CHECK(!ws.owns(p.get()));
         LUME_CHECK(counters().result_allocs == 1 && counters().arena_allocs == 0);
-        LUME_CHECK(counters().live_bytes >= 20000);
+        LUME_CHECK(counters().live_bytes == 20000 && counters().table_overflows == 0);
     }
-    LUME_CHECK(counters().live_bytes == 0);
+    LUME_CHECK(counters().live_bytes == 0 && counters().result_frees == 1);
     disarm();
 }
 
 void block_survives_disarm_and_is_released_to_owner() {
     Workspace ws(1 << 20);
     reset_counters();
-    arm(&ws, 1024);
+    arm(&ws, 20000);
     auto p = std::make_unique<float[]>(5000);
     LUME_CHECK(ws.owns(p.get()));
     disarm();      // routing off; the block must still go back to the workspace
-    arm(nullptr, 1024);
+    arm(nullptr, 20000);
     p.reset();     // would be free() on an arena pointer if ownership were forgotten
     LUME_CHECK(ws.live_blocks() == 0);
     disarm();
@@ -76,7 +77,7 @@ void block_survives_disarm_and_is_released_to_owner() {
 void exhaustion_falls_back_and_is_counted() {
     Workspace ws(64 * 1024);
     reset_counters();
-    arm(&ws, 1024);
+    arm(&ws, 16 * 1024);
     std::vector<std::unique_ptr<char[]>> blocks;
     for (int i = 0; i < 6; ++i) blocks.push_back(std::make_unique<char[]>(16 * 1024));
     const AllocCounters c = counters();
