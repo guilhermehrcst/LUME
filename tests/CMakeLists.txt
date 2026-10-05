@@ -20,3 +20,6 @@ lume_add_test(lume_fusion_test execution/fusion_test.cpp)
 # M7 tests observe which add pairs were fused through the library's internal
 # fusion_observer.hpp (not public API).
 target_include_directories(lume_fusion_test PRIVATE ${PROJECT_SOURCE_DIR}/src/runtime)
+# E1 execution-policy seam (internal header, like the M7 fusion observer).
+lume_add_test(lume_policy_test execution/policy_test.cpp)
+target_include_directories(lume_policy_test PRIVATE ${PROJECT_SOURCE_DIR}/src/runtime)
