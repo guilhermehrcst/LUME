@@ -1,0 +1,4 @@
+supplementary, post hoc: regime glibc_default_fresh (one process per program x N cell, default tunables)
+script=experiments/e1-is-planning-necessary/run_e1_fresh.sh
+started_after_commit=c8354f3bc7a7be16da2427d393a655c1b3825641
+binary_compiler=GNU 13.3.0 (Release -O3 -DNDEBUG)
