@@ -3,7 +3,11 @@
 docs/experiments/e1-is-planning-necessary.md (Part I, sections 9 and 10) and
 nothing else; it contains no tunable that was chosen after seeing data.
 
-usage: analyze.py <results-dir> [--out <derived-dir>]
+usage: analyze.py <results-dir> [--out <derived-dir>] [--with-supplementary]
+  By default only the preregistered regimes are analysed (the gates of the
+  preregistration). --with-supplementary also includes post-hoc regimes
+  (glibc_default_fresh); that run is reported separately and never replaces
+  the preregistered one.
   <results-dir>/raw_*.csv    one row per timed sample (written by lume_e1_bench)
   <results-dir>/plans_*.csv  one row per distinct plan per program x n x replicate
 Writes cells.csv, gates.json, summary.md and flips.csv into the derived dir.
@@ -18,7 +22,8 @@ import random
 import statistics as st
 import sys
 
-REGIMES = ["glibc_default", "glibc_t1", "glibc_t2", "arena_cold", "arena_warm"]
+REGIMES = ["glibc_default", "glibc_t1", "glibc_t2", "arena_cold", "arena_warm"]   # preregistered
+SUPPLEMENTARY_REGIMES = ["glibc_default_fresh"]                                      # post hoc, labelled
 BOOT = 1000
 BOOT_SEED = 20260505
 OPP_REGRET = 1.05          # preregistered: regret above 5 %
@@ -71,6 +76,10 @@ def main():
         out_dir = sys.argv[sys.argv.index("--out") + 1]
     os.makedirs(out_dir, exist_ok=True)
     raw, plans = load(results_dir)
+    allowed = REGIMES + (SUPPLEMENTARY_REGIMES if "--with-supplementary" in sys.argv else [])
+    raw = [r for r in raw if r["regime"] in allowed]
+    if not raw:
+        raise SystemExit("no samples in the selected regimes")
 
     # ------------------------------------------------------------ validity
     invalid = [r for r in raw if r["correct"] != "1" or int(r["arena_fallbacks"]) != 0 or int(r["table_overflows"]) != 0]
@@ -100,7 +109,7 @@ def main():
     rng = random.Random(BOOT_SEED)
     cell_rows = []
     decision = []
-    for cell in sorted(samples, key=lambda c: (c[0], c[1], REGIMES.index(c[2]))):
+    for cell in sorted(samples, key=lambda c: (c[0], c[1], (REGIMES + SUPPLEMENTARY_REGIMES).index(c[2]))):
         program, n, regime = cell
         strat = strategies(program, n)
         by = samples[cell]
@@ -340,7 +349,7 @@ def write_summary(out_dir, gates, cell_rows, flips, samples, plan_info, faults, 
         L.append(head)
         L.append("| ---: | --- | " + " | ".join("---:" for _ in labels) + " | ---: |")
         for n in sizes:
-            for regime in REGIMES:
+            for regime in REGIMES + SUPPLEMENTARY_REGIMES:
                 c = (program, n, regime)
                 if c not in samples:
                     continue

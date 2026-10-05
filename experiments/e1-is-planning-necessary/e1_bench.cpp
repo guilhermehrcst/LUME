@@ -205,7 +205,12 @@ bool regime_environment_ok(const std::string& regime) {
         return tun == "glibc.malloc.trim_threshold=1073741824:glibc.malloc.mmap_threshold=33554432";
     }
     if (regime == "glibc_t2") return tun == "glibc.malloc.mmap_threshold=131072";
-    if (regime == "glibc_default" || regime == "arena_cold" || regime == "arena_warm") return tun.empty();
+    // glibc_default_fresh is a post-hoc supplementary regime: the same default
+    // allocator, but the run script launches one process per cell so that the
+    // allocator's dynamic thresholds have not been adapted by earlier cells.
+    if (regime == "glibc_default" || regime == "glibc_default_fresh" || regime == "arena_cold" || regime == "arena_warm") {
+        return tun.empty();
+    }
     return false;
 }
 
