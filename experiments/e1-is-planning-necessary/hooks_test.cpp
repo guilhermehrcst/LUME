@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "alloc_hooks.hpp"
@@ -91,9 +92,53 @@ void exhaustion_falls_back_and_is_counted() {
     forget(&ws);
 }
 
+// Many counted malloc blocks live at once (an interval holds K = 1000 results),
+// freed in allocation order, in reverse and in a scrambled order, with small
+// uncounted allocations interleaved: accounting must stay exact.
+void many_live_blocks_exact_accounting() {
+    for (const int order : {0, 1, 2}) {
+        reset_counters();
+        arm(nullptr, 4000);
+        std::vector<std::unique_ptr<float[]>> blocks;
+        std::vector<std::unique_ptr<char[]>> small;
+        for (int i = 0; i < 3000; ++i) {
+            blocks.push_back(std::make_unique<float[]>(1000));  // 4000 B counted
+            small.push_back(std::make_unique<char[]>(24));      // uncounted
+        }
+        LUME_CHECK(counters().result_allocs == 3000 && counters().table_overflows == 0);
+        LUME_CHECK(counters().live_bytes == 3000 * 4000 && counters().peak_live_bytes == 3000 * 4000);
+        std::vector<std::size_t> idx(blocks.size());
+        for (std::size_t i = 0; i < idx.size(); ++i) idx[i] = order == 1 ? idx.size() - 1 - i : i;
+        if (order == 2) {
+            std::uint64_t x = 88172645463325252ull;  // xorshift: deterministic scramble
+            for (std::size_t i = idx.size() - 1; i > 0; --i) {
+                x ^= x << 13; x ^= x >> 7; x ^= x << 17;
+                std::swap(idx[i], idx[static_cast<std::size_t>(x % (i + 1))]);
+            }
+        }
+        for (const std::size_t i : idx) {
+            blocks[i].reset();
+            if (i % 3 == 0) small[i].reset();
+        }
+        LUME_CHECK(counters().live_bytes == 0 && counters().result_frees == 3000);
+        small.clear();
+        disarm();
+    }
+    // More live counted blocks than the table holds are reported, never mis-counted silently.
+    reset_counters();
+    arm(nullptr, 4000);
+    {
+        std::vector<std::unique_ptr<float[]>> blocks;
+        for (int i = 0; i < 5000; ++i) blocks.push_back(std::make_unique<float[]>(1000));
+        LUME_CHECK(counters().table_overflows > 0);
+    }
+    disarm();
+}
+
 }  // namespace
 
 int main() {
+    many_live_blocks_exact_accounting();
     routing_and_counting();
     disarmed_and_no_workspace();
     block_survives_disarm_and_is_released_to_owner();
