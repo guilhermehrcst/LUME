@@ -1,0 +1,360 @@
+/home/user/PXIR/src/runtime/cpu_reference.cpp:268:9: remark: completely unrolled loop with 2 iterations [-Rpass=loop-unroll]
+  268 |         for (const ValueId operand : s.operations[i].operands) {
+      |         ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:340:17: remark: completely unrolled loop with 2 iterations [-Rpass=loop-unroll]
+  340 |                 for (const ValueId operand : use.operands) {
+      |                 ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:206:5: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+  206 |     for (const Operation& op : s.operations) {
+      |     ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:206:5: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:6:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string:54:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:4110:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:65:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:642:8: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+  642 |               for (; __n > 0; --__n, (void) ++__cur)
+      |               ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:642:8: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:66:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:1129:34: remark: loop not vectorized: cannot identify array bounds [-Rpass-analysis=loop-vectorize]
+ 1129 |         return *(this->_M_impl._M_start + __n);
+      |                                         ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:267:5: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  267 |     for (std::size_t i = 0; i < s.operations.size(); ++i) {
+      |     ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:66:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:1129:34: remark: loop not vectorized: cannot identify array bounds [-Rpass-analysis=loop-vectorize]
+ 1129 |         return *(this->_M_impl._M_start + __n);
+      |                                         ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:326:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  326 |         for (std::size_t i = 0; i < s.operations.size(); ++i) {
+      |         ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:343:50: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+  343 |                 if (use.opcode == Opcode::output && use.operands[0] == d) ok = false;
+      |                                                  ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:339:13: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+  339 |             for (const Operation& use : s.operations) {
+      |             ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:339:13: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/home/user/PXIR/src/runtime/cpu_reference.cpp:352:13: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+  352 |             for (const Operation& use : s.operations) {
+      |             ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:352:13: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:6:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string:54:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:4110:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   65 |       for (;;)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:65:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+   94 |       while (__val >= 100)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/charconv.h:94:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:65:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:642:8: remark: unrolled loop by a factor of 8 with run-time trip count [-Rpass=loop-unroll]
+  642 |               for (; __n > 0; --__n, (void) ++__cur)
+      |               ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:114:13: remark: unrolled loop by a factor of 4 with run-time trip count [-Rpass=loop-unroll]
+  114 |             for (std::size_t i = 0; i < n; ++i) d[i] = add(o[i], d[i]);
+      |             ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:111:13: remark: unrolled loop by a factor of 4 with run-time trip count [-Rpass=loop-unroll]
+  111 |             for (std::size_t i = 0; i < n; ++i) d[i] = add(d[i], o[i]);
+      |             ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:114:13: remark: unrolled loop by a factor of 4 with run-time trip count [-Rpass=loop-unroll]
+  114 |             for (std::size_t i = 0; i < n; ++i) d[i] = add(o[i], d[i]);
+      |             ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:111:13: remark: unrolled loop by a factor of 4 with run-time trip count [-Rpass=loop-unroll]
+  111 |             for (std::size_t i = 0; i < n; ++i) d[i] = add(d[i], o[i]);
+      |             ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:88:9: remark: unrolled loop by a factor of 4 with run-time trip count [-Rpass=loop-unroll]
+   88 |         for (std::size_t i = 0; i < x.size(); ++i) c[i] = wrapping_add(x[i], y[i]);
+      |         ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:79:9: remark: unrolled loop by a factor of 4 with run-time trip count [-Rpass=loop-unroll]
+   79 |         for (std::size_t i = 0; i < x.size(); ++i) c[i] = x[i] + y[i];
+      |         ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:163:9: remark: unrolled loop by a factor of 2 with run-time trip count [-Rpass=loop-unroll]
+  163 |         for (std::size_t i = 0; i < a.size(); ++i) {
+      |         ^
+/home/user/PXIR/src/runtime/cpu_reference.cpp:158:9: remark: unrolled loop by a factor of 2 with run-time trip count [-Rpass=loop-unroll]
+  158 |         for (std::size_t i = 0; i < a.size(); ++i) {
+      |         ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:9:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1813:8: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+ 1813 |               switch (__v0.index())
+      |               ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:13:
+In file included from /home/user/PXIR/include/lume/runtime/owned_array.hpp:6:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/memory:78:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/unique_ptr.h:140:4: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+  140 |           delete [] __ptr;
+      |           ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:4:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/optional:44:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_construct.h:162:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+  162 |           for (; __first != __last; ++__first)
+      |           ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_construct.h:162:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:9:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1813:8: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+ 1813 |               switch (__v0.index())
+      |               ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:66:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:108:33: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+  108 |         { __x._M_start = __x._M_finish = __x._M_end_of_storage = pointer(); }
+      |                                        ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:65:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+ 1104 |       for (; __first != __last; ++__first, (void)++__cur)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:9:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1813:8: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+ 1813 |               switch (__v0.index())
+      |               ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:66:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:108:33: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+  108 |         { __x._M_start = __x._M_finish = __x._M_end_of_storage = pointer(); }
+      |                                        ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:65:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+ 1104 |       for (; __first != __last; ++__first, (void)++__cur)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:9:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1813:8: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+ 1813 |               switch (__v0.index())
+      |               ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:66:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:108:33: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+  108 |         { __x._M_start = __x._M_finish = __x._M_end_of_storage = pointer(); }
+      |                                        ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:65:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+ 1104 |       for (; __first != __last; ++__first, (void)++__cur)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:9:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1813:8: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+ 1813 |               switch (__v0.index())
+      |               ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:66:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:108:33: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+  108 |         { __x._M_start = __x._M_finish = __x._M_end_of_storage = pointer(); }
+      |                                        ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:8:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/vector:65:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+ 1104 |       for (; __first != __last; ++__first, (void)++__cur)
+      |       ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_uninitialized.h:1104:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:9:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1813:8: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+ 1813 |               switch (__v0.index())
+      |               ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:10:
+In file included from /home/user/PXIR/include/lume/runtime/buffer.hpp:13:
+In file included from /home/user/PXIR/include/lume/runtime/owned_array.hpp:6:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/memory:78:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/unique_ptr.h:140:4: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+  140 |           delete [] __ptr;
+      |           ^
+In file included from /home/user/PXIR/src/runtime/cpu_reference.cpp:1:
+In file included from /home/user/PXIR/include/lume/runtime/cpu_reference.hpp:4:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/optional:44:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_construct.h:162:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+  162 |           for (; __first != __last; ++__first)
+      |           ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_construct.h:162:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]

@@ -129,7 +129,7 @@ void many_live_blocks_exact_accounting() {
     arm(nullptr, 4000);
     {
         std::vector<std::unique_ptr<float[]>> blocks;
-        for (int i = 0; i < 5000; ++i) blocks.push_back(std::make_unique<float[]>(1000));
+        for (int i = 0; i < 20000; ++i) blocks.push_back(std::make_unique<float[]>(1000));
         LUME_CHECK(counters().table_overflows > 0);
     }
     disarm();

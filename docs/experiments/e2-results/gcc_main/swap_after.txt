@@ -1,0 +1,2 @@
+SwapTotal:             0 kB
+SwapFree:              0 kB

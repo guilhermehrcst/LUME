@@ -19,6 +19,12 @@ namespace lume::detail {
 struct ExecutionPolicy {
     bool reuse = true;  // M6: compute an add inside an owned operand at its last use
     bool fuse = true;   // M7: run a strictly eligible adjacent add pair as one loop
+    // Experiment E2 only (default off, so default behaviour is unchanged):
+    // never store a shared intermediate D = A + B whose operands are caller
+    // inputs and whose every use is as exactly one operand of an add; each
+    // consumer instead computes (A + B) + C in one loop into its own fresh
+    // buffer. Deletable together with the experiment.
+    bool recompute = false;
 };
 
 // What one execution did, counted by the executor itself.
@@ -28,6 +34,8 @@ struct ExecutionStats {
     std::uint32_t fused_pairs = 0;       // add pairs executed as one loop (their first result is never stored)
     std::uint32_t output_moves = 0;      // outputs transferred without copying
     std::uint32_t output_copies = 0;     // outputs deep-copied
+    std::uint32_t recomputed_consumers = 0;  // E2: consumer adds that recomputed their elided producer
+    std::uint32_t elided_producers = 0;      // E2: producer adds never executed on their own
 
     friend bool operator==(const ExecutionStats&, const ExecutionStats&) = default;
 };

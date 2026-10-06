@@ -23,3 +23,5 @@ target_include_directories(lume_fusion_test PRIVATE ${PROJECT_SOURCE_DIR}/src/ru
 # E1 execution-policy seam (internal header, like the M7 fusion observer).
 lume_add_test(lume_policy_test execution/policy_test.cpp)
 target_include_directories(lume_policy_test PRIVATE ${PROJECT_SOURCE_DIR}/src/runtime)
+lume_add_test(lume_recompute_test execution/recompute_test.cpp)
+target_include_directories(lume_recompute_test PRIVATE ${PROJECT_SOURCE_DIR}/src/runtime)
