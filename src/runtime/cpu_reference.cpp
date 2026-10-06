@@ -309,6 +309,55 @@ ExecutionResult detail::execute_cpu_reference_with_policy(const VerifiedProgram&
         return slot;
     };
 
+    // E2 recompute (policy.recompute): producer add D = A + B is elided iff
+    //   1. A and B are caller inputs (so they stay bound and unmodified),
+    //   2. D has at least one use and every use is an add that reads D in
+    //      exactly one operand slot (D is not an output, never used twice by
+    //      one add),
+    //   3. no consumer's other operand is itself such a candidate (so it is
+    //      bound when the consumer runs),
+    //   4. D is i32, or f32 without excess precision (same reason as M7).
+    // Each consumer then runs the fused loop (A + B) + C into a fresh buffer.
+    std::vector<std::size_t> producer_op(s.values.size(), s.operations.size());
+    std::vector<char> is_input(s.values.size(), 0);
+    std::vector<char> candidate(s.values.size(), 0);
+    std::vector<char> elide(s.values.size(), 0);
+    if (policy.recompute) {
+        for (std::size_t i = 0; i < s.operations.size(); ++i) {
+            const Operation& op = s.operations[i];
+            if (op.opcode == Opcode::input) is_input[op.result.index()] = 1;
+            if (op.opcode == Opcode::add) producer_op[op.result.index()] = i;
+        }
+        for (std::size_t i = 0; i < s.operations.size(); ++i) {
+            const Operation& op = s.operations[i];
+            if (op.opcode != Opcode::add) continue;
+            const ValueId d = op.result;
+            if (!is_input[op.operands[0].index()] || !is_input[op.operands[1].index()]) continue;
+            if (!f32_intermediate_is_exact && s.types[s.values[d.index()].type.index()].scalar == ScalarType::f32) continue;
+            std::size_t uses = 0;
+            bool ok = true;
+            for (const Operation& use : s.operations) {
+                for (const ValueId operand : use.operands) {
+                    if (operand == d) ++uses;
+                }
+                if (use.opcode == Opcode::output && use.operands[0] == d) ok = false;
+                if (use.opcode == Opcode::add && use.operands[0] == d && use.operands[1] == d) ok = false;
+            }
+            if (ok && uses > 0) candidate[d.index()] = 1;
+        }
+        for (std::size_t i = 0; i < s.operations.size(); ++i) {
+            const Operation& op = s.operations[i];
+            if (op.opcode != Opcode::add || !candidate[op.result.index()]) continue;
+            bool ok = true;
+            for (const Operation& use : s.operations) {
+                if (use.opcode != Opcode::add) continue;
+                if (use.operands[0] == op.result && candidate[use.operands[1].index()]) ok = false;
+                if (use.operands[1] == op.result && candidate[use.operands[0].index()]) ok = false;
+            }
+            elide[op.result.index()] = ok ? 1 : 0;
+        }
+    }
+
     ExecutionResult result;
     std::size_t next_input = 0;
     for (std::size_t i = 0; i < s.operations.size(); ++i) {
@@ -320,6 +369,29 @@ ExecutionResult detail::execute_cpu_reference_with_policy(const VerifiedProgram&
             case Opcode::add: {
                 const Buffer* lhs = lookup(op.operands[0]);
                 const Buffer* rhs = lookup(op.operands[1]);
+                if (policy.recompute && elide[op.result.index()]) {
+                    if (stats != nullptr) ++stats->elided_producers;
+                    break;  // never computed on its own; each consumer recomputes it
+                }
+                if (policy.recompute && (elide[op.operands[0].index()] || elide[op.operands[1].index()])) {
+                    const std::size_t slot = elide[op.operands[0].index()] ? 0 : 1;
+                    const Operation& producer = s.operations[producer_op[op.operands[slot].index()]];
+                    const Buffer* a = lookup(producer.operands[0]);
+                    const Buffer* b = lookup(producer.operands[1]);
+                    const Buffer* c = lookup(op.operands[1 - slot]);
+                    if (a == nullptr || b == nullptr || c == nullptr) {
+                        return internal_error("op " + std::to_string(i) + " recompute operand unbound");
+                    }
+                    std::optional<Buffer> sum = add_add_buffers(*a, *b, *c, slot == 1);
+                    if (!sum) return internal_error("op " + std::to_string(i) + " recompute operand buffers disagree");
+                    owned[op.result.index()] = std::move(sum);
+                    bound[op.result.index()] = &*owned[op.result.index()];
+                    if (stats != nullptr) {
+                        ++stats->fresh_results;
+                        ++stats->recomputed_consumers;
+                    }
+                    break;
+                }
                 if (lhs == nullptr || rhs == nullptr) return internal_error("op " + std::to_string(i) + " operand unbound");
                 if (const std::optional<std::size_t> slot = fusible(i)) {
                     // M7: execute ops i and i + 1 as one loop. Nothing is
