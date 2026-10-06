@@ -141,6 +141,29 @@ One KVM guest (no PMU, virtualized cache topology, ±10 % series-level noise see
 
 ---
 
-## Part II - Results
+## Part II - Results and deviations
 
-*(filled in after the data are collected; see `e2-report.md` and `e2-results/`)*
+Written after the data were collected. Part I above is unchanged from commit `187e0df`. Numbers, tables and interpretation: [`e2-report.md`](e2-report.md); raw data and derived tables: [`e2-results/`](e2-results/).
+
+### Outcome against the preregistered gates (primary baseline S3)
+
+| | GCC 13.3 | Clang 18.1 |
+| --- | --- | --- |
+| A: corroborated opportunity cells >= 20 % | 20 / 324 = 6.2 % - **no** | 22 / 324 = 6.8 % - **no** |
+| B: S3 p95 regret >= 1.15 | 1.061 - **no** | 1.077 - **no** |
+| C: stable same-(dtype,k) flip, wrong action >= 5 %, all 3 replicates | 80 flips - **yes** | 127 flips - **yes** |
+| kill condition | not met (C holds) | not met (C holds) |
+
+Verdict: **REGIME-SENSITIVE PLANNING SURVIVES, by gate C alone** (see the report for what that does and does not mean).
+
+### Deviations and facts discovered while implementing
+
+1. **Hook table size (anticipated in section 7).** The E1 allocation hook was enlarged from 8192 to 32768 slots (13 to 15 bits) and its overflow test updated. Data independent.
+2. **Accounting collision (not anticipated).** At N = 64 and k = 5..8 the executor's `outputs` vector grows to 8 x sizeof(Buffer) = 256 B = 4 x 64, which the exact-size hook counts as one result-sized allocation. It is identical for M and R. The harness fails closed unless the measured allocation count equals `fresh + copies + this known collision`; the collision is recorded in the `bookkeeping_collision` column. Found by the harness's own check on the first smoke run, before any E2 data.
+3. **Harness-debug pilot.** After the harness and analysis script ran, one tiny pilot (2 replicates x 5 repetitions x 3 sizes) was run to debug `analyze.py`. Its output was glanced at, was not kept, and nothing in the design, gates or thresholds was changed afterwards.
+4. `glibc_t1_fresh` was not run (section 6 said it is not included).
+5. **Gate C pair rule.** "Running the first cell's winner in the second costs >= 5 %" was implemented for either ordering of the unordered cell pair (the larger of the two costs must be >= 5 %). Decisive-winner and replicate-stability rules are as written.
+6. **k* definition** is the one in section 12 (decisive M at k and every larger tested k).
+7. Exact counts: 324 cells, 3 strategies (M, R, M_TWIN), 15 repetitions, 3 replicates: **43,740 samples per compiler, 87,480 in total**, 0 correctness failures, 0 arena fallbacks, 0 hook-table overflows, swap total 0.
+8. **Mutation test** (recompute `A + A` instead of `A + B`): 1012 failures in `lume_recompute_test`, reverted.
+9. **Post hoc analyses (not preregistered, labelled as such):** S4 = best fixed action per (dtype, k, N) constant across regimes; S5 = per (dtype, k, three N classes) (`posthoc_s4.py`, `derived/posthoc_s4.md`). They were added after seeing that almost all stable flips are driven by N alone, to ask whether the planner thesis needs the *regime* or only static facts.
