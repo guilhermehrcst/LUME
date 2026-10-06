@@ -53,14 +53,14 @@ def main():
         sum(bool(re.match(r"(prefetch|prfm)", s)) for s in allins),
         sum(bool(re.match(r"rep ", s)) for s in allins),
         sum(bool(memcall.search(s)) for s in allins)))
-    print("\n| function | loop body instrs | vector adds | vector loads (incl. memory-operand adds) | vector stores | index step (bytes or elems) |")
+    print("\n| function | loop body instrs | vector adds | vector loads (x86: incl. memory-operand adds; AArch64: ldp counts 2) | vector stores | index step |")
     print("| --- | ---: | ---: | ---: | ---: | --- |")
     seen = set()
     for name, ins in funcs:
         if ".cold" in name:
             continue
         for i, (a, s) in enumerate(ins):
-            m = re.match(r"(j\w+|b\.\w+|b|cbnz|cbz|tbnz|tbz)\s+(?:\w+,\s*)*([0-9a-f]+)\b", s)
+            m = re.match(r"(j\w+|b\.\w+|b|cbnz|cbz|tbnz|tbz)\s+(?:\w+,\s*)*(?:0x)?([0-9a-f]+)\b", s)
             if not m:
                 continue
             try:
@@ -81,8 +81,9 @@ def main():
                 stv = sum(bool(X86_ST.match(x)) for x in txt)
                 step = [re.match(r"add\s+\w+,0x(\w+)$", x).group(1) for x in txt if re.match(r"add\s+r\w+,0x(10|20|8)$", x)]
             else:
-                ld = sum(bool(A64_LD.match(x)) for x in txt)
-                stv = sum(bool(A64_ST.match(x)) for x in txt)
+                # ldp/stp move two vector registers per instruction
+                ld = sum((2 if x.startswith("ldp") else 1) for x in txt if A64_LD.match(x))
+                stv = sum((2 if x.startswith("stp") else 1) for x in txt if A64_ST.match(x))
                 step = [x for x in txt if re.match(r"(add|sub)\s+x\d+,\s*x\d+,\s*#", x)][:1]
             key = (name, tgt)
             if key in seen:
