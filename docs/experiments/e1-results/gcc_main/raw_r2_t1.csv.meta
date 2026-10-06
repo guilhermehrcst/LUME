@@ -1,0 +1,15 @@
+commit_at_configure=fe4c5c4e87a8
+compiler=GNU 13.3.0
+flags= -O3 -DNDEBUG (build type Release)
+glibc=2.39
+kernel=6.18.44-fc-v70
+cpu=Intel(R) Xeon(R) Processor @ 2.10GHz
+thp=always [madvise] never
+GLIBC_TUNABLES=glibc.malloc.trim_threshold=1073741824:glibc.malloc.mmap_threshold=33554432
+meminfo_total=MemTotal:       16480968 kB
+environment=virtual machine (KVM guest); no hardware performance counters
+FLT_EVAL_METHOD=0
+sizeof_optional_buffer=40
+reps=15
+warmup=3
+seed=42

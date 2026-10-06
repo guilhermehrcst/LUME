@@ -1,0 +1,189 @@
+{
+  "A_opportunity_rate_ge_20pct": false,
+  "B_p95_regret_ge_1.15": false,
+  "B_would_change_with_linear_p95": false,
+  "C_stable_flip": false,
+  "by_program": {
+    "chain3": {
+      "cells": 10,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "chain3_i32": {
+      "cells": 9,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "chain4": {
+      "cells": 9,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "final_left": {
+      "cells": 10,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "final_left_i32": {
+      "cells": 9,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "final_right": {
+      "cells": 9,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "inter_out": {
+      "cells": 9,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    }
+  },
+  "by_regime": {
+    "glibc_default_fresh": {
+      "cells": 65,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    }
+  },
+  "by_size": {
+    "1024": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "1048576": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "16384": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "16777216": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "262144": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "4096": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "4194304": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "64": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "65536": {
+      "cells": 7,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    },
+    "67108864": {
+      "cells": 2,
+      "corroborated": 0,
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "raw_gt_1.05": 0
+    }
+  },
+  "cells_where_fixed_is_empirical_best": 65,
+  "corroborated_opportunity_cells": 0,
+  "corroborated_opportunity_rate": 0.0,
+  "decision_cells": 65,
+  "decisive_winner_counts": {
+    "P6": 7,
+    "P7": 50,
+    "none": 8
+  },
+  "empirical_best_counts": {
+    "P6": 9,
+    "P7": 56
+  },
+  "flips_all_decisive_pairs": 0,
+  "kill_condition_strictly_met": true,
+  "max_regret": 1.0,
+  "median_regret": 1.0,
+  "p95_regret_linear": 1.0,
+  "p95_regret_nearest_rank": 1.0,
+  "raw_cells_regret_gt_1.05": 0,
+  "raw_opportunity_rate": 0.0,
+  "replicates": [
+    "1",
+    "2",
+    "3"
+  ],
+  "share_within_5pct": 1.0,
+  "stable_meaningful_flips": 0,
+  "twin_null_max": 1.1452,
+  "twin_null_median": 1.0045,
+  "twin_null_p95_nearest_rank": 1.0469,
+  "twin_null_share_gt_1.05": 0.046153846153846156,
+  "verdict": "PLANNER HYPOTHESIS FAILS FOR THIS TESTED SPACE"
+}

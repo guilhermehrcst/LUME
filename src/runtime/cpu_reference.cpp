@@ -9,6 +9,7 @@
 #include <utility>
 #include <variant>
 
+#include "execution_policy.hpp"
 #include "fusion_observer.hpp"
 #include "input_validation.hpp"
 
@@ -239,6 +240,12 @@ ExecutionResult execute_cpu_reference(const VerifiedProgram& verified, std::span
 
 ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& verified, std::span<const Buffer> inputs,
                                                        std::vector<std::uint32_t>* fused) {
+    return detail::execute_cpu_reference_with_policy(verified, inputs, ExecutionPolicy{}, nullptr, fused);
+}
+
+ExecutionResult detail::execute_cpu_reference_with_policy(const VerifiedProgram& verified,
+                                                          std::span<const Buffer> inputs, const ExecutionPolicy& policy,
+                                                          ExecutionStats* stats, std::vector<std::uint32_t>* fused) {
     const ProgramStorage& s = verified.program().storage();
 
     // Phase 1: validate every caller buffer against the IR before computing anything.
@@ -268,7 +275,8 @@ ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& ve
     // executor owns it and that add is its last use (outputs count as uses,
     // so a later output blocks reuse). Caller inputs are never owned.
     const auto reusable = [&](ValueId v, std::size_t at) {
-        return owned[v.index()].has_value() && last_use[v.index()] == OperationId{static_cast<std::uint32_t>(at)};
+        return policy.reuse && owned[v.index()].has_value() &&
+               last_use[v.index()] == OperationId{static_cast<std::uint32_t>(at)};
     };
 
     // M7: the add at k (T = A + B) and the add at k + 1 (R = T + C or
@@ -285,7 +293,7 @@ ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& ve
     // it changes no owned slot other than T's, and by 2, C is not T.
     // Returns the operand slot (0 or 1) of T in operation k + 1.
     const auto fusible = [&](std::size_t k) -> std::optional<std::size_t> {
-        if (k + 1 >= s.operations.size()) return std::nullopt;
+        if (!policy.fuse || k + 1 >= s.operations.size()) return std::nullopt;
         const Operation& first = s.operations[k];
         const Operation& second = s.operations[k + 1];
         if (second.opcode != Opcode::add) return std::nullopt;
@@ -328,6 +336,10 @@ ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& ve
                     owned[second.result.index()] = std::move(sum);
                     bound[second.result.index()] = &*owned[second.result.index()];
                     if (fused != nullptr) fused->push_back(static_cast<std::uint32_t>(i));
+                    if (stats != nullptr) {
+                        ++stats->fresh_results;
+                        ++stats->fused_pairs;
+                    }
                     ++i;  // operation i + 1 has been executed
                     break;
                 }
@@ -341,6 +353,7 @@ ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& ve
                     if (!add_buffers_in_place(*owned[reuse.index()], *lhs, *rhs)) {
                         return internal_error("op " + std::to_string(i) + " operand buffers disagree");
                     }
+                    if (stats != nullptr) ++stats->in_place_results;
                     owned[op.result.index()] = std::move(owned[reuse.index()]);
                     owned[reuse.index()].reset();
                     bound[reuse.index()] = nullptr;
@@ -349,6 +362,7 @@ ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& ve
                 }
                 std::optional<Buffer> sum = add_buffers(*lhs, *rhs);
                 if (!sum) return internal_error("op " + std::to_string(i) + " operand buffers disagree");
+                if (stats != nullptr) ++stats->fresh_results;
                 owned[op.result.index()] = std::move(sum);
                 bound[op.result.index()] = &*owned[op.result.index()];
                 break;
@@ -365,9 +379,11 @@ ExecutionResult detail::execute_cpu_reference_observed(const VerifiedProgram& ve
                     result.outputs.push_back(std::move(*slot));
                     slot.reset();
                     bound[id.index()] = nullptr;
+                    if (stats != nullptr) ++stats->output_moves;
                 } else {
                     // Caller-owned input, or a value still read later: copy.
                     result.outputs.push_back(*value);
+                    if (stats != nullptr) ++stats->output_copies;
                 }
                 break;
             }
