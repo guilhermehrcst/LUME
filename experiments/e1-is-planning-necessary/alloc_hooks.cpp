@@ -17,7 +17,7 @@ struct Slot {
     void* p;
     std::size_t n;
 };
-constexpr std::size_t kTableBits = 13;                 // 8192 slots
+constexpr std::size_t kTableBits = 15;                 // 32768 slots (E2: k = 8 results x K = 1000 held; E1 used 13)
 constexpr std::size_t kTable = std::size_t{1} << kTableBits;
 constexpr std::size_t kMaxLive = kTable / 2;           // keep the load factor <= 1/2
 
