@@ -51,6 +51,7 @@ add_subdirectory(experiments/001-data-types)
 add_subdirectory(experiments/002-columnar-encodings)
 add_subdirectory(experiments/e1-is-planning-necessary)
 add_subdirectory(experiments/e2-materialize-vs-recompute)
+add_subdirectory(experiments/e2-r1)
 add_subdirectory(src)
 add_subdirectory(oracle)
 

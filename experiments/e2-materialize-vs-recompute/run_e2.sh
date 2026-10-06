@@ -6,9 +6,10 @@
 set -u
 BENCH=$1; OUT=$2; REPS=$3; shift 3
 EXTRA=("$@")
-DTYPES="f32 i32"
-KS="1 2 3 4 6 8"
-SIZES="64 1024 4096 16384 65536 262144 1048576 4194304 16777216"
+# Defaults are the preregistered matrix. The E2_* overrides exist only for smoke tests of the tooling.
+DTYPES="${E2_DTYPES:-f32 i32}"
+KS="${E2_KS:-1 2 3 4 6 8}"
+SIZES="${E2_SIZES:-64 1024 4096 16384 65536 262144 1048576 4194304 16777216}"
 mkdir -p "$OUT"
 {
   echo "date_utc=$(date -u +%FT%TZ)"
@@ -22,7 +23,7 @@ mkdir -p "$OUT"
 for r in $(seq 1 "$REPS"); do
   # in-process arena regimes
   env -u GLIBC_TUNABLES "$BENCH" out="$OUT/raw_r${r}_arena.csv" plans="$OUT/strategies_r${r}_arena.csv" replicate=$r \
-      regimes=arena_warm,arena_cold "${EXTRA[@]}" 2> "$OUT/log_r${r}_arena.txt" || { echo "FAILED r$r arena"; exit 1; }
+      regimes=arena_warm,arena_cold dtypes="${DTYPES// /,}" ks="${KS// /,}" sizes="${SIZES// /,}" "${EXTRA[@]}" 2> "$OUT/log_r${r}_arena.txt" || { echo "FAILED r$r arena"; exit 1; }
   # fresh process per cell for the default allocator
   RAW="$OUT/raw_r${r}_fresh.csv"; PLANS="$OUT/strategies_r${r}_fresh.csv"; : > "$RAW"; : > "$PLANS"; first=1
   for dt in $DTYPES; do for k in $KS; do for n in $SIZES; do

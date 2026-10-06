@@ -231,3 +231,6 @@ compile_commands.json
 *.dll
 *.dylib
 *.exe
+
+# E2-R1: tooling smoke bundles are never data
+docs/experiments/e2-r1-results/SMOKE-*
