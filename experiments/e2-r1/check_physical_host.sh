@@ -8,6 +8,25 @@ REPORT=0; [ "${1:-}" = "--report" ] && REPORT=1
 signals=()
 note() { echo "$1"; }
 
+# Return success only when kernel log text contains an actual hypervisor signal.
+# Linux may emit "Booting paravirtualized kernel on bare hardware" on physical
+# machines; that sentence is explicitly benign and must not classify the host as a VM.
+dmesg_reports_hypervisor() {
+  grep -iE 'hypervisor detected|kvm: (hypervisor|support)|Booting paravirtualized kernel' |
+    grep -viE 'Booting paravirtualized kernel on bare hardware'
+}
+
+# Deterministic test seam for the classifier above. Not used by the replication runner.
+if [ "${1:-}" = "--classify-dmesg-file" ]; then
+  [ "${2:-}" ] || { echo "usage: $0 --classify-dmesg-file <path>" >&2; exit 2; }
+  if dmesg_reports_hypervisor < "$2" >/dev/null; then
+    echo "DMESG_HYPERVISOR=yes"
+    exit 1
+  fi
+  echo "DMESG_HYPERVISOR=no"
+  exit 0
+fi
+
 arch=$(uname -m); note "arch=$arch"
 
 # 1. systemd-detect-virt (covers VMs and containers)
@@ -56,8 +75,10 @@ fi
 for d in /proc/device-tree/hypervisor /sys/firmware/devicetree/base/hypervisor; do
   [ -e "$d" ] && { note "devicetree_hypervisor=$d"; signals+=("device-tree hypervisor node $d"); }
 done
-if dmesg 2>/dev/null | grep -qiE 'hypervisor detected|kvm: (hypervisor|support)|Booting paravirtualized kernel'; then
+if dmesg 2>/dev/null | dmesg_reports_hypervisor >/dev/null; then
   note "dmesg_hypervisor=yes"; signals+=("dmesg reports a hypervisor")
+else
+  note "dmesg_hypervisor=no"
 fi
 
 # 5. containers

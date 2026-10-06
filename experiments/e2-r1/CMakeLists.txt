@@ -29,3 +29,11 @@ if(BUILD_TESTING AND LUME_PYTHON3)
     add_test(NAME lume_e2r1_analysis_selftest COMMAND ${LUME_PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/test_analyze_cross_machine.py)
     set_tests_properties(lume_e2r1_analysis_selftest PROPERTIES LABELS "lume;correctness" TIMEOUT 300)
 endif()
+
+if(BUILD_TESTING)
+    add_test(NAME lume_e2r1_physical_host_detector
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/test_check_physical_host.sh)
+    set_tests_properties(lume_e2r1_physical_host_detector PROPERTIES
+        LABELS "lume;correctness"
+        PASS_REGULAR_EXPRESSION "physical host dmesg classifier regression tests passed")
+endif()
