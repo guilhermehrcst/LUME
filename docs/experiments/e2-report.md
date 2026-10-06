@@ -83,3 +83,7 @@ Wrong:
 ## Recommendation
 
 E2 passes the preregistered survive criterion, but the evidence points to **per-machine calibration keyed on static facts (dtype, fan-out, N), not to a runtime, regime-sensitive planner**. The recommended next action is therefore **physical-machine replication (x86 and ARM64) of this exact matrix, before any architecture work**; `e2-next-architecture.md` records the facts that would feed a planner if replication confirms the effect. Do not build the planner, `CostModel`, or `verify_plan` until then. If replication shows the size-dependent flips disappear or the best choice follows a monotone rule, the planner thesis is dead and the options become A (Experiment 003, encodings) or B (reposition Lume).
+
+## Post hoc audit (appended after the verdict; the verdict above is unchanged)
+
+`e2-audit.md` re-derives everything from the committed raw data: excluding the 12 accounting-collision cells (N = 64, k = 6 and 8) changes no gate; gate C also holds under the stricter C_STRICT and C_ADJACENT variants, but on 7 (GCC) / 10 (Clang) adjacent boundaries in 3 / 5 (dtype,k) groups, not 80 / 127; the size-aware table S4 is within p95 1.006 / 1.005, and S4-CV (regime held out) within p95 1.031 / 1.023 with a 2-3 % corroborated opportunity rate, with a localized 21-30 % tail in `glibc_default_fresh` at N = 64 Ki and 4 Mi. `e2-codegen-audit.md`: both compilers vectorize both kernels with 128-bit SSE2 and there is no size-dependent code path.
