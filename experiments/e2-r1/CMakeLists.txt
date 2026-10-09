@@ -37,3 +37,12 @@ if(BUILD_TESTING)
         LABELS "lume;correctness"
         PASS_REGULAR_EXPRESSION "physical host dmesg classifier regression tests passed")
 endif()
+
+if(BUILD_TESTING)
+    add_test(NAME lume_e2r1_resource_preflight
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/test_check_resources.sh)
+    set_tests_properties(lume_e2r1_resource_preflight PROPERTIES
+        LABELS "lume;correctness"
+        PASS_REGULAR_EXPRESSION "resource preflight regression tests passed"
+        FAIL_REGULAR_EXPRESSION "FAIL ")
+endif()

@@ -4,8 +4,9 @@
 # Smoke test of the tooling only (never scientific data; allowed on virtual hosts):
 #   LUME_R1_ALLOW_VIRTUAL=1 experiments/e2-r1/run_replication.sh SMOKE-<name> --smoke
 #
-# Fail closed: refuses a dirty tree, a non-physical host, an existing result, failing unit tests,
-# non-primary compile flags, any correctness mismatch or invalid cell. Output goes to
+# Fail closed: refuses a dirty tree, less than 8 GiB MemAvailable (check_resources.sh), a non-physical
+# host, an existing result, failing unit tests, non-primary compile flags, any correctness mismatch or
+# invalid cell, and swap activity during the run. Output goes to
 # docs/experiments/e2-r1-results/<machine-id>/ only after everything validated; never overwritten.
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/../.." && pwd)
@@ -34,6 +35,11 @@ DIRTY=$(git -C "$ROOT" status --porcelain | wc -l)
 if [ "$SMOKE" -eq 0 ] && [ "$DIRTY" -ne 0 ]; then die "working tree is dirty ($DIRTY entries); commit or stash first"; fi
 if [ "$SMOKE" -eq 1 ] && ! echo "$ID" | grep -q '^SMOKE-'; then die "--smoke requires a machine-id starting with SMOKE-"; fi
 
+# 1b. resources before any expensive work: preregistered >= 8 GiB MemAvailable (swap does not count).
+#     Always the live /proc/meminfo; a smoke run below the threshold is allowed and labelled non-primary.
+RES_MODE=primary; [ "$SMOKE" -eq 1 ] && RES_MODE=smoke
+RES_OUT=$("$HERE/check_resources.sh" --mode "$RES_MODE") || die "resource preflight failed (see the message above)" 8
+
 # 2. physical host (fail closed)
 STAGE_ROOT="${R1_STAGING:-$ROOT/build/e2-r1-staging}"; mkdir -p "$STAGE_ROOT"
 STAGE=$(mktemp -d "$STAGE_ROOT/$ID.XXXXXX")
@@ -47,8 +53,9 @@ if ! grep -q '^PHYSICAL=yes' "$STAGE/physical.txt"; then
   fi
 fi
 
-# 3. environment, swap baseline
+# 3. environment, resource preflight result, swap baseline
 "$HERE/capture_environment.sh" "$ROOT" > "$STAGE/environment.txt"
+printf '%s\n' "$RES_OUT" > "$STAGE/resources.txt"
 SWAP_TOTAL=$(sed -n 's/^SwapTotal:[[:space:]]*\([0-9]*\).*/\1/p' /proc/meminfo)
 vm() { sed -n "s/^$1 //p" /proc/vmstat; }
 IN0=$(vm pswpin); OUT0=$(vm pswpout)
@@ -80,6 +87,15 @@ done
 # 5. swap activity, manifest, checksums, tarball, atomic move
 IN1=$(vm pswpin); OUT1=$(vm pswpout)
 { echo "swap_total_kb=$SWAP_TOTAL"; echo "pswpin_delta=$((IN1-IN0))"; echo "pswpout_delta=$((OUT1-OUT0))"; } > "$STAGE/swap_activity.txt"
+# Defense in depth (the analysis also marks such a bundle INCONCLUSIVE): a primary run with swap
+# activity is not published. Like every other refusal, the staging directory is kept for diagnosis.
+if [ "$((IN1-IN0))" -ne 0 ] || [ "$((OUT1-OUT0))" -ne 0 ]; then
+  if [ "$SMOKE" -eq 0 ]; then
+    echo "swap activity during the run violates the preregistered 'no active swap'; not published" > "$STAGE/INVALID_SWAP_ACTIVITY.txt"
+    die "swap activity during the run (pswpin_delta=$((IN1-IN0)), pswpout_delta=$((OUT1-OUT0))); the preregistration requires no active swap. Not published; diagnostics kept in $STAGE" 9
+  fi
+  echo "WARNING: swap activity during this smoke run (pswpin_delta=$((IN1-IN0)), pswpout_delta=$((OUT1-OUT0)))." >&2
+fi
 {
   echo "machine_id=$ID"; echo "smoke=$SMOKE"; echo "replicates=$REPLICATES"
   echo "git_sha=$(git -C "$ROOT" rev-parse HEAD)"; echo "git_dirty_entries_at_start=$DIRTY"
