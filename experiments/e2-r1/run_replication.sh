@@ -57,8 +57,12 @@ fi
 "$HERE/capture_environment.sh" "$ROOT" > "$STAGE/environment.txt"
 printf '%s\n' "$RES_OUT" > "$STAGE/resources.txt"
 SWAP_TOTAL=$(sed -n 's/^SwapTotal:[[:space:]]*\([0-9]*\).*/\1/p' /proc/meminfo)
-vm() { sed -n "s/^$1 //p" /proc/vmstat; }
-IN0=$(vm pswpin); OUT0=$(vm pswpout)
+# Swap evidence: the live /proc/vmstat is copied into the staging directory (it stays there as evidence)
+# and checked now, so unreliable counters stop a primary run before any workload (check_swap.sh).
+SWAP_MODE=primary; [ "$SMOKE" -eq 1 ] && SWAP_MODE=smoke
+cat /proc/vmstat > "$STAGE/vmstat_before.txt" || die "cannot read /proc/vmstat; the preregistered 'no active swap' cannot be verified" 10
+"$HERE/check_swap.sh" --mode "$SWAP_MODE" --before "$STAGE/vmstat_before.txt" --after "$STAGE/vmstat_before.txt" > /dev/null \
+  || die "swap counters in /proc/vmstat are missing or unreliable; the preregistered 'no active swap' cannot be verified" 10
 START=$(date -u +%FT%TZ)
 
 # 4. per available compiler: configure, build, unit tests, primary matrix, PMU, codegen
@@ -85,17 +89,21 @@ done
 "$HERE/generate_codegen_report.sh" "$ROOT" "$STAGE/codegen"
 
 # 5. swap activity, manifest, checksums, tarball, atomic move
-IN1=$(vm pswpin); OUT1=$(vm pswpout)
-{ echo "swap_total_kb=$SWAP_TOTAL"; echo "pswpin_delta=$((IN1-IN0))"; echo "pswpout_delta=$((OUT1-OUT0))"; } > "$STAGE/swap_activity.txt"
-# Defense in depth (the analysis also marks such a bundle INCONCLUSIVE): a primary run with swap
-# activity is not published. Like every other refusal, the staging directory is kept for diagnosis.
-if [ "$((IN1-IN0))" -ne 0 ] || [ "$((OUT1-OUT0))" -ne 0 ]; then
-  if [ "$SMOKE" -eq 0 ]; then
-    echo "swap activity during the run violates the preregistered 'no active swap'; not published" > "$STAGE/INVALID_SWAP_ACTIVITY.txt"
-    die "swap activity during the run (pswpin_delta=$((IN1-IN0)), pswpout_delta=$((OUT1-OUT0))); the preregistration requires no active swap. Not published; diagnostics kept in $STAGE" 9
-  fi
-  echo "WARNING: swap activity during this smoke run (pswpin_delta=$((IN1-IN0)), pswpout_delta=$((OUT1-OUT0)))." >&2
-fi
+cat /proc/vmstat > "$STAGE/vmstat_after.txt" || die "cannot read /proc/vmstat after the run; 'no active swap' cannot be verified; not published, diagnostics kept in $STAGE" 10
+# >>> swap publication gate (executed verbatim by test_check_swap.sh)
+# Defense in depth (the analysis also marks swap activity INCONCLUSIVE): a primary run with swap activity
+# or with unreliable swap evidence is not published. As with every refusal, the staging directory is kept.
+SWAP_RC=0
+SWAP_OUT=$("$HERE/check_swap.sh" --mode "$SWAP_MODE" --before "$STAGE/vmstat_before.txt" --after "$STAGE/vmstat_after.txt") || SWAP_RC=$?
+{ echo "swap_total_kb=$SWAP_TOTAL"; printf '%s\n' "$SWAP_OUT"; } > "$STAGE/swap_activity.txt"
+case "$SWAP_RC" in
+  0) ;;
+  1) echo "swap activity during the run violates the preregistered 'no active swap'; not published" > "$STAGE/INVALID_SWAP_ACTIVITY.txt"
+     die "swap activity during the run (see $STAGE/swap_activity.txt); the preregistration requires no active swap. Not published; diagnostics kept in $STAGE" 9 ;;
+  *) echo "swap evidence missing or unreliable; 'no active swap' cannot be verified; not published" > "$STAGE/INVALID_SWAP_EVIDENCE.txt"
+     die "swap counters in /proc/vmstat are missing or unreliable (see $STAGE/swap_activity.txt); 'no active swap' cannot be verified. Not published; diagnostics kept in $STAGE" 10 ;;
+esac
+# <<< swap publication gate
 {
   echo "machine_id=$ID"; echo "smoke=$SMOKE"; echo "replicates=$REPLICATES"
   echo "git_sha=$(git -C "$ROOT" rev-parse HEAD)"; echo "git_dirty_entries_at_start=$DIRTY"

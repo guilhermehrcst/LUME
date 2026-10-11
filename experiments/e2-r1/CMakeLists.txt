@@ -46,3 +46,11 @@ if(BUILD_TESTING)
         PASS_REGULAR_EXPRESSION "resource preflight regression tests passed"
         FAIL_REGULAR_EXPRESSION "FAIL ")
 endif()
+
+if(BUILD_TESTING)
+    # No PASS_REGULAR_EXPRESSION: it would make CTest ignore the exit code. The script exits non-zero
+    # on any failed check, and that exit code alone decides the result.
+    add_test(NAME lume_e2r1_swap_evidence
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/test_check_swap.sh)
+    set_tests_properties(lume_e2r1_swap_evidence PROPERTIES LABELS "lume;correctness")
+endif()

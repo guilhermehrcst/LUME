@@ -34,7 +34,7 @@ experiments/e2-r1/check_physical_host.sh
 experiments/e2-r1/run_replication.sh arm64-<cpu>-<nn>        # e.g. arm64-graviton3-metal-01
 ```
 
-`run_replication.sh` refuses a dirty working tree, less than 8 GiB `MemAvailable` (checked by `check_resources.sh` before any build; a host that cannot meet it, even when idle, cannot produce R1 primary data), a non-physical host, an existing result, non-primary flags (`-march=native`, `-ffast-math`, a non-`-O3 -DNDEBUG` build), failing unit tests, any correctness mismatch, any invalid cell, an incomplete matrix, and swap activity during the run (the staging directory is kept for diagnosis, nothing is published; the analysis independently marks swap activity INCONCLUSIVE). Options: `--no-pmu` (skip the secondary PMU characterization), `--replicates N` (default 3; the preregistered value is 3).
+`run_replication.sh` refuses a dirty working tree, less than 8 GiB `MemAvailable` (checked by `check_resources.sh` before any build; a host that cannot meet it, even when idle, cannot produce R1 primary data), a non-physical host, an existing result, non-primary flags (`-march=native`, `-ffast-math`, a non-`-O3 -DNDEBUG` build), failing unit tests, any correctness mismatch, any invalid cell, an incomplete matrix, and swap activity during the run or missing/unreliable `pswpin`/`pswpout` counters in `/proc/vmstat` (`check_swap.sh`; checked before the workload and after it; an unknown observation is never treated as zero swap; the staging directory is kept for diagnosis, nothing is published; the analysis independently marks swap activity INCONCLUSIVE). Options: `--no-pmu` (skip the secondary PMU characterization), `--replicates N` (default 3; the preregistered value is 3).
 
 ## Output bundle
 
