@@ -193,8 +193,10 @@ def decide(machines, results, transfers, problems, reps_ok):
         if r["twin_p95"] >= NOISE_LIMIT:
             reasons.append(f"{mid}/{comp}: twin-series noise p95 {r['twin_p95']:.3f} >= {NOISE_LIMIT}")
     for mid, m in machines.items():
-        if m["swap"].get("pswpout_delta", "0") not in ("0", "") or m["swap"].get("pswpin_delta", "0") not in ("0", ""):
-            reasons.append(f"{mid}: swap activity during the run ({m['swap']})")
+        # "No active swap" must be shown, not assumed: a missing or empty swap_activity.txt, a missing key or
+        # an "invalid" delta is not evidence of zero swap (both runner versions write "0" for verified zero).
+        if m["swap"].get("pswpin_delta") != "0" or m["swap"].get("pswpout_delta") != "0":
+            reasons.append(f"{mid}: swap activity during the run, or no verified zero-swap evidence ({m['swap'] or 'swap_activity.txt missing or empty'})")
     if reasons:
         return "INCONCLUSIVE", reasons
     # runtime gates: per machine, must hold for every installed compiler
