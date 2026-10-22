@@ -54,3 +54,10 @@ if(BUILD_TESTING)
         COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/test_check_swap.sh)
     set_tests_properties(lume_e2r1_swap_evidence PROPERTIES LABELS "lume;correctness")
 endif()
+
+if(BUILD_TESTING)
+    # Exit code decides (no PASS_REGULAR_EXPRESSION, which would make CTest ignore it).
+    add_test(NAME lume_e2r1_publication
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/test_publication.sh)
+    set_tests_properties(lume_e2r1_publication PROPERTIES LABELS "lume;correctness")
+endif()

@@ -112,10 +112,19 @@ esac
   echo "compilers=$(ls -d "$STAGE"/gcc "$STAGE"/clang 2>/dev/null | xargs -n1 basename | tr '\n' ' ')"
 } > "$STAGE/MANIFEST.txt"
 (cd "$STAGE" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+# >>> publication (executed verbatim by test_publication.sh)
+# The start-up checks ran hours ago: re-check, then publish without ever nesting into or overwriting
+# another run's result (mv -T refuses an existing non-empty directory; noclobber refuses existing files).
 mkdir -p "$RESULTS"
-mv "$STAGE" "$FINAL"
-tar -C "$RESULTS" -czf "$TARBALL" "$ID"
-(cd "$RESULTS" && sha256sum "$ID.tar.gz" > "$ID.tar.gz.sha256")
+[ ! -e "$FINAL" ] || die "$FINAL appeared during the run; not published, diagnostics kept in $STAGE" 11
+[ ! -e "$TARBALL" ] || die "$TARBALL appeared during the run; not published, diagnostics kept in $STAGE" 11
+[ ! -e "$TARBALL.sha256" ] || die "$TARBALL.sha256 appeared during the run; not published, diagnostics kept in $STAGE" 11
+mv -T "$STAGE" "$FINAL" || die "could not publish $STAGE as $FINAL; nothing overwritten" 11
+set -C
+tar -C "$RESULTS" -czf - "$ID" > "$TARBALL" || die "could not create $TARBALL without overwriting" 11
+(cd "$RESULTS" && sha256sum "$ID.tar.gz" > "$ID.tar.gz.sha256") || die "could not create $TARBALL.sha256 without overwriting" 11
+set +C
+# <<< publication
 echo "DONE: $FINAL"; echo "bundle: $TARBALL ($(cut -d' ' -f1 "$TARBALL.sha256"))"
 [ "$SMOKE" -eq 1 ] && echo "SMOKE bundle: tooling test only, delete it; it is excluded from the analysis."
 exit 0
