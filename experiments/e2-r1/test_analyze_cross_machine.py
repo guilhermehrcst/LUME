@@ -145,6 +145,19 @@ def main():
     scenario("smoke bundle excluded", [("X1", "x86_64", both(seed=1), {}), ("SMOKE-A1", "aarch64", both(seed=1), {})], "INCONCLUSIVE")
     scenario("excess twin noise", [("X1", "x86_64", {"gcc": dict(seed=1, twin_slow=1.2), "clang": dict(seed=1)}, {}), ("A1", "aarch64", both(seed=1), {})], "INCONCLUSIVE")
     scenario("swap activity", [("X1", "x86_64", both(seed=1), {"swap_out": 7}), ("A1", "aarch64", both(seed=1), {})], "INCONCLUSIVE")
+    # missing or unreliable swap evidence is never read as zero swap
+    for label, mutate in (("swap_activity.txt missing", lambda md: os.remove(os.path.join(md, "swap_activity.txt"))),
+                          ("swap_activity.txt empty", lambda md: open(os.path.join(md, "swap_activity.txt"), "w").write("")),
+                          ("pswpout_delta missing", lambda md: open(os.path.join(md, "swap_activity.txt"), "w").write("pswpin_delta=0\n")),
+                          ("swap deltas invalid", lambda md: open(os.path.join(md, "swap_activity.txt"), "w").write("pswpin_delta=invalid\npswpout_delta=invalid\n"))):
+        root = tempfile.mkdtemp(prefix="r1test_")
+        try:
+            build(root, [("X1", "x86_64", both(seed=1), {}), ("A1", "aarch64", both(seed=1), {})])
+            mutate(os.path.join(root, "X1"))
+            verdict, reasons, *_ = analyze(root)
+            check(verdict == "INCONCLUSIVE" and any("no verified zero-swap evidence" in x for x in reasons), f"{label}: verdict {verdict!r} == 'INCONCLUSIVE'")
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
     # the validator on the real committed E2 VM data (no analysis claim)
     e2 = os.path.join(HERE, "..", "..", "docs", "experiments", "e2-results")
     for sub in ("gcc_main", "clang_main"):

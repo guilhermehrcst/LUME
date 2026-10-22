@@ -4,8 +4,9 @@
 # Smoke test of the tooling only (never scientific data; allowed on virtual hosts):
 #   LUME_R1_ALLOW_VIRTUAL=1 experiments/e2-r1/run_replication.sh SMOKE-<name> --smoke
 #
-# Fail closed: refuses a dirty tree, a non-physical host, an existing result, failing unit tests,
-# non-primary compile flags, any correctness mismatch or invalid cell. Output goes to
+# Fail closed: refuses a dirty tree, less than 8 GiB MemAvailable (check_resources.sh), a non-physical
+# host, an existing result, failing unit tests, non-primary compile flags, any correctness mismatch or
+# invalid cell, and swap activity during the run. Output goes to
 # docs/experiments/e2-r1-results/<machine-id>/ only after everything validated; never overwritten.
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/../.." && pwd)
@@ -34,6 +35,11 @@ DIRTY=$(git -C "$ROOT" status --porcelain | wc -l)
 if [ "$SMOKE" -eq 0 ] && [ "$DIRTY" -ne 0 ]; then die "working tree is dirty ($DIRTY entries); commit or stash first"; fi
 if [ "$SMOKE" -eq 1 ] && ! echo "$ID" | grep -q '^SMOKE-'; then die "--smoke requires a machine-id starting with SMOKE-"; fi
 
+# 1b. resources before any expensive work: preregistered >= 8 GiB MemAvailable (swap does not count).
+#     Always the live /proc/meminfo; a smoke run below the threshold is allowed and labelled non-primary.
+RES_MODE=primary; [ "$SMOKE" -eq 1 ] && RES_MODE=smoke
+RES_OUT=$("$HERE/check_resources.sh" --mode "$RES_MODE") || die "resource preflight failed (see the message above)" 8
+
 # 2. physical host (fail closed)
 STAGE_ROOT="${R1_STAGING:-$ROOT/build/e2-r1-staging}"; mkdir -p "$STAGE_ROOT"
 STAGE=$(mktemp -d "$STAGE_ROOT/$ID.XXXXXX")
@@ -47,11 +53,16 @@ if ! grep -q '^PHYSICAL=yes' "$STAGE/physical.txt"; then
   fi
 fi
 
-# 3. environment, swap baseline
+# 3. environment, resource preflight result, swap baseline
 "$HERE/capture_environment.sh" "$ROOT" > "$STAGE/environment.txt"
+printf '%s\n' "$RES_OUT" > "$STAGE/resources.txt"
 SWAP_TOTAL=$(sed -n 's/^SwapTotal:[[:space:]]*\([0-9]*\).*/\1/p' /proc/meminfo)
-vm() { sed -n "s/^$1 //p" /proc/vmstat; }
-IN0=$(vm pswpin); OUT0=$(vm pswpout)
+# Swap evidence: the live /proc/vmstat is copied into the staging directory (it stays there as evidence)
+# and checked now, so unreliable counters stop a primary run before any workload (check_swap.sh).
+SWAP_MODE=primary; [ "$SMOKE" -eq 1 ] && SWAP_MODE=smoke
+cat /proc/vmstat > "$STAGE/vmstat_before.txt" || die "cannot read /proc/vmstat; the preregistered 'no active swap' cannot be verified" 10
+"$HERE/check_swap.sh" --mode "$SWAP_MODE" --before "$STAGE/vmstat_before.txt" --after "$STAGE/vmstat_before.txt" > /dev/null \
+  || die "swap counters in /proc/vmstat are missing or unreliable; the preregistered 'no active swap' cannot be verified" 10
 START=$(date -u +%FT%TZ)
 
 # 4. per available compiler: configure, build, unit tests, primary matrix, PMU, codegen
@@ -78,8 +89,21 @@ done
 "$HERE/generate_codegen_report.sh" "$ROOT" "$STAGE/codegen"
 
 # 5. swap activity, manifest, checksums, tarball, atomic move
-IN1=$(vm pswpin); OUT1=$(vm pswpout)
-{ echo "swap_total_kb=$SWAP_TOTAL"; echo "pswpin_delta=$((IN1-IN0))"; echo "pswpout_delta=$((OUT1-OUT0))"; } > "$STAGE/swap_activity.txt"
+cat /proc/vmstat > "$STAGE/vmstat_after.txt" || die "cannot read /proc/vmstat after the run; 'no active swap' cannot be verified; not published, diagnostics kept in $STAGE" 10
+# >>> swap publication gate (executed verbatim by test_check_swap.sh)
+# Defense in depth (the analysis also marks swap activity INCONCLUSIVE): a primary run with swap activity
+# or with unreliable swap evidence is not published. As with every refusal, the staging directory is kept.
+SWAP_RC=0
+SWAP_OUT=$("$HERE/check_swap.sh" --mode "$SWAP_MODE" --before "$STAGE/vmstat_before.txt" --after "$STAGE/vmstat_after.txt") || SWAP_RC=$?
+{ echo "swap_total_kb=$SWAP_TOTAL"; printf '%s\n' "$SWAP_OUT"; } > "$STAGE/swap_activity.txt"
+case "$SWAP_RC" in
+  0) ;;
+  1) echo "swap activity during the run violates the preregistered 'no active swap'; not published" > "$STAGE/INVALID_SWAP_ACTIVITY.txt"
+     die "swap activity during the run (see $STAGE/swap_activity.txt); the preregistration requires no active swap. Not published; diagnostics kept in $STAGE" 9 ;;
+  *) echo "swap evidence missing or unreliable; 'no active swap' cannot be verified; not published" > "$STAGE/INVALID_SWAP_EVIDENCE.txt"
+     die "swap counters in /proc/vmstat are missing or unreliable (see $STAGE/swap_activity.txt); 'no active swap' cannot be verified. Not published; diagnostics kept in $STAGE" 10 ;;
+esac
+# <<< swap publication gate
 {
   echo "machine_id=$ID"; echo "smoke=$SMOKE"; echo "replicates=$REPLICATES"
   echo "git_sha=$(git -C "$ROOT" rev-parse HEAD)"; echo "git_dirty_entries_at_start=$DIRTY"
@@ -88,10 +112,21 @@ IN1=$(vm pswpin); OUT1=$(vm pswpout)
   echo "compilers=$(ls -d "$STAGE"/gcc "$STAGE"/clang 2>/dev/null | xargs -n1 basename | tr '\n' ' ')"
 } > "$STAGE/MANIFEST.txt"
 (cd "$STAGE" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+# >>> publication (executed verbatim by test_publication.sh)
+# The start-up checks ran hours ago. Re-check for a useful early error, but the final directory
+# publication must itself be an atomic no-replace rename: mv -T can overwrite an empty destination.
+# The tarball and checksum use shell noclobber redirections, never tar -f <destination>.
 mkdir -p "$RESULTS"
-mv "$STAGE" "$FINAL"
-tar -C "$RESULTS" -czf "$TARBALL" "$ID"
-(cd "$RESULTS" && sha256sum "$ID.tar.gz" > "$ID.tar.gz.sha256")
+[ ! -e "$FINAL" ] || die "$FINAL appeared during the run; not published, diagnostics kept in $STAGE" 11
+[ ! -e "$TARBALL" ] || die "$TARBALL appeared during the run; not published, diagnostics kept in $STAGE" 11
+[ ! -e "$TARBALL.sha256" ] || die "$TARBALL.sha256 appeared during the run; not published, diagnostics kept in $STAGE" 11
+python3 "$HERE/rename_noreplace.py" "$STAGE" "$FINAL" \
+  || die "could not atomically publish $STAGE as $FINAL without replacement; diagnostics kept in $STAGE" 11
+set -C
+tar -C "$RESULTS" -czf - "$ID" > "$TARBALL" || die "could not create $TARBALL without overwriting" 11
+(cd "$RESULTS" && sha256sum "$ID.tar.gz" > "$ID.tar.gz.sha256") || die "could not create $TARBALL.sha256 without overwriting" 11
+set +C
+# <<< publication
 echo "DONE: $FINAL"; echo "bundle: $TARBALL ($(cut -d' ' -f1 "$TARBALL.sha256"))"
 [ "$SMOKE" -eq 1 ] && echo "SMOKE bundle: tooling test only, delete it; it is excluded from the analysis."
 exit 0
