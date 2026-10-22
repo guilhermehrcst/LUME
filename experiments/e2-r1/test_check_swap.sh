@@ -121,10 +121,10 @@ if grep -nE '\$\(\(.*(IN[01]|OUT[01]|pswp)' "$RUNNER" > /dev/null; then fail "ru
 if [ "$(grep -c 'cat /proc/vmstat > "\$STAGE/vmstat_' "$RUNNER")" -eq 2 ]; then pass "both snapshots are copied from the live /proc/vmstat"; else fail "snapshot sources are not exactly the live /proc/vmstat"; fi
 if grep 'check_swap.sh' "$RUNNER" | grep -v '^#' | grep -vq -- '--before "\$STAGE/vmstat_before.txt"'; then fail "runner calls check_swap.sh with another source"; else pass "check_swap.sh only ever receives the staged snapshots"; fi
 gate_line=$(grep -n '^# <<< swap publication gate' "$RUNNER" | cut -d: -f1)
-mv_line=$(grep -n '^mv \(-T \)\{0,1\}"\$STAGE" "\$FINAL"' "$RUNNER" | cut -d: -f1)
+publish_line=$(grep -nF 'python3 "$HERE/rename_noreplace.py" "$STAGE" "$FINAL"' "$RUNNER" | head -1 | cut -d: -f1)
 pre_line=$(grep -n 'check_swap.sh" --mode "\$SWAP_MODE" --before "\$STAGE/vmstat_before.txt" --after "\$STAGE/vmstat_before.txt"' "$RUNNER" | cut -d: -f1)
 cmake_line=$(grep -n 'cmake -S' "$RUNNER" | head -1 | cut -d: -f1)
-if [ -n "$gate_line" ] && [ -n "$mv_line" ] && [ "$gate_line" -lt "$mv_line" ]; then pass "gate (line $gate_line) precedes publication (line $mv_line)"; else fail "gate does not precede publication"; fi
+if [ -n "$gate_line" ] && [ -n "$publish_line" ] && [ "$gate_line" -lt "$publish_line" ]; then pass "gate (line $gate_line) precedes publication (line $publish_line)"; else fail "gate does not precede publication"; fi
 if [ -n "$pre_line" ] && [ -n "$cmake_line" ] && [ "$pre_line" -lt "$cmake_line" ]; then pass "initial evidence is checked (line $pre_line) before any build (line $cmake_line)"; else fail "initial evidence not checked before the build"; fi
 
 # --- the analysis contract: an invalid record is never read as zero swap by analyze_cross_machine.py
