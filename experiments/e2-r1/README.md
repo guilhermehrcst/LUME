@@ -48,7 +48,9 @@ pmu_gcc/, pmu_clang/   probe_<cc>.csv  pmu_<cc>_{A,B,C}.csv  pmu_log_<cc>.txt   
 codegen/   <cc>-<arch>.{report.md,vec.txt,dis,meta}                                          (secondary)
 ```
 
-The staging directory and the results directory must be on the **same filesystem** for atomic, no-replace directory publication. If the filesystem does not support `RENAME_NOREPLACE`, or if `R1_STAGING` points to a different filesystem, the runner refuses publication and preserves staging. The tarball and checksum use shell `noclobber` redirections; they are separate artifacts, not a single atomic three-file transaction. Confirm all three outputs and their checksums before importing data.\n\n`run_meta.txt` contains `uname -a`, which includes the host name; edit it before publishing if that matters (the checksums will then need regenerating, so record the edit in the commit message).
+The staging directory and the results directory must be on the **same filesystem** for atomic, no-replace directory publication. If the filesystem does not support `RENAME_NOREPLACE`, or if `R1_STAGING` points to a different filesystem, the runner refuses publication and preserves staging. The tarball and checksum use shell `noclobber` redirections; they are separate artifacts, not a single atomic three-file transaction. Confirm all three outputs and their checksums before importing data.
+
+`run_meta.txt` contains `uname -a`, which includes the host name; edit it before publishing if that matters (the checksums will then need regenerating, so record the edit in the commit message).
 
 ## Returning the data
 
