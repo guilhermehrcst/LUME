@@ -113,13 +113,15 @@ esac
 } > "$STAGE/MANIFEST.txt"
 (cd "$STAGE" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
 # >>> publication (executed verbatim by test_publication.sh)
-# The start-up checks ran hours ago: re-check, then publish without ever nesting into or overwriting
-# another run's result (mv -T refuses an existing non-empty directory; noclobber refuses existing files).
+# The start-up checks ran hours ago. Re-check for a useful early error, but the final directory
+# publication must itself be an atomic no-replace rename: mv -T can overwrite an empty destination.
+# The tarball and checksum use shell noclobber redirections, never tar -f <destination>.
 mkdir -p "$RESULTS"
 [ ! -e "$FINAL" ] || die "$FINAL appeared during the run; not published, diagnostics kept in $STAGE" 11
 [ ! -e "$TARBALL" ] || die "$TARBALL appeared during the run; not published, diagnostics kept in $STAGE" 11
 [ ! -e "$TARBALL.sha256" ] || die "$TARBALL.sha256 appeared during the run; not published, diagnostics kept in $STAGE" 11
-mv -T "$STAGE" "$FINAL" || die "could not publish $STAGE as $FINAL; nothing overwritten" 11
+python3 "$HERE/rename_noreplace.py" "$STAGE" "$FINAL" \
+  || die "could not atomically publish $STAGE as $FINAL without replacement; diagnostics kept in $STAGE" 11
 set -C
 tar -C "$RESULTS" -czf - "$ID" > "$TARBALL" || die "could not create $TARBALL without overwriting" 11
 (cd "$RESULTS" && sha256sum "$ID.tar.gz" > "$ID.tar.gz.sha256") || die "could not create $TARBALL.sha256 without overwriting" 11
