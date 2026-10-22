@@ -1,6 +1,6 @@
 # E2-R1 hardening and adversarial audit (October 2026)
 
-Branch `lume/e2-r1-resource-preflight-v01`, base `main` = `b204b351`. Local only, not pushed. This is an audit record, not a preregistration; no preregistered gate, metric, threshold or historical datum was changed. Evidence classes: OBSERVED (read in code or output), MEASURED (executed here), INFERRED (reasoned, not executed), HYPOTHESIS.
+Branch `lume/e2-r1-resource-preflight-v01`, base `main` = `b204b351`. The original audit through `f209229` was performed locally before the branch was pushed; subsequent publication-race hardening is recorded below. This is an audit record, not a preregistration; no preregistered gate, metric, threshold or historical datum was changed. Evidence classes: OBSERVED (read in code or output), MEASURED (executed here), INFERRED (reasoned, not executed), HYPOTHESIS.
 
 ## 1. Commits on the branch
 
@@ -50,3 +50,11 @@ Independent differential check of both preflight helpers against a separate Pyth
 ## 4. What was not verified
 
 Any physical primary run (no eligible host here); the primary branches of the swap and publication gates inside a full physical run (executed verbatim in isolation instead); real ARM64; PMU counters (none exposed); executor behaviour for N > 70 in the fuzzer (sizes 1-70 only); and the facts about the AMD FX-6300 smoke host, which were reported to me, not reproduced.
+
+## 5. Follow-up: empty-directory publication race
+
+A review after the branch was pushed found an additional case not covered by F4's original test: `mv -T "$STAGE" "$FINAL"` can replace an **existing empty** destination directory, even after the runner checked for existence. This is a last-moment TOCTOU race and contradicts the previous claim that the publication step never replaces another result.
+
+The directory publication now invokes a minimal Linux/glibc `renameat2(RENAME_NOREPLACE)` helper, without a check-then-rename fallback. On a conflicting directory, dangling symlink, unsupported filesystem, or cross-device rename, the helper refuses and leaves the staging directory in place. The existing shell `noclobber` redirections for tarball and checksum remain unchanged; they protect those file names independently but **do not make all three outputs one atomic transaction**.
+
+The publication regression test has been expanded to exercise a pre-existing empty directory with re-checks removed (simulating an appearance immediately before the final operation), a dangling destination symlink, and two competing no-replace moves. Independent Linux tests of the helper passed for empty destinations, dangling symlinks and 30 paired publication races. The full repository CTest/CI for these commits remains to be confirmed on the pull request. This follow-up does not alter the E2-R1 preregistration, matrices, gates, runtime, or historical data.
